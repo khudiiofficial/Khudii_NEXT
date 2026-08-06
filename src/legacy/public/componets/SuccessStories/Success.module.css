@@ -1,0 +1,302 @@
+/* .class1{
+    display: flex;
+    align-items:center;
+    justify-content: center; 
+}
+
+.class2{
+color: #022279;
+font-size: 35px;
+font-weight: 700;
+}
+
+.class3{
+    background-color: #F0F0F0;
+}
+.class1>span{
+    font-weight: 700;
+}
+
+
+
+.class4{
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0% 5%;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    gap: 30px;
+}
+
+.img{
+    width: 380px;
+    height: 200px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+
+@media (max-width:430px){
+    .img{
+        height: 200px;
+    }
+}
+
+.class5{
+    background-image: url('https://www.khudii.com/wp-content/uploads/2025/09/8.jpg');
+ 
+    background-attachment: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: 0px -252px;
+    
+ min-height: 500px;   
+}
+
+.sample{
+ 
+    height: 400px;
+}
+
+
+.class6{
+
+z-index: 30;
+
+background-color: rgba(0, 0, 0, 0.5); 
+width: 100%;
+color: white;
+ min-height: 500px;   
+}
+
+.class7{
+   padding: 5% 10%;
+}
+.class7>p{
+    font-size: 25px;
+    font-weight: 300;
+    margin: 19px 0px;
+    word-wrap: break-word;
+  text-align: justify;    
+  overflow-wrap: break-word;
+  hyphens: auto;
+ 
+
+}
+.buttonClass{
+padding: 10px;
+color: white;
+background-color: red;
+border-radius: 20px;
+}
+
+.buttonClass:hover{
+    background-color: rgb(255, 119, 119);
+}
+
+.buttonClass:focus{
+    background-color: red;
+}
+
+
+@media (max-width:550px){
+  .class2{
+    font-size: 30px;
+  }
+
+  
+}
+
+
+@media (max-width:892px){
+  
+.img{
+    width: 300px;
+  }
+  
+}
+
+
+
+@media (max-width:715px){
+  
+.img{
+    width: 315px;
+    height: 150px;
+  }
+  .class7>p{
+    font-size: 15px;
+  }
+  .class6{
+min-height: 400px;
+  }
+
+  .class5{
+min-height: 380px;
+  }
+} */
+
+
+
+
+
+
+
+
+
+.class1{
+    display: flex;
+    align-items:center;
+    justify-content: center; 
+}
+.btn_story{
+  place-content: end;
+}
+.class2{
+color: #022279;
+font-size: 35px;
+font-weight: 700;
+
+}
+.main{
+  padding: 20px 0 0 0;
+  width: 1240px;
+  margin: auto;
+}
+.gw{
+  width: 33.333%;
+}
+.class3{
+    background-color: #F0F0F0;
+
+}
+.class1>span{
+    font-weight: 700;
+}
+
+.class4{
+  width: 1240px;
+  margin: auto;
+    display: flex;
+    flex-wrap: wrap;
+ 
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    gap: 20px;
+}
+
+.img{
+    width: 400px;
+    height: 228.94px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.class5{
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    min-height: 250px;
+    max-height: 500px;
+}
+
+.class6{
+    z-index: 30;
+    background-color: rgba(0, 0, 0, 0.5); 
+    width: 100%;
+    color: white;
+    min-height: 250px;
+    max-height: 500px;   
+    align-items: center;
+}
+
+.newparent {
+    width: 1240px !important;
+    margin: auto;
+}
+
+
+@media (max-width: 1280px) {
+    .newparent {
+        width: 90% !important;
+        margin: auto;
+    }
+}
+
+@media (max-width: 1024px) {
+    .newparent {
+        width: 95% !important;
+    }
+    
+    .class7>p{
+        font-size: 18px;
+        margin: 15px 0px;
+    }
+}
+
+@media (max-width: 768px){
+    .newparent {
+        width: 100% !important;
+    }
+    
+    .desp_flood {
+        font-size: 16px !important;
+        line-height: 1.5;
+    }
+    
+    .title_flood {
+        font-size: 24px !important;
+    }
+    
+    .class7>p{
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 640px){
+    .desp_flood {
+        font-size: 14px !important;
+    }
+    
+    .title_flood {
+        font-size: 22px !important;
+    }
+    
+    .class6{
+        min-height: 300px;
+        padding: 20px 0;
+    }
+}
+
+
+
+
+
+.ssh_center {
+  text-align: center;
+  width: inline-auto;
+  margin: auto;
+}
+
+.ssh_right {
+    display: block;
+    width: inline-auto !important;
+    text-align: right;
+    margin: auto;
+  }
+  
+@media (max-width:768px){
+  .ssh_left {
+    display: none;
+  }
+  .ssh_right {
+    display: none;
+  }
+}

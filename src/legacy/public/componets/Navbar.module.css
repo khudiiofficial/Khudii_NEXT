@@ -1,0 +1,538 @@
+
+/* .color{
+    background-color: #066aab;
+} */
+.bgcolor{
+/* box-shadow: 0px 4px 8px rgba(165, 174, 213, .15); */
+    border: 1px solid #e0e5f8;
+    background: #E6E6E6;
+    color: #02236E;
+    border-radius: 20px 20px 20px 20px;
+    padding-left: 30px;
+    padding-right: 30px;
+    height: 40px;
+}
+
+.bgcolor::placeholder{
+    color: #02236E;
+    opacity: 80%;
+}
+
+.ss{
+    color: #e7001e;
+    position: absolute;
+    top: 13px;
+    left:7px
+}
+
+.pos{
+    position: relative;
+}
+
+.query{
+    display: flex;
+    align-items: center;
+    /* gap: 40px; */
+    color: #02236E;
+    font-weight: 500;
+    
+}
+
+
+
+@media (min-width:1336px){
+
+    .query{
+        /* width: 600px; */
+        display: flex;
+        align-items: center;
+        gap: 25px;
+    }
+    .searchIconOnly {
+    display: none !important;
+}
+}
+
+/* 767px */
+/* 1016px */
+@media (max-width:1144px){
+
+
+    .query{
+        display: none;
+    }
+}
+
+.fw{
+    opacity: .7;
+    font-size: 12px;
+}
+
+.gpa{
+    position: absolute;
+    width: 220px;
+    display: none;
+    z-index: 22;
+}
+
+.gpos:hover>.gpa{
+display: block;
+list-style: none;
+background-color: rgb(234, 234, 234);
+border-radius: 15px;
+border: 1px solid black;
+}
+.gpa>li{
+    padding: 10px;
+    color: #02236E;
+}
+.gpa>li:hover{
+    background-color:rgba(255, 255, 255);
+    border-radius: 15px 
+}
+
+.gp1{
+    position: absolute;
+    left: 195px;
+    top: 224px;
+    width: 220px;
+    z-index: 32;
+     padding: 10px;
+    color: #02236E;
+    background-color: rgb(234, 234, 234);
+       border-radius: 20px;
+       border: solid 1px black;
+       display: none;
+}
+
+.gp1:hover{
+    background-color:rgba(255, 255, 255);
+}
+
+.gp2:hover>.gp1{
+    display: block;
+}
+
+.pos1{
+    position: relative;
+}
+
+.newclass{
+    display: none;
+}
+/* always define class first ,then its media query */
+@media (max-width:600px){
+
+.pos{
+    display: none;
+}
+
+.newclass{
+display: none;
+    }
+.org-btn {
+    display: none;
+}
+.khudii_logo {
+    width: 125px;
+    height: auto;
+    aspect-ratio: 223 / 79;
+}
+
+.resultImage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 130px !important;
+  height: 80px !important;
+  object-fit: contain;
+  border-radius: 10px;
+  margin: 0 auto;
+}
+
+/* Add these to your CSS module file */
+.iconBtn {
+  background-color: #ff0000; /* Red background */
+  border: none;
+  border-radius: 50%; /* Circular buttons */
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.iconBtn:hover {
+  background-color: #cc0000; /* Darker red on hover */
+  transform: scale(1.05);
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+}
+
+.mobileBtns {
+  gap: 10px; /* Space between buttons */
+}
+
+/* Search Icon Button */
+.searchIconOnly {
+    background-color: #cedcff;
+    color: #02236E;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: inherit;
+    padding: 5px 10px;
+  }
+
+/* Overlay: black 40% */
+.searchOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100dvw;
+  height: 100dvh;
+  background: rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+}
+
+/* Popup */
+.searchPopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 95dvw;
+  max-width: 95dvw;
+  z-index: 1001;
+  display: flex;
+  margin: auto;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.popupContent {
+  width: 95dvw;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border-radius: 30px;
+  padding: 10px 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  margin: auto;
+}
+
+.popupIcon {
+  color: #e7001e;
+  font-size: 1.3rem;
+  width: auto;
+}
+
+.popupInput {
+  flex: 1;
+  width: 90%;
+  /* display: block; */
+  border: none;
+  outline: none;
+  font-size: 1.3rem;
+  padding: 6px 10px;
+  color: #222222;
+  background: transparent;
+  margin: auto;
+}
+
+.popupClose {
+  color: #999;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 4px;
+  padding: 8px 10.5px;
+  width: auto;
+}
+
+.popupClose:hover {
+  background-color: #02236e;
+}
+
+/* Mobile Search Results Container */
+.mobileResultsContainer {
+  width: 92vw;
+  margin: auto;
+  max-height: 400px;
+  overflow-y: auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile specific results styling */
+.mobileResults {
+  position: relative;
+  top: 0;
+  left: 0;
+  margin: 0;
+  width: 100%;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+}
+
+.buttonclass{
+    display: none;
+}
+
+@media (max-width:1144px){
+.buttonclass{
+    display: block;
+}
+}
+
+.ss1{
+    color: #e7001e;
+    position: absolute;
+   top: 14px;
+    left: 10px;
+
+}
+
+.searchResults {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 90%;
+  max-height: 400px;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin: 0 20px;
+  z-index: 100;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.resultCard {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.resultCard:hover {
+  background: #cedcff;
+}
+
+.resultImage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80px;
+  height: 60px;
+  object-fit: contain;
+  border-radius: 10px;
+  /* margin: 0 auto; */
+}
+
+.helper_class{
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e6e6e8;
+    font-weight: 500;
+    color: #e7001e;
+}
+
+.cross{
+    position: absolute;
+    border-radius: 100px;
+    color: #e7001e;
+    padding: 7px;
+    top: 5px;
+    right: 3px;
+}
+
+.cross:hover{
+    background-color: white;
+}
+
+.correctedwidth {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+@media (max-width: 576px) {
+  .correctedwidth{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .khudii_logo {
+    width: 125px;
+    height: auto;
+    aspect-ratio: 223 / 79;
+  }
+  
+  .org-btn {
+    display: none !important;
+  }
+
+  .resultImage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 130px !important;
+  height: 80px !important;
+  object-fit: contain;
+  border-radius: 10px;
+  margin: 0 auto;
+}
+
+  /* Add these to your CSS module file */
+  .iconBtn {
+    background-color: #e7001e; /* Red background */
+    border: none;
+    border-radius: 50%; /* Circular buttons */
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .iconBtn:hover {
+    background-color: #cc0000; /* Darker red on hover */
+    transform: scale(1.05);
+  }
+
+  .icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .mobileBtns {
+    gap: 10px; /* Space between buttons */
+  }
+
+  /* Search Icon Button */
+  .searchIconOnly {
+    background-color: #cedcff;
+    color: #02236E;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: inherit;
+    padding: 5px 10px;
+  }
+
+  /* Overlay: black 40% */
+  .searchOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100dvw;
+    height: 100dvh;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 1000;
+  }
+
+  /* Popup */
+  .searchPopup {
+    position: fixed;
+    overflow: hidden;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: 100dvw;
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .popupContent {
+    width: 95dvw;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: white;
+    border-radius: 30px;
+    padding: 10px 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    margin: auto;
+  }
+
+  .popupIcon {
+    color: #e7001e;
+    font-size: 1.3rem;
+    width: auto;
+  }
+
+  .popupInput {
+    flex: 1;
+    width: 90%;
+    margin: auto;
+    border: none;
+    outline: none;
+    font-size: 1.3rem;
+    /* padding: 5px 0; */
+    background: transparent;
+  }
+
+  .popupClose {
+    width: auto;
+    color: #ffffff;
+    background-color: #e7001e;
+    border-radius: 30px;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 8px 10.5px;
+  }
+
+  .popupClose:hover {
+    background-color: #02236e;
+  }
+
+  /* Mobile Search Results Container */
+  .mobileResultsContainer {
+    width: 92vw;
+    margin: auto;
+    max-height: 500px;
+    overflow-y: auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Mobile specific results styling */
+  .mobileResults {
+    position: relative;
+    top: 0;
+    left: 0;
+    margin: 0;
+    width: 100%;
+    max-height: 500px;
+    overflow-y: auto;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+  }
+}
+
+
+@media (min-width:601px){
+  .searchIconOnly{
+    display:none !important ;
+  }
+}

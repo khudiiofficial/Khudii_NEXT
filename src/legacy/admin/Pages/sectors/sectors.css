@@ -1,0 +1,424 @@
+/* sectors.css */
+.sectors-admin {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #eee;
+}
+
+.header h1 {
+    margin: 0;
+    color: #333;
+    font-size: 2rem;
+}
+
+.loading {
+    text-align: center;
+    padding: 50px;
+    font-size: 18px;
+    color: #666;
+}
+
+.error {
+    background: #fee;
+    color: #c33;
+    padding: 12px 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border-left: 4px solid #c33;
+}
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: #333;
+    border-bottom: 2px solid #007bff;
+    padding-bottom: 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.form-group input.error {
+    border-color: #dc3545;
+}
+
+/* File Upload Button Styles */
+.file-upload-container {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.file-input {
+    position: absolute;
+    left: -9999px;
+    opacity: 0;
+}
+
+.file-upload-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: #007bff;
+    color: white;
+    border: 2px dashed #007bff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    width: 100%;
+    text-align: center;
+}
+
+.file-upload-btn:hover {
+    background: #0056b3;
+    border-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+.file-upload-btn:active {
+    transform: translateY(0);
+}
+
+.file-upload-btn.has-file {
+    background: #28a745;
+    border-color: #28a745;
+    border-style: solid;
+}
+
+.file-name {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #666;
+    text-align: center;
+}
+
+.image-preview,
+.current-image {
+    margin-top: 15px;
+    text-align: center;
+}
+
+.image-preview img,
+.current-image img {
+    max-width: 100%;
+    max-height: 200px;
+    border-radius: 6px;
+    border: 2px solid #ddd;
+}
+
+.current-image p {
+    margin: 0 0 5px 0;
+    font-size: 14px;
+    color: #666;
+}
+
+.slug-input-group {
+    display: flex;
+    gap: 10px;
+}
+
+.slug-input-group input {
+    flex: 1;
+}
+
+.generate-slug-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.field-error {
+    color: #dc3545;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+.slug-help {
+    color: #666;
+    font-size: 12px;
+    margin-top: 5px;
+    font-style: italic;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.btn:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-success {
+    background: #28a745;
+    color: white;
+}
+
+.btn-warning {
+    background: #ffc107;
+    color: black;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}
+
+.sectors-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 20px;
+}
+
+.sector-card {
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 15px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+}
+
+.sector-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.sector-card.deleted {
+    opacity: 0.7;
+    background: #f8f9fa;
+}
+
+.sector-image {
+    position: relative;
+    margin-bottom: 15px;
+}
+
+.sector-image img {
+    width: 25%;
+    margin: auto;
+    height: auto;
+    /* object-fit: cover; */
+    border-radius: 8px;
+}
+
+.deleted-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #e7001e;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.sector-info h3 {
+    margin: 0 0 10px 0;
+    color: #222222;
+    font-size: 1.4em;
+}
+
+.sector-info p {
+    color: #555555;
+    line-height: 1.5;
+    margin-bottom: 15px;
+    line-clamp: 3;
+}
+
+.sector-meta {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+}
+
+.sector-meta span {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 13px;
+}
+
+.sector-meta strong {
+    color: #222222;
+}
+
+.sector-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.sector-actions .btn {
+    flex: 1;
+    text-align: center;
+}
+
+.upload-status {
+    text-align: center;
+    padding: 10px;
+    color: #666;
+    font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .sectors-admin {
+        padding: 15px;
+    }
+    
+    .header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: stretch;
+    }
+    
+    .sectors-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .sector-actions {
+        flex-direction: column;
+    }
+    
+    .slug-input-group {
+        flex-direction: column;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .modal-content {
+        margin: 10px;
+        padding: 20px;
+    }
+    
+    .header h1 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Meta SEO Section in Sector Cards */
+.sector-meta-seo {
+  background: #e8f4fd;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  border-left: 4px solid #02236e;
+}
+
+.sector-meta-seo h4 {
+  color: #02236e;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.sector-meta-seo p {
+  margin: 4px 0;
+  font-size: 12px;
+  color: #222222;
+}
+
+.sector-meta-seo strong {
+  color: #222222;
+}

@@ -1,0 +1,554 @@
+/* 
+.social-share-sidebar {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    z-index: 999;
+    background: white;
+    border-radius: 0 12px 12px 0;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+    padding: 8px 0;
+    transition: all 0.3s ease;
+}
+
+.social-share-sidebar:hover {
+    box-shadow: 6px 0 30px rgba(0, 0, 0, 0.15);
+}
+
+.share-icon-btn {
+    width: 50px;
+    height: 50px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    color: white;
+    background: #4a5568;
+}
+
+.share-icon-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: right 0.3s ease;
+}
+
+.share-icon-btn:hover::before {
+    right: 0;
+}
+
+.share-icon-btn:hover {
+    transform: translateX(5px);
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.share-icon-btn:active {
+    transform: translateX(3px) scale(0.95);
+}
+
+
+.share-icon-btn:first-child {
+    border-radius: 0 12px 0 0;
+}
+
+.share-icon-btn:last-child {
+    border-radius: 0 0 12px 0;
+}
+
+
+.share-icon-btn.facebook {
+    background: linear-gradient(135deg, #1877f2 0%, #0d5dbf 100%);
+}
+
+.share-icon-btn.facebook:hover {
+    background: linear-gradient(135deg, #0d5dbf 0%, #1877f2 100%);
+}
+
+.share-icon-btn.twitter {
+    background: linear-gradient(135deg, #1da1f2 0%, #0c85d0 100%);
+}
+
+.share-icon-btn.twitter:hover {
+    background: linear-gradient(135deg, #0c85d0 0%, #1da1f2 100%);
+}
+
+.share-icon-btn.linkedin {
+    background: linear-gradient(135deg, #0077b5 0%, #005885 100%);
+}
+
+.share-icon-btn.linkedin:hover {
+    background: linear-gradient(135deg, #005885 0%, #0077b5 100%);
+}
+
+.share-icon-btn.whatsapp {
+    background: linear-gradient(135deg, #25d366 0%, #1da851 100%);
+}
+
+.share-icon-btn.whatsapp:hover {
+    background: linear-gradient(135deg, #1da851 0%, #25d366 100%);
+}
+
+.share-icon-btn.email {
+    background: linear-gradient(135deg, #ea4335 0%, #c5341f 100%);
+}
+
+.share-icon-btn.email:hover {
+    background: linear-gradient(135deg, #c5341f 0%, #ea4335 100%);
+}
+
+.share-icon-btn.copy-link {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.share-icon-btn.copy-link:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.share-icon-btn.copy-link.copied {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    animation: pulse 0.5s ease;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+
+@media (max-width: 768px) {
+    .share-icon-btn {
+        width: 45px;
+        height: 45px;
+    }
+
+    .social-share-sidebar {
+        padding: 6px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .share-icon-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .share-icon-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .social-share-sidebar {
+        border-radius: 0 10px 10px 0;
+        padding: 4px 0;
+    }
+}
+
+
+@media (prefers-color-scheme: dark) {
+    .social-share-sidebar {
+        background: #222222;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+    }
+}
+
+
+.youtube { background: #ff0000; }
+.instagram { background: #e1306c; }
+.tiktok { background: #010101; color: #fff; } */
+
+/* Fixed Social Share Sidebar - Left Side (Desktop) */
+.social-share-sidebar {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    z-index: 999;
+    background: white;
+    border-radius: 0 12px 12px 0;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+    padding: 8px 0;
+    transition: all 0.3s ease;
+}
+
+.social-share-sidebar:hover {
+    box-shadow: 6px 0 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Share Icon Buttons (Desktop) */
+.share-icon-btn {
+    width: 50px;
+    height: 50px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    color: white;
+    background: #4a5568;
+}
+
+.share-icon-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.2);
+    transition: right 0.3s ease;
+}
+
+.share-icon-btn:hover::before {
+    right: 0;
+}
+
+.share-icon-btn:hover {
+    transform: translateX(5px);
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.share-icon-btn:active {
+    transform: translateX(3px) scale(0.95);
+}
+
+/* First Button - Round Top Right */
+.share-icon-btn:first-child {
+    border-radius: 0 12px 0 0;
+}
+
+/* Last Button - Round Bottom Right */
+.share-icon-btn:last-child {
+    border-radius: 0 0 12px 0;
+}
+
+/* Platform Specific Colors */
+.share-icon-btn.facebook {
+    background: linear-gradient(135deg, #1877f2 0%, #0d5dbf 100%);
+}
+
+.share-icon-btn.facebook:hover {
+    background: linear-gradient(135deg, #0d5dbf 0%, #1877f2 100%);
+}
+
+.share-icon-btn.whatsapp {
+    background: linear-gradient(135deg, #25d366 0%, #1da851 100%);
+}
+
+.share-icon-btn.whatsapp:hover {
+    background: linear-gradient(135deg, #1da851 0%, #25d366 100%);
+}
+
+.share-icon-btn.email {
+    background: linear-gradient(135deg, #ea4335 0%, #c5341f 100%);
+}
+
+.share-icon-btn.email:hover {
+    background: linear-gradient(135deg, #c5341f 0%, #ea4335 100%);
+}
+
+.share-icon-btn.copy-link {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.share-icon-btn.copy-link:hover {
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.share-icon-btn.youtube {
+    background: #ff0000;
+}
+
+.share-icon-btn.instagram {
+    background: #e1306c;
+}
+
+.share-icon-btn.tiktok {
+    background: #010101;
+}
+
+/* Copied State */
+.share-icon-btn.copy-link.copied {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    animation: pulse 0.5s ease;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+/* Mobile Share Button - Left Side Middle */
+.mobile-share-button {
+    position: fixed;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    border-radius: 0 12px 12px 0;  /* Rounded on right side only */
+    background: white !important;  /* Force white background */
+    border: none;
+    border-left: 3px solid #ff0000;  /* Red border on left */
+    color: #ff0000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.mobile-share-button:hover {
+    /* transform: translateY(-50%) translateX(5px); */
+    box-shadow: 6px 6px 16px rgba(0, 0, 0, 0.2);
+    background-color: red !important;  /* Keep white on hover */
+    border-left: 3px solid #010101 !important;
+  
+}
+.mobile-share-button:hover svg {
+    color: white;
+}
+
+.mobile-share-button:active {
+    transform: translateY(-50%) scale(0.95);
+    background: white !important;  /* Keep white when active */
+}
+
+.mobile-share-button svg {
+    color: #ff0000;  /* Red icon color */
+   
+}
+
+/* Mobile Popup Overlay */
+.mobile-share-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Mobile Popup */
+.mobile-share-popup {
+    background: white;
+    border-radius: 20px;
+    padding: 24px;
+    width: 90%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.mobile-share-popup h3 {
+    margin: 0 0 20px 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+}
+
+/* Mobile Share Icons Grid */
+.mobile-share-icons {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+/* Mobile Share Icon Button */
+.mobile-share-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 12px;
+    border: none;
+    border-radius: 12px;
+    background: #f5f5f5;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #333;
+}
+
+.mobile-share-icon:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-share-icon:active {
+    transform: translateY(0);
+}
+
+.mobile-share-icon span {
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* Platform Specific Colors for Mobile */
+.mobile-share-icon.facebook svg { color: #1877f2;
+ width: 17px;
+ height: 17px;
+}
+.mobile-share-icon.whatsapp svg { color: #25d366;
+ width: 17px;
+ height: 17px;
+}
+.mobile-share-icon.email svg { color: #ea4335;
+ width: 17px;
+ height: 17px;
+}
+.mobile-share-icon.youtube svg { color: #ff0000;
+ width: 17px;
+ height: 17px;
+}
+.mobile-share-icon.instagram svg { color: #e1306c;
+ width: 17px;
+ height: 17px;
+}
+.mobile-share-icon.tiktok svg { color: #010101;
+ width: 17px;
+ height: 17px;
+}
+.mobile-share-icon.copy-link svg { color: #667eea; 
+ width: 17px;
+ height: 17px;
+}
+
+.mobile-share-icon.copy-link.copied svg {
+    color: #10b981;
+     width: 17px;
+ height: 17px;
+}
+
+/* Mobile Popup Close Button */
+.mobile-popup-close {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: #ff0000;
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.mobile-popup-close:hover {
+    background: #cc0000;
+}
+
+.mobile-popup-close:active {
+    transform: scale(0.98);
+}
+
+/* Responsive Design - Updated breakpoint to 800px */
+@media (max-width: 1300px) {
+    .social-share-sidebar {
+        display: none; /* Hide sidebar on mobile/tablet */
+    }
+    
+    .mobile-share-button {
+        display: flex;
+    }
+}
+
+@media (min-width: 1301px) {
+    .mobile-share-button {
+        display: none;
+    }
+    
+    .social-share-sidebar {
+        display: flex;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .social-share-sidebar {
+        background: #222222;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .mobile-share-popup {
+        background: #333;
+        color: #fff;
+    }
+    
+    .mobile-share-popup h3 {
+        color: #fff;
+    }
+    
+    .mobile-share-icon {
+        background: #444;
+        color: #fff;
+    }
+    
+    .mobile-share-button {
+        background: white !important;  /* Keep white even in dark mode */
+        border-left: 3px solid #ff4444;
+    }
+    
+    .mobile-share-button svg {
+        color: #ff4444;
+    }
+}

@@ -1,0 +1,1129 @@
+{
+  "phonePatterns": {
+    "Afghanistan": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "701234567",
+      "countryCode": "93"
+    },
+    "Albania": {
+      "pattern": "^[2-9][0-9]{7,8}$",
+      "example": "671234567",
+      "countryCode": "355"
+    },
+    "Algeria": {
+      "pattern": "^[5-9][0-9]{8}$",
+      "example": "551234567",
+      "countryCode": "213"
+    },
+    "Andorra": {
+      "pattern": "^[3-9][0-9]{5}$",
+      "example": "312345",
+      "countryCode": "376"
+    },
+    "Angola": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "912345678",
+      "countryCode": "244"
+    },
+    "Anguilla": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "2351234",
+      "countryCode": "1264"
+    },
+    "Antigua and Barbuda": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "4641234",
+      "countryCode": "1268"
+    },
+    "Argentina": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "1123456789",
+      "countryCode": "54"
+    },
+    "Armenia": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "77123456",
+      "countryCode": "374"
+    },
+    "Aruba": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "5601234",
+      "countryCode": "297"
+    },
+    "Australia": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "412345678",
+      "countryCode": "61"
+    },
+    "Austria": {
+      "pattern": "^[2-9][0-9]{3,11}$",
+      "example": "66412345678",
+      "countryCode": "43"
+    },
+    "Azerbaijan": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "501234567",
+      "countryCode": "994"
+    },
+    "Bahamas": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "3231234",
+      "countryCode": "1242"
+    },
+    "Bahrain": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "33123456",
+      "countryCode": "973"
+    },
+    "Bangladesh": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "1812345678",
+      "countryCode": "880"
+    },
+    "Barbados": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "2301234",
+      "countryCode": "1246"
+    },
+    "Belarus": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "291234567",
+      "countryCode": "375"
+    },
+    "Belgium": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "471234567",
+      "countryCode": "32"
+    },
+    "Belize": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "6221234",
+      "countryCode": "501"
+    },
+    "Benin": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "91123456",
+      "countryCode": "229"
+    },
+    "Bermuda": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "3701234",
+      "countryCode": "1441"
+    },
+    "Bhutan": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "17123456",
+      "countryCode": "975"
+    },
+    "Bolivia": {
+      "pattern": "^[2-9][0-9]{6,7}$",
+      "example": "71234567",
+      "countryCode": "591"
+    },
+    "Bosnia and Herzegovina": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "61123456",
+      "countryCode": "387"
+    },
+    "Botswana": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "71123456",
+      "countryCode": "267"
+    },
+    "Brazil": {
+      "pattern": "^[2-9][0-9]{9,10}$",
+      "example": "11912345678",
+      "countryCode": "55"
+    },
+    "British Indian Ocean Territory": {
+      "pattern": "^[2-9][0-9]{5}$",
+      "example": "371234",
+      "countryCode": "246"
+    },
+    "British Virgin Islands": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "3401234",
+      "countryCode": "1284"
+    },
+    "Brunei": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "7123456",
+      "countryCode": "673"
+    },
+    "Bulgaria": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "881234567",
+      "countryCode": "359"
+    },
+    "Burkina Faso": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "70123456",
+      "countryCode": "226"
+    },
+    "Burundi": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "79123456",
+      "countryCode": "257"
+    },
+    "Cambodia": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "91234567",
+      "countryCode": "855"
+    },
+    "Cameroon": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "671234567",
+      "countryCode": "237"
+    },
+    "United States": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "2015550123",
+      "countryCode": "1"
+    },
+    "Cape Verde": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "9911234",
+      "countryCode": "238"
+    },
+    "Cayman Islands": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "3231234",
+      "countryCode": "1345"
+    },
+    "Central African Republic": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "70123456",
+      "countryCode": "236"
+    },
+    "Chad": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "90123456",
+      "countryCode": "235"
+    },
+    "Chile": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "912345678",
+      "countryCode": "56"
+    },
+    "China": {
+      "pattern": "^[2-9][0-9]{10}$",
+      "example": "13123456789",
+      "countryCode": "86"
+    },
+    "Colombia": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "3012345678",
+      "countryCode": "57"
+    },
+    "Comoros": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "3212345",
+      "countryCode": "269"
+    },
+    "Republic of the Congo": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "061234567",
+      "countryCode": "242"
+    },
+    "Cook Islands": {
+      "pattern": "^[2-9][0-9]{4}$",
+      "example": "21234",
+      "countryCode": "682"
+    },
+    "Costa Rica": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "83123456",
+      "countryCode": "506"
+    },
+    "Croatia": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "911234567",
+      "countryCode": "385"
+    },
+    "Cuba": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "51234567",
+      "countryCode": "53"
+    },
+    "Cura\u00e7ao": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "95123456",
+      "countryCode": "599"
+    },
+    "Cyprus": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "95123456",
+      "countryCode": "357"
+    },
+    "Czech Republic": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "601123456",
+      "countryCode": "420"
+    },
+    "Democratic Republic of the Congo": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "811234567",
+      "countryCode": "243"
+    },
+    "Denmark": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "20123456",
+      "countryCode": "45"
+    },
+    "Djibouti": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "77123456",
+      "countryCode": "253"
+    },
+    "Dominica": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "2351234",
+      "countryCode": "1767"
+    },
+    "Dominican Republic": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "8092345678",
+      "countryCode": "1809"
+    },
+    "East Timor": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "77123456",
+      "countryCode": "670"
+    },
+    "Ecuador": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "991234567",
+      "countryCode": "593"
+    },
+    "Egypt": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "1001234567",
+      "countryCode": "20"
+    },
+    "El Salvador": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "70123456",
+      "countryCode": "503"
+    },
+    "Equatorial Guinea": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "222123456",
+      "countryCode": "240"
+    },
+    "Eritrea": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "7123456",
+      "countryCode": "291"
+    },
+    "Estonia": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "51234567",
+      "countryCode": "372"
+    },
+    "Ethiopia": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "911234567",
+      "countryCode": "251"
+    },
+    "Falkland Islands": {
+      "pattern": "^[2-9][0-9]{4}$",
+      "example": "31234",
+      "countryCode": "500"
+    },
+    "Faroe Islands": {
+      "pattern": "^[2-9][0-9]{5}$",
+      "example": "211234",
+      "countryCode": "298"
+    },
+    "Fiji": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "7012345",
+      "countryCode": "679"
+    },
+    "Finland": {
+      "pattern": "^[2-9][0-9]{4,10}$",
+      "example": "412345678",
+      "countryCode": "358"
+    },
+    "France": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "612345678",
+      "countryCode": "33"
+    },
+    "French Guiana": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "694201234",
+      "countryCode": "594"
+    },
+    "French Polynesia": {
+      "pattern": "^[2-9][0-9]{5}$",
+      "example": "871234",
+      "countryCode": "689"
+    },
+    "Gabon": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "06123456",
+      "countryCode": "241"
+    },
+    "Gambia": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "3012345",
+      "countryCode": "220"
+    },
+    "Georgia": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "551234567",
+      "countryCode": "995"
+    },
+    "Germany": {
+      "pattern": "^[2-9][0-9]{4,11}$",
+      "example": "15123456789",
+      "countryCode": "49"
+    },
+    "Ghana": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "201234567",
+      "countryCode": "233"
+    },
+    "Gibraltar": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "57123456",
+      "countryCode": "350"
+    },
+    "Greece": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "6912345678",
+      "countryCode": "30"
+    },
+    "Greenland": {
+      "pattern": "^[2-9][0-9]{5}$",
+      "example": "221234",
+      "countryCode": "299"
+    },
+    "Grenada": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "4031234",
+      "countryCode": "1473"
+    },
+    "Saint Martin": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "690001234",
+      "countryCode": "590"
+    },
+    "Guam": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "6713001234",
+      "countryCode": "1671"
+    },
+    "Guatemala": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "51234567",
+      "countryCode": "502"
+    },
+    "Guinea": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "601234567",
+      "countryCode": "224"
+    },
+    "Guinea-Bissau": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "9551234",
+      "countryCode": "245"
+    },
+    "Guyana": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "6091234",
+      "countryCode": "592"
+    },
+    "Haiti": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "34123456",
+      "countryCode": "509"
+    },
+    "Honduras": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "91234567",
+      "countryCode": "504"
+    },
+    "Hong Kong": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "51234567",
+      "countryCode": "852"
+    },
+    "Hungary": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "201234567",
+      "countryCode": "36"
+    },
+    "Iceland": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "6601234",
+      "countryCode": "354"
+    },
+    "India": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "8123456789",
+      "countryCode": "91"
+    },
+    "Indonesia": {
+      "pattern": "^[2-9][0-9]{8,10}$",
+      "example": "8123456789",
+      "countryCode": "62"
+    },
+    "Iran": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "9123456789",
+      "countryCode": "98"
+    },
+    "Iraq": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "7712345678",
+      "countryCode": "964"
+    },
+    "Ireland": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "831234567",
+      "countryCode": "353"
+    },
+    "Israel": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "501234567",
+      "countryCode": "972"
+    },
+    "Italy": {
+      "pattern": "^[2-9][0-9]{8,9}$",
+      "example": "3123456789",
+      "countryCode": "39"
+    },
+    "Ivory Coast": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "0712345678",
+      "countryCode": "225"
+    },
+    "Jamaica": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "2101234",
+      "countryCode": "1876"
+    },
+    "Japan": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "9012345678",
+      "countryCode": "81"
+    },
+    "Jordan": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "791234567",
+      "countryCode": "962"
+    },
+    "Russia": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "9123456789",
+      "countryCode": "7"
+    },
+    "Kenya": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "712345678",
+      "countryCode": "254"
+    },
+    "Kiribati": {
+      "pattern": "^[2-9][0-9]{4}$",
+      "example": "90123",
+      "countryCode": "686"
+    },
+    "Kuwait": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "50012345",
+      "countryCode": "965"
+    },
+    "Kyrgyzstan": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "700123456",
+      "countryCode": "996"
+    },
+    "Laos": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "202312345",
+      "countryCode": "856"
+    },
+    "Latvia": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "21234567",
+      "countryCode": "371"
+    },
+    "Lebanon": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "71123456",
+      "countryCode": "961"
+    },
+    "Lesotho": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "50123456",
+      "countryCode": "266"
+    },
+    "Liberia": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "771234567",
+      "countryCode": "231"
+    },
+    "Libya": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "912345678",
+      "countryCode": "218"
+    },
+    "Liechtenstein": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "66123456",
+      "countryCode": "423"
+    },
+    "Lithuania": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "61234567",
+      "countryCode": "370"
+    },
+    "Luxembourg": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "621123456",
+      "countryCode": "352"
+    },
+    "Macau": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "66123456",
+      "countryCode": "853"
+    },
+    "Macedonia": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "70123456",
+      "countryCode": "389"
+    },
+    "Madagascar": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "321234567",
+      "countryCode": "261"
+    },
+    "Malawi": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "99123456",
+      "countryCode": "265"
+    },
+    "Malaysia": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "123456789",
+      "countryCode": "60"
+    },
+    "Maldives": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "7712345",
+      "countryCode": "960"
+    },
+    "Mali": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "65123456",
+      "countryCode": "223"
+    },
+    "Malta": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "96912345",
+      "countryCode": "356"
+    },
+    "Marshall Islands": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "6251234",
+      "countryCode": "692"
+    },
+    "Martinique": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "696201234",
+      "countryCode": "596"
+    },
+    "Mauritania": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "22123456",
+      "countryCode": "222"
+    },
+    "Mauritius": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "52512345",
+      "countryCode": "230"
+    },
+    "Reunion": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "692001234",
+      "countryCode": "262"
+    },
+    "Mexico": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "5512345678",
+      "countryCode": "52"
+    },
+    "Micronesia": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "3501234",
+      "countryCode": "691"
+    },
+    "Moldova": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "60123456",
+      "countryCode": "373"
+    },
+    "Monaco": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "612345678",
+      "countryCode": "377"
+    },
+    "Mongolia": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "88123456",
+      "countryCode": "976"
+    },
+    "Montenegro": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "67123456",
+      "countryCode": "382"
+    },
+    "Montserrat": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "4691234",
+      "countryCode": "1664"
+    },
+    "Morocco": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "650123456",
+      "countryCode": "212"
+    },
+    "Mozambique": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "82123456",
+      "countryCode": "258"
+    },
+    "Myanmar": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "91234567",
+      "countryCode": "95"
+    },
+    "Namibia": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "811234567",
+      "countryCode": "264"
+    },
+    "Nauru": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "5551234",
+      "countryCode": "674"
+    },
+    "Nepal": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "9841234567",
+      "countryCode": "977"
+    },
+    "Netherlands": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "612345678",
+      "countryCode": "31"
+    },
+    "New Caledonia": {
+      "pattern": "^[2-9][0-9]{5}$",
+      "example": "751234",
+      "countryCode": "687"
+    },
+    "New Zealand": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "211234567",
+      "countryCode": "64"
+    },
+    "Nicaragua": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "81234567",
+      "countryCode": "505"
+    },
+    "Niger": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "90123456",
+      "countryCode": "227"
+    },
+    "Nigeria": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "8021234567",
+      "countryCode": "234"
+    },
+    "Niue": {
+      "pattern": "^[2-9][0-9]{3}$",
+      "example": "1234",
+      "countryCode": "683"
+    },
+    "North Korea": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "19212345",
+      "countryCode": "850"
+    },
+    "Northern Mariana Islands": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "6702345678",
+      "countryCode": "1670"
+    },
+    "Norway": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "40612345",
+      "countryCode": "47"
+    },
+    "Oman": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "92123456",
+      "countryCode": "968"
+    },
+    "Pakistan": {
+      "pattern": "^[3][0-9]{9}$",
+      "example": "3012345678",
+      "countryCode": "92"
+    },
+    "Palau": {
+      "pattern": "^[2-9][0-9]{5}$",
+      "example": "6201234",
+      "countryCode": "680"
+    },
+    "Palestine": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "599123456",
+      "countryCode": "970"
+    },
+    "Panama": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "61234567",
+      "countryCode": "507"
+    },
+    "Papua New Guinea": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "70123456",
+      "countryCode": "675"
+    },
+    "Paraguay": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "961234567",
+      "countryCode": "595"
+    },
+    "Peru": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "912345678",
+      "countryCode": "51"
+    },
+    "Philippines": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "9123456789",
+      "countryCode": "63"
+    },
+    "Poland": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "501234567",
+      "countryCode": "48"
+    },
+    "Portugal": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "912345678",
+      "countryCode": "351"
+    },
+    "Puerto Rico": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "7872345678",
+      "countryCode": "1787"
+    },
+    "Qatar": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "33123456",
+      "countryCode": "974"
+    },
+    "Romania": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "712034567",
+      "countryCode": "40"
+    },
+    "Rwanda": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "720123456",
+      "countryCode": "250"
+    },
+    "Saint Helena": {
+      "pattern": "^[2-9][0-9]{3}$",
+      "example": "8123",
+      "countryCode": "290"
+    },
+    "Saint Kitts and Nevis": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "4691234",
+      "countryCode": "1869"
+    },
+    "Saint Lucia": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "2841234",
+      "countryCode": "1758"
+    },
+    "Saint Pierre and Miquelon": {
+      "pattern": "^[2-9][0-9]{5}$",
+      "example": "551234",
+      "countryCode": "508"
+    },
+    "Saint Vincent and the Grenadines": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "4561234",
+      "countryCode": "1784"
+    },
+    "Samoa": {
+      "pattern": "^[2-9][0-9]{5}$",
+      "example": "721234",
+      "countryCode": "685"
+    },
+    "San Marino": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "661234567",
+      "countryCode": "378"
+    },
+    "Sao Tome and Principe": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "9812345",
+      "countryCode": "239"
+    },
+    "Saudi Arabia": {
+      "pattern": "^5[0-9]{8}$",
+      "example": "512345678",
+      "countryCode": "966"
+    },
+    "Senegal": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "701234567",
+      "countryCode": "221"
+    },
+    "Serbia": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "601234567",
+      "countryCode": "381"
+    },
+    "Seychelles": {
+      "pattern": "^[2-9][0-9]{5}$",
+      "example": "251234",
+      "countryCode": "248"
+    },
+    "Sierra Leone": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "25123456",
+      "countryCode": "232"
+    },
+    "Singapore": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "81234567",
+      "countryCode": "65"
+    },
+    "Sint Maarten": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "5211234",
+      "countryCode": "1721"
+    },
+    "Slovakia": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "901234567",
+      "countryCode": "421"
+    },
+    "Slovenia": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "31234567",
+      "countryCode": "386"
+    },
+    "Solomon Islands": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "7412345",
+      "countryCode": "677"
+    },
+    "Somalia": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "71123456",
+      "countryCode": "252"
+    },
+    "South Africa": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "711234567",
+      "countryCode": "27"
+    },
+    "South Korea": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "1023456789",
+      "countryCode": "82"
+    },
+    "South Sudan": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "977123456",
+      "countryCode": "211"
+    },
+    "Spain": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "612345678",
+      "countryCode": "34"
+    },
+    "Sri Lanka": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "712345678",
+      "countryCode": "94"
+    },
+    "Sudan": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "911234567",
+      "countryCode": "249"
+    },
+    "Suriname": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "7412345",
+      "countryCode": "597"
+    },
+    "Swaziland": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "7612345",
+      "countryCode": "268"
+    },
+    "Sweden": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "701234567",
+      "countryCode": "46"
+    },
+    "Switzerland": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "781234567",
+      "countryCode": "41"
+    },
+    "Syria": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "931234567",
+      "countryCode": "963"
+    },
+    "Taiwan": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "912345678",
+      "countryCode": "886"
+    },
+    "Tajikistan": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "917123456",
+      "countryCode": "992"
+    },
+    "Tanzania": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "621234567",
+      "countryCode": "255"
+    },
+    "Thailand": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "812345678",
+      "countryCode": "66"
+    },
+    "Togo": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "90123456",
+      "countryCode": "228"
+    },
+    "Tokelau": {
+      "pattern": "^[2-9][0-9]{4}$",
+      "example": "7123",
+      "countryCode": "690"
+    },
+    "Tonga": {
+      "pattern": "^[2-9][0-9]{5}$",
+      "example": "771234",
+      "countryCode": "676"
+    },
+    "Trinidad and Tobago": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "6811234",
+      "countryCode": "1868"
+    },
+    "Tunisia": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "20123456",
+      "countryCode": "216"
+    },
+    "Turkey": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "5012345678",
+      "countryCode": "90"
+    },
+    "Turkmenistan": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "46123456",
+      "countryCode": "993"
+    },
+    "Turks and Caicos Islands": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "2311234",
+      "countryCode": "1649"
+    },
+    "Tuvalu": {
+      "pattern": "^[2-9][0-9]{4}$",
+      "example": "90123",
+      "countryCode": "688"
+    },
+    "Uganda": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "701234567",
+      "countryCode": "256"
+    },
+    "Ukraine": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "501234567",
+      "countryCode": "380"
+    },
+    "United Arab Emirates": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "501234567",
+      "countryCode": "971"
+    },
+    "United Kingdom": {
+      "pattern": "^[1-9][0-9]{8,10}$",
+      "example": "7912345678",
+      "countryCode": "44"
+    },
+    "Uruguay": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "94234567",
+      "countryCode": "598"
+    },
+    "Uzbekistan": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "912345678",
+      "countryCode": "998"
+    },
+    "Vanuatu": {
+      "pattern": "^[2-9][0-9]{6}$",
+      "example": "5912345",
+      "countryCode": "678"
+    },
+    "Vatican": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "3123456789",
+      "countryCode": "379"
+    },
+    "Venezuela": {
+      "pattern": "^[2-9][0-9]{9}$",
+      "example": "4123456789",
+      "countryCode": "58"
+    },
+    "Vietnam": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "912345678",
+      "countryCode": "84"
+    },
+    "Wallis and Futuna": {
+      "pattern": "^[2-9][0-9]{5}$",
+      "example": "501234",
+      "countryCode": "681"
+    },
+    "Yemen": {
+      "pattern": "^[2-9][0-9]{7}$",
+      "example": "71234567",
+      "countryCode": "967"
+    },
+    "Zambia": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "961234567",
+      "countryCode": "260"
+    },
+    "Zimbabwe": {
+      "pattern": "^[2-9][0-9]{8}$",
+      "example": "712345678",
+      "countryCode": "263"
+    }
+  }
+}

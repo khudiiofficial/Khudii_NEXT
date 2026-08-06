@@ -1,0 +1,37 @@
+.class1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 615px; /* full width of parent */
+}
+
+.class2 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  /* flex-wrap: wrap; helps wrapping when narrow */
+}
+
+.class1 iframe {
+  border-radius: 20px;
+  margin: 20px 0;
+  width: 100%;         /* responsive width */
+  max-width: 600px;    /* don’t grow too big */
+  aspect-ratio: 16/9;  /* keep video proportions */
+  height: auto;        /* let aspect-ratio handle height */
+}
+
+/* On smaller screens, stack them */
+@media (max-width: 1048px) {
+  .class2 {
+    flex-direction: column;
+  }
+.class1{
+    width: 95%;
+}
+  .class1 iframe {
+    max-width: 100%;   /* shrink to container */
+  }
+}

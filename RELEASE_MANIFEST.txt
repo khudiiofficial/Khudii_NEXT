@@ -1,0 +1,27 @@
+Khudii Unified Next.js Release
+Generated: 2026-08-06
+Target: Vercel
+Public domain: https://khudii.com
+Admin domain: https://admin.khudii.com
+Storage: FTP
+
+Verified source contracts:
+- 24 public App Router pages
+- 35 admin App Router pages
+- 36/36 original public backend routes
+- 120/120 original admin backend routes
+- 1 restored protected password-change route
+- 129 frontend API requests resolved
+- 285 SQL query calls checked against 46 schema tables
+- 296 active package imports declared
+- 50 environment variables documented/platform-provided
+- 182 local application imports resolved
+- 258 source files checked for literal asset references
+- Credential hygiene check passed
+
+Run in CI/staging:
+  npm install
+  npm run verify
+
+External staging validation is required for DB, FTP, SMTP, Google OAuth,
+Google Analytics, Vapi, Vercel domains and DNS.

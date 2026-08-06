@@ -1,0 +1,90 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu&display=swap');
+@import "tailwindcss";
+
+/* Add this to your global CSS file */
+
+.font-urdu {
+  font-family: 'Noto Nastaliq Urdu', serif;
+}
+
+
+
+/* #star>button{
+
+  
+  padding: 0 !important;
+  margin: 0 !important; 
+} */
+
+
+
+@media (max-width:640px){
+/* #root > div.vapi-widget-wrapper > div > div > div:nth-child(3) > div > button{
+  padding: 5px;
+} */
+
+/* #root > div.vapi-widget-wrapper > div > div > div:nth-child(3) > div > input{
+ width: 60%;
+} */
+
+  #root > div.vapi-widget-wrapper input {
+    width: 200px !important;
+    flex: 0 0 50px !important;
+    max-width: 200px !important;
+  }
+#main-content > div.vapi-widget-wrapper > div > div > div:nth-child(3) > div > input{
+    width: 200px !important;
+    flex: 0 0 50px !important;
+    max-width: 200px !important;
+}
+}
+
+.main_width {
+  width: 1240px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+
+.main{
+  width: 1240px;
+  
+}
+.gw{
+  width: 33.333%;
+}
+
+
+#main-content > div.vapi-widget-wrapper > div > div > div > div.relative > svg {
+  width: 30px;
+  height: 30px;
+  background-image: url("/siteicon.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* Hide the SVG's internal paths/elements */
+#main-content > div.vapi-widget-wrapper > div > div > div > div.relative > svg * {
+  display: none;
+}
+
+
+#main-content > div.vapi-widget-wrapper > div > div > div.relative.z-10.p-4.flex.items-center.justify-between.border-b.text-gray-900.border-gray-200.shadow-sm > div.flex.items-center.space-x-3 > div.relative > svg{
+  width: 30px;
+  height: 30px;
+  background-image: url("/siteicon.png");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+#main-content > div.vapi-widget-wrapper > div > div > div.relative.z-10.p-4.flex.items-center.justify-between.border-b.text-gray-900.border-gray-200.shadow-sm > div.flex.items-center.space-x-3 > div.relative > svg * {
+  display: none;
+}
+
+#main-content > div.vapi-widget-wrapper > div > div > div:nth-child(3) > div > button > svg > path {
+  fill: white;
+}
+
+
+#main-content > div.vapi-widget-wrapper > div{
+  bottom: 4rem !important;
+}

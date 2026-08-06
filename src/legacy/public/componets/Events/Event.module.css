@@ -1,0 +1,238 @@
+
+.class1 {
+    color: #02236e;
+    position: relative;
+    display: inline-block;
+    width: 1240px;
+    text-align: center;
+}
+
+.events_thumbnail {
+    width: 385px;
+    height: auto;
+}
+
+.community_img {
+    width: 400px;
+}
+
+.class2 {
+    margin: auto;
+    filter: drop-shadow(0 10px 20px rgba(2, 35, 110, 0.2));
+    transition: all 0.3s ease;
+}
+
+.class2:hover {
+    filter: drop-shadow(0 15px 30px rgba(2, 35, 110, 0.3));
+    transform: scale(1.02);
+}
+
+.class3 {
+    font-size: 28px;
+    line-height: 1.4;
+    background: linear-gradient(135deg, #022279 0%, #1a3a8a 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    position: relative;
+}
+
+.event_btn1 {
+    padding: 12px 24px;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #E3001C 0%, #FF6B6B 100%);
+    margin-top: 10px;
+    cursor: pointer;
+    color: white;
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.event_btn2 {
+    padding: 12px 24px;
+    border-radius: 25px;
+    background: linear-gradient(135deg, #022279 0%, #3B82F6 100%);
+    margin-top: 10px;
+    cursor: pointer;
+    color: white;
+    font-weight: 600;
+    border: none;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.class4::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.class4:hover::before {
+    left: 100%;
+}
+
+.class4:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(227, 0, 28, 0.3);
+}
+
+.class5 {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 30px;
+    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.class5:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(2, 35, 110, 0.1);
+}
+
+.class6 {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+.class7 {
+    width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.5s ease;
+}
+
+.class7:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+}
+
+
+.fade-in {
+    opacity: 0;
+    animation: fadeIn 0.8s ease-out forwards;
+}
+
+.slide-in-left {
+    opacity: 0;
+    animation: slideInLeft 0.8s ease-out forwards;
+}
+
+.slide-in-right {
+    opacity: 0;
+    animation: slideInRight 0.8s ease-out forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+
+@media (max-width: 768px) {
+    .class1 {
+        width: 100%;
+        max-width: 100%;
+        display: block;
+        padding: 0 30px;
+        font-size: 1.75rem;
+    }
+    
+    .class3 {
+        font-size: 24px;
+    }
+    
+    .class5 {
+        padding: 20px;
+    }
+    
+    .class7 {
+        max-width: 300px;
+    }
+
+:global(button){
+    padding: 10px 10px;
+}
+
+:global(button >svg) {
+height: 10px;
+width: 10px;
+}
+:global(button>span){
+    font-size: 10px;
+}
+}
+
+
+@media (max-width: 576px) {
+    .event_btn1, .event_btn2 {
+        padding: 5px 10px;
+        align-items: center;
+        justify-content: center;
+    }
+    .class1 {
+        width: 100%;
+        max-width: 100%;
+        display: block;
+        padding: 0 20px;
+        font-size: 1.5rem;
+    }
+}
+
+
+@media (max-width: 360px) {
+    .class1 {
+        padding: 0 15px;
+        font-size: 1.3rem;
+    }
+}
+
+.newclass{
+    word-wrap: break-word;
+  text-align: justify;     
+  overflow-wrap: break-word;
+  hyphens: auto;
+}

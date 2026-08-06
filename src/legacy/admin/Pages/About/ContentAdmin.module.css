@@ -1,0 +1,540 @@
+.admin {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 30px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  color: white;
+}
+
+.header h1 {
+  margin: 0 0 10px 0;
+  font-size: 2.5rem;
+}
+
+.header p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+.message {
+  padding: 15px 20px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.success {
+  background: #d4edda;
+  color: #1c5e20;
+  border: 1px solid #c3e6cb;
+}
+
+.error {
+  background: #f8d7da;
+  color: #e7001e;
+  border: 1px solid #f5c6cb;
+}
+
+.container {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 30px;
+  min-height: 600px;
+}
+
+.sidebar {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 20px;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+}
+
+.sidebar h3 {
+  margin: 0 0 20px 0;
+  color: #222222;
+  font-size: 1.2rem;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.navItem {
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #222222;
+  font-size: 14px;
+}
+
+.navItem:hover {
+  background: #e9ecef;
+  color: #2c3e50;
+}
+
+.navItem.active {
+  background: #009dc8;
+  color: white;
+}
+
+.main {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.sectionHeader h2 {
+  margin: 0;
+  color: #222222;
+  font-size: 1.8rem;
+}
+
+.refreshBtn {
+  padding: 8px 16px;
+  background: #009dc8;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.refreshBtn:hover:not(:disabled) {
+  background: #009dc8;
+}
+
+.refreshBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.sectionActions {
+  margin-bottom: 30px;
+}
+
+.loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6c757d;
+  font-size: 16px;
+}
+
+/* Form Styles */
+.sectionForm,
+.crudForm {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formGroup label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.formGroup input,
+.formGroup textarea {
+  padding: 12px;
+  border: 2px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.formGroup input:focus,
+.formGroup textarea:focus {
+  outline: none;
+  border-color: #02236e;
+}
+
+.formGroup textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Array Items */
+.arrayItem {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.arrayItem input,
+.arrayItem textarea {
+  flex: 1;
+}
+
+.removeBtn {
+  padding: 8px 12px;
+  background: #e7001e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.removeBtn:hover {
+  background: #f80120;
+}
+
+.addBtn {
+  padding: 10px 16px;
+  background: #1c5e20;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  align-self: flex-start;
+}
+
+.addBtn:hover {
+  background: #247b2a;
+}
+
+/* Buttons */
+.primaryBtn {
+  padding: 12px 24px;
+  background: #02236e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.primaryBtn:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.primaryBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.secondaryBtn {
+  padding: 12px 24px;
+  background: #fcdd2d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+
+.secondaryBtn:hover {
+  background: #fcdd2d;
+}
+
+.formActions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* CRUD Sections */
+.crudSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.crudForm {
+  background: #f8f9fa;
+  padding: 25px;
+  border-radius: 8px;
+  height: fit-content;
+}
+
+.crudForm h3 {
+  margin: 0 0 20px 0;
+  color: #2c3e50;
+}
+
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.itemsList h3 {
+  margin: 0;
+  color: #222222;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.itemCard {
+  background: white;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  transition: box-shadow 0.2s;
+}
+
+.itemCard:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.itemContent {
+  flex: 1;
+}
+
+.itemContent h4 {
+  margin: 0 0 8px 0;
+  color: #02236e;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.position {
+  color: #009dc8;
+  font-size: 14px;
+  margin: 0 0 12px 0;
+  font-weight: 500;
+}
+
+.description {
+  color: #222222;
+  line-height: 1.5;
+  margin: 0 0 12px 0;
+  font-size: 14px;
+}
+
+.itemActions {
+  display: flex;
+  gap: 8px;
+}
+
+.editBtn {
+  padding: 8px 16px;
+  background: #1c5e20;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.editBtn:hover {
+  background: #247b2a;
+}
+
+.deleteBtn {
+  padding: 8px 16px;
+  background: #e7001e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.deleteBtn:hover {
+  background: #f80120;
+}
+
+/* Image Preview */
+.imagePreview {
+  margin-top: 12px;
+  max-width: 100%;
+}
+
+.imagePreview img {
+  display: flex;
+  margin: 0 auto;
+  width: 70%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+
+  .nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .crudSection {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin {
+    padding: 15px;
+  }
+
+  .header {
+    padding: 20px;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+
+  .main {
+    padding: 20px;
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    gap: 15px;
+    align-items: flex-start;
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .arrayItem {
+    flex-direction: column;
+  }
+
+  .itemCard {
+    flex-direction: column;
+  }
+
+  .itemActions {
+    align-self: stretch;
+  }
+
+  .itemActions button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .header h1 {
+    font-size: 1.5rem;
+  }
+
+  .sectionHeader h2 {
+    font-size: 1.4rem;
+  }
+
+  .nav {
+    flex-direction: column;
+  }
+}
+
+/* Image Preview Styles */
+.imagePreview {
+  margin-top: 15px;
+  padding: 15px;
+  border: 2px dashed #e9ecef;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+.imagePreview h4,
+.imagePreview h5 {
+  margin: 0 0 10px 0;
+  color: #495057;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.imagePreview img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+/* YouTube Preview Styles */
+.youtubePreview {
+  margin-top: 20px;
+  padding: 15px;
+  border: 2px dashed #e9ecef;
+  border-radius: 8px;
+  background: #f8f9fa;
+}
+
+.youtubePreview h4 {
+  margin: 0 0 15px 0;
+  color: #495057;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.youtubePreview iframe {
+  border-radius: 6px;
+  border: 1px solid #dee2e6;
+}
+
+/* Responsive adjustments for previews */
+@media (max-width: 768px) {
+  .imagePreview,
+  .youtubePreview {
+    padding: 10px;
+  }
+  
+  .youtubePreview iframe {
+    height: 250px;
+  }
+}
+
+@media (max-width: 480px) {
+  .youtubePreview iframe {
+    height: 200px;
+  }
+}

@@ -1,0 +1,195 @@
+
+/* Reusable container class */
+.container {
+  /* max-width: 1200px;  ✅ keeps all sections the same width */
+ width: 100%;
+  margin: 0 auto;     /* ✅ centers the content */
+  padding: 0 -0.5rem;  /* ✅ adds side padding for smaller screens */
+}
+
+/* Services styling */
+.services {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 2rem 0;
+  /* background: #f9fafc; */
+}
+
+
+.card {
+  background: white;
+  border-radius: 12px;
+  width: 220px;
+  height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(11, 111, 191, 0.08), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card:hover {
+  transform: translateY(-8px) scale(1.05);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+}
+
+.icon {
+  font-size: 2.5rem;
+  color: #e7001e;
+  margin-bottom: 0.8rem;
+  /* transition: transform 0.3s ease, color 0.3s ease; */
+}
+
+.card:hover .icon {
+  transform: scale(1.2) rotate(8deg);
+}
+
+.info {
+  text-align: center;
+}
+
+.qty {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1a202c;
+  margin-bottom: 0.3rem;
+}
+
+.name {
+  font-size: 1rem;
+  color: #4a5568;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.card:hover .name {
+  color: #02236e;
+}
+
+/* Simple fade-in animation */
+.card {
+  animation: fadeInUp 0.8s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.Call_Khudii{
+  color: #e7001e;
+  font-size: 2vw;
+  font-weight: 700;
+}
+
+.Phone{
+font-size: 1.5vw;
+color:white;
+background-color:#02236e;
+cursor: pointer;
+padding: 10px;
+border-radius: 20px;
+width: inherit;
+
+}
+.parentCall{
+
+display: flex;
+align-items: center;
+justify-content: center;
+width: 400px;
+
+}
+.Phone:hover{
+  background-color: white;
+  transition: ease-in-out .5s;
+  color:#02236e;
+  border: solid #02236e 2px;
+  box-shadow: 0 12px 14x black;
+}
+
+@media (max-width:503px){
+  .card{
+    width: 47%;
+    height: 130px;
+    
+  }
+  .icon{
+font-size:1.4rem ;
+  }
+  .qty{
+font-size:1.4rem ;
+  }
+  .name{
+    font-size:.7rem ;
+  }
+}
+
+@media (max-width:344px){
+  .card{
+    width: 47%;
+    height: 130px;
+    
+  }
+  .icon{
+font-size:1.4rem ;
+  }
+  .qty{
+font-size:1.4rem ;
+  }
+  .name{
+    font-size:.7rem ;
+  }
+}
+
+
+@media (max-width:800px){
+  .Phone{
+font-size:20px;
+}
+
+.Call_Khudii{
+
+  font-size: 20px;
+
+}
+
+}
+
+@media (max-width:400px){
+  .parentCall{
+    width: 250px;
+   
+  }
+}
+
+.borderbox{
+  box-sizing: border-box;
+}

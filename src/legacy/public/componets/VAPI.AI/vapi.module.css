@@ -1,0 +1,22 @@
+/* VapiWidget svg{
+  border-radius: 12px !important;
+  padding: 10px 16px !important;
+  margin: 8px !important;
+  font-size: 14px !important;
+  background-color: #3B82F6 !important;
+  color: white !important;
+} */
+
+
+#root > div.vapi-widget-wrapper > div > div > div:nth-child(3) > div > button.h-10.w-10.flex.items-center.justify-center.rounded-lg.transition-all.opacity-50.cursor-not-allowed{
+    border-radius: 12px !important;
+  padding: 10px 16px !important;
+  margin: 8px !important;
+  font-size: 14px !important;
+  background-color: #3B82F6 !important;
+  color: white !important;
+}
+
+
+
+
