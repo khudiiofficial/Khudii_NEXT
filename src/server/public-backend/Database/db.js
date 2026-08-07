@@ -5,7 +5,7 @@ const globalKey = '__khudiiDbPool';
 function createPool() {
   const host = process.env.DB_HOST || process.env.DATABASE_HOST;
   const user = process.env.DB_USER || process.env.DATABASE_USER;
-  const password = process.env.DB_PASS || process.env.DATABASE_PASSWORD;
+  const password = process.env.DB_PASSWORD || process.env.DB_PASS || process.env.DATABASE_PASSWORD;
   const database = process.env.DB_NAME || process.env.DATABASE_NAME;
   const port = Number(process.env.DB_PORT || process.env.DATABASE_PORT || 3306);
 
