@@ -1,9 +1,8 @@
-// import jwt from "jsonwebtoken";
-// import bcrypt from "bcrypt";
-// import db from "../Database/DB.js";
-// import db1 from '../Database/oldDB.js'
-// import { uploadToFTP, deleteFromFTP } from "../utils/ftpUpload.js";
-// import { DtoArr } from "../Dto/objectDto.js";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import db1 from '../Database/oldDB.js';
+import { uploadToFTP, deleteFromFTP, uploadVideoToFTP, deleteVideoFromFTP } from "../utils/ftpUpload.js";
+import { DtoArr } from "../Dto/objectDto.js";
 // // Utility Functions
 // function uniqueImageName(extension = "png") {
 //   return `${Date.now()}-${Math.floor(Math.random() * 1e6)}.${extension}`;
@@ -1335,11 +1334,7 @@
 
 
 
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
-import db1 from '../Database/oldDB.js'
-import { uploadToFTP, deleteFromFTP,uploadVideoToFTP,deleteVideoFromFTP } from "../utils/ftpUpload.js";
-import { DtoArr } from "../Dto/objectDto.js";
+// Imports are at the top of this file (ESM requires top-level imports)
 
 // Utility Functions
 function uniqueImageName(extension = "png") {
@@ -4000,30 +3995,40 @@ export const deleteContactMessage = (req, res) => {
   });
 };
 
-export const authlogin=async (req,res)=>{
- const token = req.cookies.token;
- const JWT_SECRET = process.env.JWT_SECRET;
-// console.log(JWT_SECRET)
+export const authlogin = async (req, res) => {
+  const token = req.cookies.token;
+  const JWT_SECRET = process.env.JWT_SECRET;
+
   if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: 'Unauthorized' });
   }
   if (!JWT_SECRET) {
-    return res.status(500).json({ message: "JWT secret is not configured" });
+    return res.status(500).json({ message: 'JWT secret is not configured' });
   }
 
+  let decoded;
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user=decoded
-//    console.log(decoded)
+    decoded = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    return res.status(401).json({ message: "Invalid token" });
+    return res.status(401).json({ message: 'Invalid token' });
   }
 
-  res.status(200).json({message:"success"})
-  
-  
-  
-}
+  // Fetch fresh user data from DB to ensure up-to-date profile info
+  try {
+    const [rows] = await db1.promise().query(
+      'SELECT id, email, name, role FROM users WHERE id = ? LIMIT 1',
+      [decoded.id],
+    );
+    if (rows.length === 0) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+    const user = { ...rows[0], auth: true };
+    return res.status(200).json({ message: 'success', user });
+  } catch (err) {
+    console.error('authlogin DB error:', err);
+    return res.status(500).json({ message: 'Database error' });
+  }
+};
 
 
 

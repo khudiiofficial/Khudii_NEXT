@@ -2,14 +2,18 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from '@/lib/router-compat';
 import { useAdminAuth } from '@/lib/admin-auth';
-const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
+
+// API base for admin backend — all admin requests go through /api-app with x-khudii-surface header
+const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app');
+
 export default function AdminLogin() {
   const { setUser } = useAdminAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const nav=useNavigate();
+  const nav = useNavigate();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -19,12 +23,11 @@ export default function AdminLogin() {
       const res = await axios.post(
         `${APIPath}/auth/login`,
         { email, password },
-        { withCredentials: true } // important for cookies
+        { withCredentials: true }
       );
 
-    //   alert("Login successful!");
-      setUser(res.data.user)
-      nav('/dashboard')
+      setUser(res.data.user);
+      nav('/admin-app/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     } finally {

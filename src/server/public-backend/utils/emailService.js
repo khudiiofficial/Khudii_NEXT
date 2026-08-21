@@ -18,7 +18,8 @@ function createTransporter(senderEmail, appPassword) {
       secure: process.env.SMTP_SECURE === 'true',
       auth: {
         user: process.env.SMTP_USER || senderEmail,
-        pass: process.env.SMTP_PASSWORD || appPassword,
+        // Support both SMTP_PASSWORD and legacy SMTP_PASS
+        pass: process.env.SMTP_PASSWORD || process.env.SMTP_PASS || appPassword,
       },
     });
   }
@@ -31,8 +32,10 @@ function createTransporter(senderEmail, appPassword) {
 
 async function getOwnerConfiguration() {
   const environmentSender = process.env.SMTP_USER;
-  const environmentPassword = process.env.SMTP_PASSWORD;
-  const environmentRecipient = process.env.NOTIFICATION_EMAIL;
+  // Support both SMTP_PASSWORD and legacy SMTP_PASS
+  const environmentPassword = process.env.SMTP_PASSWORD || process.env.SMTP_PASS;
+  // Fall back to SMTP_USER if NOTIFICATION_EMAIL is not set
+  const environmentRecipient = process.env.NOTIFICATION_EMAIL || process.env.SMTP_USER;
 
   if (environmentSender && environmentPassword && environmentRecipient) {
     return {

@@ -122,15 +122,7 @@ export const getSocials=(req,res)=>{
 
 
 
-// create blog
 // Helper for unique image name
-import fs from "fs";
-import path from "path";
-
-const storagePath = path.join(process.cwd(), "storage");
-// if (!fs.existsSync(storagePath)) {
-//   fs.mkdirSync(storagePath);
-// }
 function uniqueImageName(extension = "png") {
   return `${Date.now()}-${Math.floor(Math.random() * 1e6)}.${extension}`;
 }
