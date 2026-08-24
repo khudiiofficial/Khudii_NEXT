@@ -95,7 +95,7 @@ db.query('SELECT * FROM icons where item_id=?',[id],(err,rows)=>{
     return res.status(500).json({error:err.message})
   }
 if(rows.length===0){
-  return res.status(400).json({err:"no icon found"})
+  return res.status(200).json([])
 }
 
   res.status(200).json(rows)
