@@ -98,6 +98,8 @@ export function proxy(request) {
   return NextResponse.next();
 }
 
+export default proxy;
+
 export const config = {
   matcher: ['/((?!_next/static|_next/image).*)'],
 };
