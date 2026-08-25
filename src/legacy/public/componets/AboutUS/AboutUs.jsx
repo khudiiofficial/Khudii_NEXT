@@ -3,6 +3,29 @@ import styles from './AboutUs.module.css';
 import axios from 'axios';
 import { useNavigate } from '@/lib/router-compat';
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
+
+const safeParseArray = (value) => {
+  if (Array.isArray(value)) {
+    return value;
+  }
+
+  if (!value) {
+    return [];
+  }
+
+  if (typeof value !== 'string') {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    console.warn('Invalid JSON array:', value);
+    return [];
+  }
+};
+
 const AboutUs = () => {
   const nav=useNavigate()
   const teamMembers = [
@@ -156,7 +179,7 @@ const [loading,setLoading]=useState(false)
             <h3 className={styles.purposeTitle} dangerouslySetInnerHTML={{__html:contentdata?.dream_and_purpose?.bullets_header}}></h3>
       <ul className={styles.bulletList}>
   {contentdata?.dream_and_purpose?.bullets && 
-    JSON.parse(contentdata.dream_and_purpose.bullets)?.map((point, i) => (
+    safeParseArray(contentdata?.dream_and_purpose?.bullets).map((point, i) => (
       <li key={i} className={styles.bulletItem}>
         <span className={styles.bullet}>•</span> {point}
       </li>
@@ -273,7 +296,7 @@ const [loading,setLoading]=useState(false)
               </p>
               <ul className={styles.joinList}>
                 { contentdata?.join_us?.bullets &&
-                JSON.parse(contentdata.join_us.bullets)?.map((point, i) => (
+                safeParseArray(contentdata?.join_us?.bullets).map((point, i) => (
                   <li key={i} className={styles.joinItem}>
                     <span className={styles.bullet}>•</span> {point}
                   </li>
