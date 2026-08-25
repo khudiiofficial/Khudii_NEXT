@@ -13,23 +13,30 @@ function createPool() {
     console.warn('Khudii database environment variables are incomplete.');
   }
 
-  return mysql.createPool({
+  const pool = mysql.createPool({
     host,
     user,
     password,
     database,
     port,
     waitForConnections: true,
-    connectionLimit: Number(process.env.DB_CONNECTION_LIMIT || 5),
+    connectionLimit: Number(process.env.DB_CONNECTION_LIMIT || 10),
     maxIdle: Number(process.env.DB_MAX_IDLE || 5),
-    idleTimeout: Number(process.env.DB_IDLE_TIMEOUT || 60000),
-    queueLimit: Number(process.env.DB_QUEUE_LIMIT || 50),
+    idleTimeout: Number(process.env.DB_IDLE_TIMEOUT || 30000),
+    queueLimit: Number(process.env.DB_QUEUE_LIMIT || 0),
     enableKeepAlive: true,
-    keepAliveInitialDelay: 10000,
+    keepAliveInitialDelay: 5000,
     connectTimeout: Number(process.env.DB_CONNECT_TIMEOUT || 10000),
     multipleStatements: false,
     ssl: process.env.DB_SSL === 'false' ? undefined : { rejectUnauthorized: process.env.DB_SSL_REJECT_UNAUTHORIZED === 'true' },
   });
+
+  // Handle pool-level connection errors gracefully
+  pool.on('error', (err) => {
+    console.error('MySQL Pool Error:', err);
+  });
+
+  return pool;
 }
 
 const db = globalThis[globalKey] || createPool();
