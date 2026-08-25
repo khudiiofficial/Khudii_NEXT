@@ -11,6 +11,15 @@ const nextConfig = {
   },
   poweredByHeader: false,
   compress: true,
+  async redirects() {
+    return [
+      {
+        source: '/khudii-about',
+        destination: '/about-khudii',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

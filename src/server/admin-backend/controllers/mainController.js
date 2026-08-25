@@ -4025,7 +4025,14 @@ export const authlogin = async (req, res) => {
     const user = { ...rows[0], auth: true };
     return res.status(200).json({ message: 'success', user });
   } catch (err) {
-    console.error('authlogin DB error:', err);
+    console.error('authlogin DB error:', err.message);
+    if (decoded && decoded.id && decoded.email) {
+      return res.status(200).json({
+        message: 'success',
+        user: { id: decoded.id, email: decoded.email, auth: true },
+        warning: 'Served from valid verified token during temporary DB connection reset'
+      });
+    }
     return res.status(500).json({ message: 'Database error' });
   }
 };

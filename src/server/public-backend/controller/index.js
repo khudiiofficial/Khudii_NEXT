@@ -1482,13 +1482,17 @@ export const getAllContent = (req, res) => {
   Object.keys(queries).forEach((key) => {
     db.query(queries[key], (err, data) => {
       if (err) {
-        console.error(`❌ Error fetching ${key}:`, err);
-        results[key] = null;
+        console.error(`❌ Error fetching ${key}:`, err.message);
+        if (key === "expert_team" || key === "new_section") {
+          results[key] = [];
+        } else {
+          results[key] = createEmptyRecord(key);
+        }
       } else {
         if (key === "expert_team" || key === "new_section") {
-          results[key] = data; // full array
+          results[key] = Array.isArray(data) ? data : [];
         } else {
-          results[key] = data.length > 0 ? data[0] : createEmptyRecord(key);
+          results[key] = data && data.length > 0 ? data[0] : createEmptyRecord(key);
         }
       }
 
