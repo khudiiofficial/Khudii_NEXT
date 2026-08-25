@@ -4016,7 +4016,7 @@ export const authlogin = async (req, res) => {
   // Fetch fresh user data from DB to ensure up-to-date profile info
   try {
     const [rows] = await db1.promise().query(
-      'SELECT id, email, name, role FROM users WHERE id = ? LIMIT 1',
+      'SELECT id, email FROM users WHERE id = ? LIMIT 1',
       [decoded.id],
     );
     if (rows.length === 0) {
