@@ -48,10 +48,9 @@ function SessionGuard({ children }) {
     };
 
     check();
-    const timer = window.setInterval(check, 20000);
+
     return () => {
       active = false;
-      window.clearInterval(timer);
     };
   }, [auth, hydrated, pathname, resetUser, router, setUser]);
 
