@@ -78,7 +78,7 @@ export function proxy(request) {
       }
       if (token && (lower === '/' || lower === '/login')) {
         const dashboardUrl = request.nextUrl.clone();
-        dashboardUrl.pathname = '/dashboard';
+        dashboardUrl.pathname = '/admin-app/dashboard';
         return NextResponse.redirect(dashboardUrl);
       }
       const adminPath = lower === '/login' ? '/Login' : pathname;

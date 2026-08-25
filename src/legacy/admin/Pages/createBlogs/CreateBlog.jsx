@@ -875,7 +875,7 @@ export default function CreateBlogPage() {
         withCredentials: true,
       });
       alert("✅ Blog created successfully!");
-      navigate("/dashboard/BlogPage");
+      navigate("/admin-app/dashboard/BlogPage");
     } catch (err) {
       console.error("Error creating blog:", err);
       const errorMessage = err.response?.data?.message || "Failed to create blog";
@@ -896,7 +896,7 @@ export default function CreateBlogPage() {
               <p className="text-gray-600 mt-2">Add a New Blog post With All related Content</p>
             </div>
             <button
-              onClick={() => navigate("/dashboard/BlogPage")}
+              onClick={() => navigate("/admin-app/dashboard/BlogPage")}
               className="bg-[#e7001e] text-white px-4 py-2 rounded-lg hover:bg-[#f80020] transition-colors"
             >
               ← Back to Blogs
@@ -1261,7 +1261,7 @@ export default function CreateBlogPage() {
               </button>
               <button
                 type="button"
-                onClick={() => navigate("/dashboard/BlogPage")}
+                onClick={() => navigate("/admin-app/dashboard/BlogPage")}
                 className="cursor-pointer bg-[#e7001e] text-white px-8 py-3 rounded-lg hover:bg-[#f80120] transition-colors font-semibold"
               >
                 Cancel

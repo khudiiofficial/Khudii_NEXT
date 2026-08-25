@@ -48,7 +48,7 @@ export default function DocumentCards() {
   };
 
   const handleUpdate = (id) => {
-    navigate(`/dashboard/edit-Blog/${id}`);
+    navigate(`/admin-app/dashboard/edit-Blog/${id}`);
   };
 
   // const handleView = (id) => {
@@ -56,7 +56,7 @@ export default function DocumentCards() {
   // };
 
   const handleCreate = () => {
-    navigate("/dashboard/create-document");
+    navigate("/admin-app/dashboard/create-document");
   };
 
   if (loading) {

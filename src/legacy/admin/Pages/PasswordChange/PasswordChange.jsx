@@ -79,7 +79,7 @@ export default function ChangePassword() {
           newPassword: "",
           confirmPassword: ""
         });
-        navigate("/dashboard");
+        navigate("/admin-app/dashboard");
       }
     } catch (error) {
       console.error("Change password error:", error);

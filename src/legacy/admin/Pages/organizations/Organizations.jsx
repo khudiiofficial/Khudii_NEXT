@@ -146,7 +146,7 @@ export default function OrganizationsPage() {
                   </p>
                   <div className="flex justify-between items-center">
                     <button
-                      onClick={() => navigate(`/dashboard/edit-organization/${org.id}`)}
+                      onClick={() => navigate(`/admin-app/dashboard/edit-organization/${org.id}`)}
                       className="cursor-pointer bg-[#02236e] text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition-colors duration-200 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
                       Edit Organization

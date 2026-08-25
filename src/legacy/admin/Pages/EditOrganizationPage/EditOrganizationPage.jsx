@@ -1223,7 +1223,7 @@ export default function EditOrganizationPage() {
       } catch (err) {
         console.error("Error Fetching Organization:", err);
         alert("Failed to Load Organization Data");
-        navigate("/dashboard/OrganizationPage");
+        navigate("/admin-app/dashboard/OrganizationPage");
       } finally {
         setIsLoading(false);
       }
@@ -1627,7 +1627,7 @@ export default function EditOrganizationPage() {
       });
       // alert("✅ Organization Updated Successfully!");
       showSuccessAlert();
-      navigate("/dashboard/OrganizationPage");
+      navigate("/admin-app/dashboard/OrganizationPage");
     } catch (err) {
       console.error(err);
       if (err.response?.data?.error === "DUPLICATE_SLUG") {
@@ -1678,7 +1678,7 @@ export default function EditOrganizationPage() {
               <p className="text-[#222222] font-medium">Update the Details of Your Organization</p>
             </div>
             <button
-              onClick={() => navigate("/dashboard/OrganizationPage")}
+              onClick={() => navigate("/admin-app/dashboard/OrganizationPage")}
               className="cursor-pointer bg-[#fcdd2d] text-[#222222] px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors hover:text-white"
             >
               ← Back
@@ -2165,7 +2165,7 @@ export default function EditOrganizationPage() {
               </button>
               <button
                 type="button"
-                onClick={() => navigate("/dashboard/OrganizationPage")}
+                onClick={() => navigate("/admin-app/dashboard/OrganizationPage")}
                 className="cursor-pointer px-8 py-3 rounded-lg font-semibold bg-[#e7001e] hover:bg-red-700 text-white transition-colors"
               >
                 Cancel

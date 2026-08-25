@@ -21,7 +21,7 @@ export default function Sidebar() {
       );
       if (res.status === 200) {
         resetUser();
-        navigate("/Login");
+        navigate("/admin-app/Login");
       }
     } catch (err) {
       console.error("Logout failed:", err);
@@ -34,36 +34,34 @@ export default function Sidebar() {
   };
 
   const mainLinks = [
-    { path: "/dashboard/OrganizationPage", label: "Organizations" },
-    { path: "/dashboard/BlogPage", label: "Blogs" },
-    { path: "/dashboard/createorg", label: "Add Organization" },
-    { path: "/dashboard/create-document", label: "Add Blog" },
-    { path: "/dashboard/NewsEvents", label: "News & Events" },
-    { path: "/dashboard/welcome-secton", label: "Welcome Section" },
-    { path: "/dashboard/eventDescription", label: "Event Description" },
-     { path: "/dashboard/SuccessStories", label: "Success Stories" },
-    { path: "/dashboard/Vedios", label: "Videos" },
-    { path: "/dashboard/Inquiries", label: "Organization Inquiries" },
-    { path: "/dashboard/Donation", label: "Donations" },
-    { path: "/dashboard/Stories", label: "Contributed Stories" },
-    { path: "/dashboard/JobApplication", label: "Job Applications" },
-    { path: "/dashboard/Voulenteer", label: "Volunteers" },
-    { path: "/dashboard/Contacts", label: "Contacts" },
-    { path: "/dashboard/Topbar", label: "Top Bar" },
-    { path: "/dashboard/Certifications", label: "Certifications" },
-    { path: "/dashboard/Testimonials", label: "Testimonials" },
-    { path: "/dashboard/sectors", label: "Sectors" },
-    { path: "/dashboard/crousel-images", label: "Carousel Images" },
-    { path: "/dashboard/vision", label: "Vision" },
-    { path: "/dashboard/storiesDescription", label: "Home Page Story Description" },
-    { path: "/dashboard/contentAdmin", label: "About Page" },
-    { path: "/dashboard/seo", label: "SEO Management" },
-    { path: "/dashboard/footer", label: "Footer and other images" },
-    { path: "/dashboard/faqs", label: "FAQS" },
-    { path: "/dashboard/bank", label: "Conatct Bank Details" },
-    { path: "/dashboard/OrgRegistration", label: "Organization Registartion Request" },
-    
-
+    { path: "/admin-app/dashboard/OrganizationPage", label: "Organizations" },
+    { path: "/admin-app/dashboard/BlogPage", label: "Blogs" },
+    { path: "/admin-app/dashboard/createorg", label: "Add Organization" },
+    { path: "/admin-app/dashboard/create-document", label: "Add Blog" },
+    { path: "/admin-app/dashboard/NewsEvents", label: "News & Events" },
+    { path: "/admin-app/dashboard/welcome-secton", label: "Welcome Section" },
+    { path: "/admin-app/dashboard/eventDescription", label: "Event Description" },
+    { path: "/admin-app/dashboard/SuccessStories", label: "Success Stories" },
+    { path: "/admin-app/dashboard/Vedios", label: "Videos" },
+    { path: "/admin-app/dashboard/Inquiries", label: "Organization Inquiries" },
+    { path: "/admin-app/dashboard/Donation", label: "Donations" },
+    { path: "/admin-app/dashboard/Stories", label: "Contributed Stories" },
+    { path: "/admin-app/dashboard/JobApplication", label: "Job Applications" },
+    { path: "/admin-app/dashboard/Voulenteer", label: "Volunteers" },
+    { path: "/admin-app/dashboard/Contacts", label: "Contacts" },
+    { path: "/admin-app/dashboard/Topbar", label: "Top Bar" },
+    { path: "/admin-app/dashboard/Certifications", label: "Certifications" },
+    { path: "/admin-app/dashboard/Testimonials", label: "Testimonials" },
+    { path: "/admin-app/dashboard/sectors", label: "Sectors" },
+    { path: "/admin-app/dashboard/crousel-images", label: "Carousel Images" },
+    { path: "/admin-app/dashboard/vision", label: "Vision" },
+    { path: "/admin-app/dashboard/storiesDescription", label: "Home Page Story Description" },
+    { path: "/admin-app/dashboard/contentAdmin", label: "About Page" },
+    { path: "/admin-app/dashboard/seo", label: "SEO Management" },
+    { path: "/admin-app/dashboard/footer", label: "Footer and other images" },
+    { path: "/admin-app/dashboard/faqs", label: "FAQS" },
+    { path: "/admin-app/dashboard/bank", label: "Conatct Bank Details" },
+    { path: "/admin-app/dashboard/OrgRegistration", label: "Organization Registration Request" },
   ];
 
   // const moreLinks = [
@@ -96,7 +94,7 @@ export default function Sidebar() {
       <div className="p-4 border-b border-[#02236e]-500 flex items-center justify-between">
         {!isCollapsed && (
           <div className="text-2xl font-bold tracking-wide">
-            <Link to={'/dashboard'}>Admin Panel</Link>
+            <Link to={'/admin-app/dashboard'}>Admin Panel</Link>
           </div>
         )}
         <button
@@ -138,7 +136,7 @@ export default function Sidebar() {
       {/* Footer Actions */}
       <div className="p-4 border-t border-[#02236e]-500 space-y-2">
         <button
-          onClick={() => navigate("/dashboard/Profile")}
+          onClick={() => navigate("/admin-app/dashboard/Profile")}
           className={`cursor-pointer w-full bg-white text-[#02236e] px-3 py-2 rounded-lg font-medium hover:bg-gray-100 transition shadow ${
             isCollapsed ? "text-xs" : ""
           }`}

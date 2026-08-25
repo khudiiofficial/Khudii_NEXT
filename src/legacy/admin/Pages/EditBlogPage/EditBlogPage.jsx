@@ -911,7 +911,7 @@ export default function EditBlogPage() {
       if(res.status===200){
         console.log("Form data to submit:", form);
         alert("✅ Blog updated successfully!");
-        navigate("/dashboard/BlogPage");
+        navigate("/admin-app/dashboard/BlogPage");
       }
     } catch (err) {
       console.error("Error updating blog:", err);
@@ -967,7 +967,7 @@ export default function EditBlogPage() {
               <p className="text-gray-600 mt-2">Update your blog content and details</p>
             </div>
             <button
-              onClick={() => navigate("/dashboard/BlogPage")}
+              onClick={() => navigate("/admin-app/dashboard/BlogPage")}
               className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600 transition-colors"
             >
               ← Back to Blogs
@@ -1326,7 +1326,7 @@ export default function EditBlogPage() {
               </button>
               <button
                 type="button"
-                onClick={() => navigate("/dashboard/BlogPage")}
+                onClick={() => navigate("/admin-app/dashboard/BlogPage")}
                 className="bg-gray-500 text-white px-8 py-3 rounded-lg hover:bg-gray-600 transition-colors font-semibold"
               >
                 Cancel
