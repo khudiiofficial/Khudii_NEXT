@@ -1224,8 +1224,8 @@ export const getAllSectors = (req, res) => {
   const query = 'SELECT * FROM sectors ORDER BY id ASC';
   db.query(query, (err, results) => {
     if (err) {
-      console.error('❌ Error fetching sectors:', err);
-      return res.status(500).json({ success: false, error: 'Database error' });
+      console.error('❌ Error fetching sectors:', err.message);
+      return res.status(200).json({ success: true, data: [], warning: 'Database query failed, returned empty sectors list.' });
     }
     res.status(200).json({ success: true, data: results });
   });
@@ -1398,24 +1398,26 @@ export const getEventData = (req, res) => {
 export const getTelephoneData = (req, res) => {
   const query = "SELECT * FROM telephone LIMIT 1";
   
+  const fallback = {
+    id: null,
+    phone_number: "",
+    icon_name: "",
+    created_at: null,
+    updated_at: null
+  };
+
   db.query(query, (err, results) => {
     if (err) {
-      console.error("❌ Error fetching telephone data:", err);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to fetch telephone data",
-        error: err.message
+      console.error("❌ Error fetching telephone data:", err.message);
+      return res.status(200).json({
+        success: true,
+        data: fallback,
+        warning: "Database query failed, returned default telephone data."
       });
     }
     
     // If no data exists, return empty object
-    const data = results.length > 0 ? results[0] : {
-      id: null,
-      phone_number: "",
-      icon_name: "",
-      created_at: null,
-      updated_at: null
-    };
+    const data = results.length > 0 ? results[0] : fallback;
     
     res.status(200).json({
       success: true,
@@ -1429,29 +1431,31 @@ export const getTelephoneData = (req, res) => {
 export const getFooterContent = (req, res) => {
   const query = "SELECT * FROM footercontents LIMIT 1";
   
+  const fallback = {
+    id: null,
+    logoimage: "",
+    pageimage: "",
+    footertext: "",
+    email: "",
+    location: "",
+    created_at: null,
+    updated_at: null
+  };
+
   db.query(query, (err, results) => {
     if (err) {
-      console.error("❌ Error fetching footer content:", err);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to fetch footer content",
-        error: err.message
+      console.error("❌ Error fetching footer content:", err.message);
+      return res.status(200).json({
+        success: true,
+        data: fallback,
+        warning: "Database query failed, returned default footer content."
       });
     }
     
     // If no data exists, return empty object
-    const data = results.length > 0 ? results[0] : {
-      id: null,
-      logoimage: "",
-      pageimage: "",
-      footertext: "",
-      email: "",
-      location: "",
-      created_at: null,
-      updated_at: null
-    };
+    const data = results.length > 0 ? results[0] : fallback;
     
-    res.json({
+    res.status(200).json({
       success: true,
       data: data
     });
@@ -1515,29 +1519,40 @@ const createEmptyRecord = (key) => {
 export const getSEOData = (req, res) => {
   const query = "SELECT * FROM website_seo LIMIT 1";
 
+  const fallback = {
+    id: null,
+    url: "",
+    pages: [],
+  };
+
   db.query(query, (err, results) => {
     if (err) {
-      console.error("❌ Error fetching SEO data:", err);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to fetch SEO data",
-        error: err.message,
+      console.error("❌ Error fetching SEO data:", err.message);
+      return res.status(200).json({
+        success: true,
+        data: fallback,
+        warning: "Database query failed, returned default SEO data."
       });
     }
 
     // If no data exists, return empty default
+    let parsedPages = [];
+    if (results.length > 0 && results[0].pages) {
+      try {
+        parsedPages = typeof results[0].pages === 'string' ? JSON.parse(results[0].pages) : results[0].pages;
+      } catch (parseErr) {
+        console.error("❌ Error parsing SEO pages JSON:", parseErr.message);
+      }
+    }
+
     const data =
       results.length > 0
         ? {
             id: results[0].id,
-            url: results[0].url,
-            pages: JSON.parse(results[0].pages || "[]"),
+            url: results[0].url || "",
+            pages: parsedPages,
           }
-        : {
-            id: null,
-            url: "",
-            pages: [],
-          };
+        : fallback;
 
     res.json({
       success: true,

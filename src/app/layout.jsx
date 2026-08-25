@@ -25,12 +25,6 @@ export default function RootLayout({ children }) {
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
-        <link
-          rel="preload"
-          as="image"
-          href="/1-taryaq-flood-2025-monthly-theme-khudii.webp"
-          fetchPriority="high"
-        />
       </head>
       <body suppressHydrationWarning>{children}</body>
     </html>
