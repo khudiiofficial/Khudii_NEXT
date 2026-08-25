@@ -126,7 +126,8 @@ const AdminVolunteers = () => {
                     <th>Volunteer</th>
                     <th>Contact</th>
                     <th>Country</th>
-                    <th>Contact Time</th>
+                    <th>City</th>
+                    <th>Contact Date</th>
                     <th>Message</th>
                     <th>Date</th>
                     <th>Actions</th>
@@ -147,9 +148,8 @@ const AdminVolunteers = () => {
                       <td>
                         {volunteer.CountryName}
                       </td>
-                      <td>
-                        {volunteer.contactTime}
-                      </td>
+                      <td>{volunteer.city || '-'}</td>
+                      <td>{volunteer.contactTime}</td>
                       <td className="message-cell">
                         <div title={volunteer.message}>
                           {truncateText(volunteer.message, 80)}
@@ -242,7 +242,12 @@ const AdminVolunteers = () => {
                 </div>
                 
                 <div className="detail-group">
-                  <label>Preferred Contact Time:</label>
+                  <label>City:</label>
+                  <span>{selectedVolunteer.city || '-'}</span>
+                </div>
+
+                <div className="detail-group">
+                  <label>Preferred Contact Date:</label>
                   <span className="contact-time">{selectedVolunteer.contactTime}</span>
                 </div>
                 

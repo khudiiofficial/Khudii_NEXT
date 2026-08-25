@@ -232,16 +232,15 @@ const [val,setval]=useState('')
               </div>
             </div>
 
-            {/* Phone and Contact Time Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Phone Field */}
-              <div className="flex flex-col">
+            {/* Phone, Contact Date and City Row */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {/* Phone Field - full width share */}
+              <div className="flex flex-col md:col-span-2">
                 <label className="text-sm font-semibold text-[#222222] mb-2">
                   Phone <span className="text-[#e7001e]">*</span>
                 </label>
                 <div ref={phoneInputRef} className="relative">
                   <div className="flex">
-                    {/* Country Code Selector */}
                     <button
                       type="button"
                       onClick={() => setShowCountryDropdown(!showCountryDropdown)}
@@ -251,26 +250,23 @@ const [val,setval]=useState('')
                         <span className="text-sm mr-2">{selectedCountry?.flag}</span>
                         <span className="text-[#222222] text-sm">+{watchCountryCode}</span>
                       </div>
-                      <svg 
-                        className={`w-4 h-4 text-[#222222] transition-transform ${
-                          showCountryDropdown ? 'rotate-180' : ''
-                        }`}
-                        fill="none" 
-                        stroke="currentColor" 
+                      <svg
+                        className={`w-4 h-4 text-[#222222] transition-transform ${showCountryDropdown ? 'rotate-180' : ''}`}
+                        fill="none"
+                        stroke="currentColor"
                         viewBox="0 0 24 24"
                       >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                       </svg>
                     </button>
-                    
-                    {/* Phone Input */}
+
                     <input
                       {...register("phone", {
                         required: "Phone Number is Required",
                         validate: validatePhoneNumber
                       })}
                       onBlur={handlePhoneBlur}
-                      className={`flex-1 w-1/2 px-4 py-3 border border-[#222222] rounded-r-xl focus:outline-none focus:ring-1 focus:ring-[#02236e] transition-colors ${
+                      className={`flex-1 min-w-0 px-4 py-3 border border-[#222222] rounded-r-xl focus:outline-none focus:ring-1 focus:ring-[#02236e] transition-colors ${
                         errors.phone ? "border-red-400 bg-red-50" : "border-[#222222]"
                       }`}
                       placeholder={watchCountryCode === '92' ? '301 234567' : 'Enter phone number'}
@@ -278,7 +274,6 @@ const [val,setval]=useState('')
                     />
                   </div>
 
-                  {/* Country Dropdown */}
                   {showCountryDropdown && (
                     <div className="absolute top-full left-0 mt-1 w-64 bg-white border border-[#222222] rounded-xl shadow-lg z-10 max-h-60 overflow-y-auto">
                       <div className="p-2">
@@ -300,36 +295,41 @@ const [val,setval]=useState('')
                     </div>
                   )}
                 </div>
-                {errors.phone && (
-                  <span className="text-xs text-[#e7001e] mt-1">{errors.phone.message}</span>
-                )}
-                
-                {/* Hidden fields for country data */}
+                {errors.phone && <span className="text-xs text-[#e7001e] mt-1">{errors.phone.message}</span>}
                 <input type="hidden" {...register("countryCode")} />
                 <input type="hidden" {...register("CountryName")} />
                 <input type="hidden" {...register("country")} />
               </div>
 
-              {/* Contact Time Field */}
+              {/* Contact Date Field - short */}
               <div className="flex flex-col">
                 <label className="text-sm font-semibold text-[#222222] mb-2">
-                  Time To Contact You <span className="text-[#e7001e]">*</span>
+                  Contact Date <span className="text-[#e7001e]">*</span>
                 </label>
                 <input
-                  {...register("contactTime", {
-                    required: "Preferred contact time is required"
-                  })}
-                  className={`w-full px-4 py-3 border rounded-xl focus:outline-none focus:ring-1 focus:ring-[#02236e] transition-colors ${
+                  type="date"
+                  {...register("contactTime", { required: "Preferred contact date is required" })}
+                  className={`w-full px-3 py-3 border rounded-xl focus:outline-none focus:ring-1 focus:ring-[#02236e] transition-colors ${
                     errors.contactTime ? "border-red-400 bg-red-50" : "border-[#222222]"
                   }`}
-                  placeholder="Date / Time"
                 />
-                {errors.contactTime && (
-                  <span className="text-xs text-[#e7001e] mt-1">{errors.contactTime.message}</span>
-                )}
-                <div className="text-xs text-[#009dc8] mt-1">
-                  Let Us Know When You're Available For A Call
-                </div>
+                {errors.contactTime && <span className="text-xs text-[#e7001e] mt-1">{errors.contactTime.message}</span>}
+              </div>
+
+              {/* City Field - short */}
+              <div className="flex flex-col">
+                <label className="text-sm font-semibold text-[#222222] mb-2">
+                  City <span className="text-[#e7001e]">*</span>
+                </label>
+                <input
+                  type="text"
+                  {...register("city", { required: "City is required" })}
+                  className={`w-full px-3 py-3 border rounded-xl focus:outline-none focus:ring-1 focus:ring-[#02236e] transition-colors ${
+                    errors.city ? "border-red-400 bg-red-50" : "border-[#222222]"
+                  }`}
+                  placeholder="City"
+                />
+                {errors.city && <span className="text-xs text-[#e7001e] mt-1">{errors.city.message}</span>}
               </div>
             </div>
 

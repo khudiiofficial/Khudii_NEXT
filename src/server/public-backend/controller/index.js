@@ -746,20 +746,20 @@ import { sendVolunteerEmail } from "../utils/emailService.js";
 export const AddVolunteer=(req,res)=>{
 
 
-  const { name, email, phone, countryCode, CountryName, country, contactTime, message } = req.body;
+  const { name, email, phone, city, countryCode, CountryName, country, contactTime, message } = req.body;
 const obj={
-  name, email, phone, countryCode, CountryName, country, contactTime, message
+  name, email, phone, city, countryCode, CountryName, country, contactTime, message
 }
-  if (!name || !email || !phone || !contactTime) {
+  if (!name || !email || !phone || !city || !contactTime) {
     return res.status(400).json({ error: "All required fields must be filled." });
   }
 
   const sql = `
-    INSERT INTO volunteers (name, email, phone, countryCode, CountryName, country, contactTime, message)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO volunteers (name, email, phone, city, countryCode, CountryName, country, contactTime, message)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
-  db.query(sql, [name, email, phone, countryCode, CountryName, country, contactTime, message], async (err, result) => {
+  db.query(sql, [name, email, phone, city, countryCode, CountryName, country, contactTime, message], async (err, result) => {
     if (err) {
       console.error("❌ Error inserting volunteer:", err);
       return res.status(500).json({ error: "Database error" });
@@ -1032,8 +1032,6 @@ export const createContactInquiry = async (req, res) => {
       // Still save the inquiry even if owner not found
       return saveInquiryWithoutEmail();
     }
-    const senderemail=ownerResults[0].sender_email
-    const appPassword=ownerResults[0].sender_app_password
     const ownerEmail = ownerResults[0].email;
     saveInquiryWithEmail(ownerEmail);
 
@@ -1079,7 +1077,7 @@ export const createContactInquiry = async (req, res) => {
 
         try {
           // Send email to owner
-          await sendContactInquiryEmail(senderemail,appPassword,inquiryData, ownerEmail);
+          await sendContactInquiryEmail(inquiryData);
           console.log(`✅ New contact inquiry submitted - ID: ${inquiryId}`);
         } catch (emailError) {
           console.error("Email sending failed but inquiry saved:", emailError);

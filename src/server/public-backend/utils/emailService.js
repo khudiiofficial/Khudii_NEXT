@@ -10,56 +10,55 @@ function escapeHtml(value) {
     .replaceAll("'", '&#039;');
 }
 
-function createTransporter(senderEmail, appPassword) {
-  if (process.env.SMTP_HOST) {
-    return nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT || 587),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER || senderEmail,
-        // Support both SMTP_PASSWORD and legacy SMTP_PASS
-        pass: process.env.SMTP_PASSWORD || process.env.SMTP_PASS || appPassword,
-      },
-    });
+function createTransporter(configuration) {
+  const { smtpHost, smtpPort, smtpSecure, smtpUsername, smtpPassword } = configuration;
+
+  if (!smtpHost || !smtpUsername || !smtpPassword) {
+    throw new Error('Owner SMTP configuration is incomplete');
   }
 
   return nodemailer.createTransport({
-    service: process.env.SMTP_SERVICE || 'gmail',
-    auth: { user: senderEmail, pass: appPassword },
+    host: smtpHost,
+    port: Number(smtpPort || 465),
+    secure: Boolean(Number(smtpSecure)),
+    auth: {
+      user: smtpUsername,
+      pass: smtpPassword,
+    },
   });
 }
 
 async function getOwnerConfiguration() {
-  const environmentSender = process.env.SMTP_USER;
-  // Support both SMTP_PASSWORD and legacy SMTP_PASS
-  const environmentPassword = process.env.SMTP_PASSWORD || process.env.SMTP_PASS;
-  // Fall back to SMTP_USER if NOTIFICATION_EMAIL is not set
-  const environmentRecipient = process.env.NOTIFICATION_EMAIL || process.env.SMTP_USER;
+  const [rows] = await db.promise().query(`
+    SELECT
+      email,
+      smtp_host,
+      smtp_port,
+      smtp_secure,
+      smtp_username,
+      smtp_password,
+      smtp_from
+    FROM owners
+    WHERE email IS NOT NULL
+      AND email <> ''
+    ORDER BY id ASC
+    LIMIT 1
+  `);
 
-  if (environmentSender && environmentPassword && environmentRecipient) {
-    return {
-      senderEmail: environmentSender,
-      appPassword: environmentPassword,
-      ownerEmail: environmentRecipient,
-      fromAddress: process.env.SMTP_FROM || environmentSender,
-    };
+  const owner = rows[0];
+
+  if (!owner?.email) {
+    throw new Error('Owner recipient email is not configured');
   }
 
-  const [rows] = await db.promise().query('SELECT * FROM owners LIMIT 1');
-  const owner = rows[0] || {};
-  const senderEmail = environmentSender || owner.sender_email;
-  const appPassword = environmentPassword || owner.sender_app_password;
-  const ownerEmail = environmentRecipient || owner.email;
-
-  if (!senderEmail || !appPassword || !ownerEmail) {
-    throw new Error('Owner email configuration is incomplete');
-  }
   return {
-    senderEmail,
-    appPassword,
-    ownerEmail,
-    fromAddress: process.env.SMTP_FROM || senderEmail,
+    ownerEmail: owner.email.trim(),
+    smtpHost: owner.smtp_host,
+    smtpPort: owner.smtp_port,
+    smtpSecure: owner.smtp_secure,
+    smtpUsername: owner.smtp_username,
+    smtpPassword: owner.smtp_password,
+    fromAddress: owner.smtp_from || owner.smtp_username,
   };
 }
 
@@ -93,11 +92,12 @@ function emailHtml(title, rows, note = '') {
     </div>`;
 }
 
-async function sendWithConfiguration({ senderEmail, appPassword, ownerEmail, fromAddress }, subject, html) {
-  const transporter = createTransporter(senderEmail, appPassword);
+async function sendWithConfiguration(configuration, subject, html) {
+  const transporter = createTransporter(configuration);
+
   return transporter.sendMail({
-    from: fromAddress || process.env.SMTP_FROM || senderEmail,
-    to: ownerEmail,
+    from: configuration.fromAddress,
+    to: configuration.ownerEmail,
     subject,
     html,
   });
@@ -114,25 +114,19 @@ async function sendOwnerEmail(subject, title, rows, note = '') {
   }
 }
 
-export async function sendContactInquiryEmail(senderEmail, appPassword, inquiryData, ownerEmail) {
-  try {
-    await sendWithConfiguration(
-      { senderEmail, appPassword, ownerEmail },
-      `New Contact Inquiry - ${inquiryData.org_id || 'General'}`,
-      emailHtml('New Contact Inquiry', [
-        ['Name', inquiryData.name],
-        ['Email', inquiryData.email],
-        ['Phone', `${inquiryData.country_code ? `+${inquiryData.country_code} ` : ''}${inquiryData.phone || ''}`],
-        ['Country', inquiryData.country_name],
-        ['Organization', inquiryData.org_id],
-        ['Message', inquiryData.message || 'No message provided'],
-      ]),
-    );
-    return true;
-  } catch (error) {
-    console.error('Contact inquiry email failed:', error);
-    return false;
-  }
+export async function sendContactInquiryEmail(inquiryData) {
+  return sendOwnerEmail(
+    `New Contact Inquiry - ${inquiryData.org_id || 'General'}`,
+    'New Contact Inquiry',
+    [
+      ['Name', inquiryData.name],
+      ['Email', inquiryData.email],
+      ['Phone', `${inquiryData.country_code ? `+${inquiryData.country_code} ` : ''}${inquiryData.phone || ''}`],
+      ['Country', inquiryData.country_name],
+      ['Organization', inquiryData.org_id],
+      ['Message', inquiryData.message || 'No message provided'],
+    ],
+  );
 }
 
 export const sendContactEmail = (obj) =>
@@ -150,7 +144,7 @@ export const sendVolunteerEmail = (obj) =>
   sendOwnerEmail(`New Volunteer Application - ${obj.name}`, 'New Volunteer Application', [
     ['Name', obj.name], ['Email', obj.email],
     ['Phone', `${obj.countryCode ? `+${obj.countryCode} ` : ''}${obj.phone || ''}`],
-    ['Country', obj.CountryName || obj.country], ['Preferred contact time', obj.contactTime], ['Message', obj.message],
+    ['Country', obj.CountryName || obj.country], ['City', obj.city], ['Preferred contact date', obj.contactTime], ['Message', obj.message],
   ]);
 
 export const sendJobApplicationEmail = (obj) =>

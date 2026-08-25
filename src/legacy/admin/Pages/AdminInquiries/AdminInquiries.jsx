@@ -9,8 +9,12 @@ const AdminInquiries = () => {
   const [owner, setOwner] = useState({ 
     name: '', 
     email: '', 
-    sender_email: '', 
-    sender_app_password: '' 
+    smtp_host: 'smtp.hostinger.com',
+    smtp_port: 465,
+    smtp_secure: 1,
+    smtp_username: '',
+    smtp_password: '',
+    smtp_from: '' 
   });
   const [loading, setLoading] = useState(true);
   
@@ -19,8 +23,12 @@ const AdminInquiries = () => {
   const [ownerForm, setOwnerForm] = useState({ 
     name: '', 
     email: '', 
-    sender_email: '', 
-    sender_app_password: '' 
+    smtp_host: 'smtp.hostinger.com',
+    smtp_port: 465,
+    smtp_secure: 1,
+    smtp_username: '',
+    smtp_password: '',
+    smtp_from: '' 
   });
   const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -180,23 +188,31 @@ const AdminInquiries = () => {
               />
             </div>
             <div className="form-group">
-              <label>Sender Email (send emails from):</label>
-              <input
-                type="email"
-                value={(ownerForm.sender_email) ?? ''}
-                onChange={(e) => setOwnerForm(prev => ({ ...prev, sender_email: e.target.value }))}
-                required
-              />
+              <label>SMTP Host:</label>
+              <input type="text" value={ownerForm.smtp_host ?? ''} onChange={(e) => setOwnerForm(prev => ({ ...prev, smtp_host: e.target.value }))} required />
             </div>
             <div className="form-group">
-              <label>Sender App Password:</label>
-              <input
-                type="password"
-                value={(ownerForm.sender_app_password) ?? ''}
-                onChange={(e) => setOwnerForm(prev => ({ ...prev, sender_app_password: e.target.value }))}
-                required
-                placeholder="Gmail App Password"
-              />
+              <label>SMTP Port:</label>
+              <input type="number" value={ownerForm.smtp_port ?? 465} onChange={(e) => setOwnerForm(prev => ({ ...prev, smtp_port: e.target.value }))} required />
+            </div>
+            <div className="form-group">
+              <label>SMTP Secure:</label>
+              <select value={String(ownerForm.smtp_secure ?? 1)} onChange={(e) => setOwnerForm(prev => ({ ...prev, smtp_secure: Number(e.target.value) }))}>
+                <option value="1">Yes (SSL/TLS)</option>
+                <option value="0">No</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label>SMTP Username:</label>
+              <input type="email" value={ownerForm.smtp_username ?? ''} onChange={(e) => setOwnerForm(prev => ({ ...prev, smtp_username: e.target.value }))} required />
+            </div>
+            <div className="form-group">
+              <label>SMTP Password:</label>
+              <input type="password" value={ownerForm.smtp_password ?? ''} onChange={(e) => setOwnerForm(prev => ({ ...prev, smtp_password: e.target.value }))} required />
+            </div>
+            <div className="form-group">
+              <label>SMTP From Email:</label>
+              <input type="email" value={ownerForm.smtp_from ?? ''} onChange={(e) => setOwnerForm(prev => ({ ...prev, smtp_from: e.target.value }))} required />
             </div>
             <div className="form-actions">
               <button type="submit" className="btn-save">Save Changes</button>
@@ -216,9 +232,13 @@ const AdminInquiries = () => {
           <div className="owner-info">
             <p><strong>Name:</strong> {owner.name}</p>
             <p><strong>Notification Email:</strong> {owner.email}</p>
-            <p><strong>Sender Email:</strong> {owner.sender_email}</p>
-            <p><strong>App Password:</strong> {owner.sender_app_password ? '••••••••' : 'Not set'}</p>
-            <p><small>Contact inquiry notifications will be sent from {owner.sender_email} to {owner.email}</small></p>
+            <p><strong>SMTP Host:</strong> {owner.smtp_host}</p>
+            <p><strong>SMTP Port:</strong> {owner.smtp_port}</p>
+            <p><strong>SMTP Secure:</strong> {Number(owner.smtp_secure) === 1 ? 'Yes' : 'No'}</p>
+            <p><strong>SMTP Username:</strong> {owner.smtp_username}</p>
+            <p><strong>SMTP Password:</strong> {owner.smtp_password ? '••••••••' : 'Not set'}</p>
+            <p><strong>SMTP From:</strong> {owner.smtp_from}</p>
+            <p><small>Form notifications are sent via this SMTP account to {owner.email}</small></p>
           </div>
         )}
       </div>

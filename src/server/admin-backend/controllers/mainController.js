@@ -3413,7 +3413,7 @@ export const getInquiryById = (req, res) => {
 
 // Get owner information
 export const getOwner = (req, res) => {
-  const query = `SELECT id, name, email, sender_email, sender_app_password FROM owners LIMIT 1`;
+  const query = `SELECT id, name, email, smtp_host, smtp_port, smtp_secure, smtp_username, smtp_password, smtp_from FROM owners LIMIT 1`;
   
   db1.query(query, (error, results) => {
     if (error) {
@@ -3426,8 +3426,12 @@ export const getOwner = (req, res) => {
         id: null,
         name: "",
         email: "",
-        sender_email: "",
-        sender_app_password: "",
+        smtp_host: "smtp.hostinger.com",
+        smtp_port: 465,
+        smtp_secure: 1,
+        smtp_username: "",
+        smtp_password: "",
+        smtp_from: "",
       });
     }
 
@@ -3437,38 +3441,68 @@ export const getOwner = (req, res) => {
 
 // Update owner information
 export const updateOwner = (req, res) => {
-  const { name, email, sender_email, sender_app_password } = req.body;
+  const {
+    name,
+    email,
+    smtp_host,
+    smtp_port,
+    smtp_secure,
+    smtp_username,
+    smtp_password,
+    smtp_from,
+  } = req.body;
 
-  if (!name || !email || !sender_email || !sender_app_password) {
-    return res.status(400).json({ error: "All fields are required" });
+  if (!name || !email || !smtp_host || !smtp_port || !smtp_username || !smtp_password || !smtp_from) {
+    return res.status(400).json({ error: "All SMTP fields are required" });
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email) || !emailRegex.test(sender_email)) {
+  if (!emailRegex.test(email) || !emailRegex.test(smtp_username) || !emailRegex.test(smtp_from)) {
     return res.status(400).json({ error: "Invalid email address" });
   }
 
+  const secureValue = smtp_secure === true || smtp_secure === 1 || smtp_secure === '1' || smtp_secure === 'true' ? 1 : 0;
+
   const query = `
-    INSERT INTO owners (id, name, email, sender_email, sender_app_password)
-    VALUES (1, ?, ?, ?, ?)
+    INSERT INTO owners (
+      id, name, email, smtp_host, smtp_port, smtp_secure, smtp_username, smtp_password, smtp_from
+    )
+    VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?)
     ON DUPLICATE KEY UPDATE
       name = VALUES(name),
       email = VALUES(email),
-      sender_email = VALUES(sender_email),
-      sender_app_password = VALUES(sender_app_password)
+      smtp_host = VALUES(smtp_host),
+      smtp_port = VALUES(smtp_port),
+      smtp_secure = VALUES(smtp_secure),
+      smtp_username = VALUES(smtp_username),
+      smtp_password = VALUES(smtp_password),
+      smtp_from = VALUES(smtp_from)
   `;
 
-  db1.query(query, [name.trim(), email.trim().toLowerCase(), sender_email.trim().toLowerCase(), sender_app_password], (error, results) => {
-    if (error) {
-      console.error("Update owner error:", error);
-      return res.status(500).json({ error: "Failed to update owner" });
-    }
+  db1.query(
+    query,
+    [
+      name.trim(),
+      email.trim().toLowerCase(),
+      smtp_host.trim(),
+      Number(smtp_port),
+      secureValue,
+      smtp_username.trim().toLowerCase(),
+      smtp_password,
+      smtp_from.trim().toLowerCase(),
+    ],
+    (error) => {
+      if (error) {
+        console.error("Update owner error:", error);
+        return res.status(500).json({ error: "Failed to update owner" });
+      }
 
-    res.json({
-      message: "Owner information updated successfully",
-      success: true
-    });
-  });
+      res.json({
+        message: "Owner SMTP information updated successfully",
+        success: true
+      });
+    }
+  );
 };
 
 // Delete an inquiry
