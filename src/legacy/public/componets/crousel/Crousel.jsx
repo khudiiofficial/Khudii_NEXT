@@ -196,7 +196,7 @@
 //     const heroRef = useRef(hero);
 //     const [temp, settemp] = useState([])
 //     const [index, setIndex] = useState(0);
-//     const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
+//     const [isMobile, setIsMobile] = useState(false);
 //     const [firstImageLoaded, setFirstImageLoaded] = useState(false);
 
 //     useEffect(() => {
@@ -345,7 +345,7 @@
 //     const heroRef = useRef(hero);
 //     const [temp, settemp] = useState([])
 //     const [index, setIndex] = useState(0);
-//     const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
+//     const [isMobile, setIsMobile] = useState(false);
 //     const [firstImageLoaded, setFirstImageLoaded] = useState(false);
 
 //     useEffect(() => {
@@ -509,7 +509,7 @@ const Crousel = () => {
     const heroRef = useRef(hero);
     const [temp, settemp] = useState([])
     const [index, setIndex] = useState(0);
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 600);
+    const [isMobile, setIsMobile] = useState(false);
     const preloadLinkRef = useRef(null);
 
     useEffect(() => {

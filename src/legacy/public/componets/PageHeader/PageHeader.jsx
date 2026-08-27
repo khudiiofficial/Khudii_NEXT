@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import './pageHeader.css';
+import { cachedPublicGet } from '@/lib/public-api-cache';
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
 import axios from 'axios';
 import { Link } from '@/lib/router-compat';
@@ -10,7 +11,7 @@ const PageHeader = ({ title, breadcrumbs = [] }) => {
   const fetchFooterData = async () => {
     try {
      
-      const response = await axios.get(`${APIPath}/api/footer`, {
+      const response = await cachedPublicGet(`${APIPath}/api/footer`, {
         withCredentials: true
       });
       

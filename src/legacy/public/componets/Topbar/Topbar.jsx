@@ -3,6 +3,7 @@ import styles from './Topbar.module.css'
 import { Link } from '@/lib/router-compat'
 import SplitText from '../Paragraph/Title'
 import axios from 'axios'
+import { cachedPublicGet } from '@/lib/public-api-cache';
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
 const Topbar = () => {
   const [isMobile, setIsMobile] = useState(false)
@@ -17,7 +18,7 @@ const [idx,setidx]=useState(0)
   useEffect(()=>{
 const fun=async ()=>{
   try {
-    const res=await axios.get(`${APIPath}/api/topbar`,{withCredentials:true})
+    const res=await cachedPublicGet(`${APIPath}/api/topbar`, { withCredentials: true })
     if(res.status===200){
       let arr=res.data.map((ele,i)=>{
         return ele.text
@@ -38,7 +39,7 @@ fun()
   useEffect(()=>{
 const fun=async ()=>{
   try {
-    const res=await axios.get(`${APIPath}/api/telephone`,{withCredentials:true})
+    const res=await cachedPublicGet(`${APIPath}/api/telephone`, { withCredentials: true })
     if(res.status===200){
       let ch=''
     for(let i=0; i<res.data.data.phone_number.length; i++){

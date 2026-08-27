@@ -1,6 +1,7 @@
 import React from 'react';
 import './Footer.css';
 import { Link } from '@/lib/router-compat';
+import { cachedPublicGet } from '@/lib/public-api-cache';
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
 import  { useEffect, useState } from "react";
 import axios from "axios";
@@ -12,7 +13,7 @@ const Footer = () => {
      useEffect(()=>{
 const fun=async ()=>{
   try {
-    const res=await axios.get(`${APIPath}/api/telephone`,{withCredentials:true})
+    const res=await cachedPublicGet(`${APIPath}/api/telephone`, { withCredentials: true })
     if(res.status===200){
       let ch=''
     for(let i=0; i<res.data.data.phone_number.length; i++){
@@ -34,7 +35,7 @@ fun()
     useEffect(()=>{
 const call=async()=>{
     try {
-        const res=await axios.get(`${APIPath}/getAllSectors`)
+        const res=await cachedPublicGet(`${APIPath}/getAllSectors`)
         if(res.status===200){
             setArr(res.data.data)
             
@@ -50,7 +51,7 @@ call()
   const fetchFooterData = async () => {
     try {
      
-      const response = await axios.get(`${APIPath}/api/footer`, {
+      const response = await cachedPublicGet(`${APIPath}/api/footer`, {
         withCredentials: true
       });
       

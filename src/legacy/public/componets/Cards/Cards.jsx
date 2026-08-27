@@ -77,6 +77,7 @@ import styles from './Cards.module.css'
 import { Link } from '@/lib/router-compat'
 import axios from 'axios'
 import { useNavigate } from '@/lib/router-compat'
+import { cachedPublicGet } from '@/lib/public-api-cache';
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
 const Cards = () => {
     const nav=useNavigate()
@@ -87,7 +88,7 @@ const Cards = () => {
     useEffect(()=>{
 const call=async()=>{
     try {
-        const res=await axios.get(`${APIPath}/getAllSectors`)
+        const res=await cachedPublicGet(`${APIPath}/getAllSectors`)
         if(res.status===200){
             setArr(res.data.data)
             // console.log(res.data.data)
