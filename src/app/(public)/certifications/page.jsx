@@ -1,5 +1,4 @@
 'use client';
-import dynamic from 'next/dynamic';
 import PublicPage from '@/components/PublicPage';
-const Component = dynamic(() => import('@/legacy/public/pages/certifications/Certifications'), { ssr: true });
+import Component from '@/legacy/public/pages/certifications/Certifications';
 export default function Page() { return <PublicPage component={Component} seoPath="/certifications" passSeo={true} />; }

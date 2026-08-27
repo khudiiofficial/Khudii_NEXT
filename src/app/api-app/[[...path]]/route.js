@@ -20,7 +20,22 @@ async function handler(request, context) {
   // Public read endpoints are requested repeatedly by the shell and page sections.
   // Cache them briefly so navigation does not hit MySQL again for unchanged content.
   if (!isAdmin && request.method === 'GET' && response?.headers) {
-    response.headers.set('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+    // Organization listings must always reflect newly-created/updated records.
+    if (
+      originalPath === '/items' ||
+      originalPath.startsWith('/item/') ||
+      originalPath.startsWith('/itemByCategory/')
+    ) {
+      response.headers.set(
+        'Cache-Control',
+        'no-store, no-cache, must-revalidate, proxy-revalidate'
+      );
+    } else {
+      response.headers.set(
+        'Cache-Control',
+        'public, max-age=60, s-maxage=300, stale-while-revalidate=600'
+      );
+    }
   }
 
   return response;

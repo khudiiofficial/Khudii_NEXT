@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { cachedPublicGet } from '@/lib/public-api-cache';
 import "./DifferentOrganizations.css";
 import { useNavigate } from '@/lib/router-compat';
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
@@ -12,7 +13,9 @@ const DifferentOrganizations = () => {
     (async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`${APIPath}/items`,{withCredentials:true});
+        const res = await cachedPublicGet(`${APIPath}/items`, {
+          withCredentials: true,
+        }, 15000);
       
         setOrganizations(res.data); // replace with res.data later
      

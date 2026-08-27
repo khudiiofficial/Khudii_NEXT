@@ -1,15 +1,11 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { usePublicSeo } from './PublicShell';
 
-const BlogDetails = dynamic(
-  () => import('@/legacy/public/pages/SpecificBlog/SpecificBlog'),
-  { ssr: false },
-);
+import BlogDetails from '@/legacy/public/pages/SpecificBlog/SpecificBlog';
 
 export default function BlogDetailRoute() {
   const params = useParams();

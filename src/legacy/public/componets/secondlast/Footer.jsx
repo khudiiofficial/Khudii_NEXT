@@ -79,11 +79,11 @@ fetchFooterData();
           {/* Logo and Description Section */}
           <div className="footer-section">
             <div className="footer-logo">
-              <a href="/">
+              <Link to="/">
          {  footerdata.logoimage &&   <img  width="223" height="79" data-src={`${ footerdata.logoimage
 }`} className="attachment-full size-full wp-image-6195 entered litespeed-loaded" alt="khudii logo, dks, secict"  src={`${ footerdata.logoimage
 }`}></img>}
-              </a>
+              </Link>
             </div>
             <div className="footer-description">
               <p>{footerdata.footertext}</p>
