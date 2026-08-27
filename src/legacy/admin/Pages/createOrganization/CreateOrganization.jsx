@@ -1353,39 +1353,51 @@ export default function CreateOrganizationPage() {
   };
 
   // Submit
+  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if(captcha){
-      console.log('bot detected')
-      setcaptch('')
-      return
+
+    if (captcha) {
+      console.log("bot detected");
+      setcaptch("");
+      return;
     }
+
     if (!validateForm()) {
       alert("Please fix the validation errors before submitting.");
       return;
     }
 
     setIsSubmitting(true);
+
     try {
-      await axios.post(`${APIPath}/api/organizations`, form, {
-        withCredentials: true,
-      });
+      const response = await axios.post(
+        `${APIPath}/api/organizations`,
+        form,
+        {
+          withCredentials: true,
+        }
+      );
+
+      console.log("Organization response:", response.data);
+
       alert("✅ Organization created successfully!");
-      // Reset form
+
       setForm({
         name: "",
         description: "",
         category: [],
         search_tags: "",
         introductory_image_base64: "",
-        partner_image: "", // Reset partner_image
+        partner_image: "",
         slug: "",
         meta_title: "",
         meta_description: "",
         meta_keywords: "",
-        youtube_video_url: '',
+        youtube_video_url: "",
         images_base64: [],
         urls: [""],
+
         socials: {
           phone: "",
           facebook: "",
@@ -1395,16 +1407,33 @@ export default function CreateOrganizationPage() {
           googlemap: "",
           mobile: "",
         },
-        icons: [{ name: "", svg: "", qty: "" }],
+
+        icons: [
+          {
+            name: "",
+            svg: "",
+            qty: "",
+          },
+        ],
       });
+
       setErrors({});
     } catch (err) {
-      console.error(err);
-      if (err.response?.data?.message === "Slug already exists. Please choose a different one.") {
-        alert("❌ Slug already exists. Please choose a different one.");
-      } else {
-        alert("❌ Error creating organization");
-      }
+      console.error("Create organization error:", err);
+      console.error("Status:", err.response?.status);
+      console.error("Response data:", err.response?.data);
+      console.error("Request payload:", form);
+
+      const responseData = err.response?.data;
+
+      const errorMessage =
+        responseData?.message ||
+        responseData?.error ||
+        responseData?.errors?.[0]?.message ||
+        err.message ||
+        "Unknown error while creating organization";
+
+      alert(`❌ ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
