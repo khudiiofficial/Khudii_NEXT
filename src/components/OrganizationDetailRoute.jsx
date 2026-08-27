@@ -1,11 +1,15 @@
 'use client';
 
 import axios from 'axios';
+import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { usePublicSeo } from './PublicShell';
 
-import OrganizationDetail from '@/legacy/public/pages/OrganizationDetail/Organization_Detail';
+const OrganizationDetail = dynamic(
+  () => import('@/legacy/public/pages/OrganizationDetail/Organization_Detail'),
+  { ssr: false },
+);
 
 export default function OrganizationDetailRoute() {
   const { slug } = useParams();

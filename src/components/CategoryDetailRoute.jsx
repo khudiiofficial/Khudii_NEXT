@@ -1,11 +1,15 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { usePublicSeo } from './PublicShell';
 
-import Categories from '@/legacy/public/pages/Categories/Categories';
+const Categories = dynamic(
+  () => import('@/legacy/public/pages/Categories/Categories'),
+  { ssr: false },
+);
 
 export default function CategoryDetailRoute() {
   const params = useParams();
