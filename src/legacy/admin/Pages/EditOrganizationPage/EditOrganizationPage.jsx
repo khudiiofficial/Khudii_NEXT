@@ -1002,8 +1002,7 @@ import axios from "axios";
 import { useParams, useNavigate } from '@/lib/router-compat';
 import RichTextEditor from "../../components/editor/TextEditor";
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
-import { showError } from "../../SwalPopupAlert/SwalPopupAlert";
-import { showSuccessAlert } from "../../SwalPopupAlert/SwalPopupAlert";
+import { showError, showSuccessAlert, showWarning, confirmAction } from "../../SwalPopupAlert/SwalPopupAlert";
 export default function EditOrganizationPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -1464,18 +1463,32 @@ export default function EditOrganizationPage() {
   };
 
   // Remove existing intro image
-  const removeIntroImage = () => {
-    if (window.confirm("Are you sure you want to remove the introductory image?")) {
+  const removeIntroImage = async () => {
+    const confirmed = await confirmAction({
+      title: "Remove Introductory Image?",
+      text: "Are you sure you want to remove the current introductory image?",
+      confirmButtonText: "Yes, Remove",
+    });
+
+    if (confirmed) {
       setForm(prev => ({ ...prev, introductory_image_base64: "" }));
       setExistingIntroImage("");
+      showSuccessAlert("Introductory image removed.");
     }
   };
 
   // Remove partner image
-  const removePartnerImage = () => {
-    if (window.confirm("Are you sure you want to remove the partner image?")) {
+  const removePartnerImage = async () => {
+    const confirmed = await confirmAction({
+      title: "Remove Partner Image?",
+      text: "Are you sure you want to remove the current partner image?",
+      confirmButtonText: "Yes, Remove",
+    });
+
+    if (confirmed) {
       setForm(prev => ({ ...prev, partner_image: "" }));
       setExistingPartnerImage("");
+      showSuccessAlert("Partner image removed.");
     }
   };
 
@@ -1484,18 +1497,18 @@ export default function EditOrganizationPage() {
     const files = Array.from(e.target.files);
     
     if (form.images_base64.length + files.length > 10) {
-      alert("Maximum 10 images allowed");
+      showWarning("Maximum 10 images allowed");
       return;
     }
 
     files.forEach((file) => {
       if (!file.type.startsWith('image/') || file.type !== 'image/webp') {
-        alert("Please select valid WebP files only");
+        showError("Please select valid WebP files only (.webp)");
         return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        alert("Each image must be less than 5MB");
+        showError("Each image must be less than 5MB");
         return;
       }
 
@@ -1510,17 +1523,23 @@ export default function EditOrganizationPage() {
 
   // Remove existing image
   const removeExistingImage = async (imagePath) => {
-    if (window.confirm("Are you sure you want to remove this image?")) {
+    const confirmed = await confirmAction({
+      title: "Delete Image?",
+      text: "Are you sure you want to remove this image? This action will delete it from server storage.",
+      confirmButtonText: "Yes, Delete",
+    });
+
+    if (confirmed) {
       try {
         await axios.delete(`${APIPath}/api/organizations/${id}/images`, {
           data: { imagePath },
           withCredentials: true,
         });
         setExistingImages(prev => prev.filter(img => img !== imagePath));
-        alert("Image removed successfully");
+        showSuccessAlert("Image removed successfully");
       } catch (err) {
         console.error("Error removing image:", err);
-        alert("Failed to remove image");
+        showError("Failed to remove image from server");
       }
     }
   };
@@ -1566,7 +1585,7 @@ export default function EditOrganizationPage() {
     if (form.urls.length < 5) {
       setForm({ ...form, urls: [...form.urls, ""] });
     } else {
-      alert("Maximum 5 URLs allowed");
+      showWarning("Maximum 5 URLs allowed");
     }
   };
 
@@ -1596,7 +1615,7 @@ export default function EditOrganizationPage() {
     if (form.icons.length < 10) {
       setForm({ ...form, icons: [...form.icons, { name: "", svg: "", qty: "" }] });
     } else {
-      alert("Maximum 10 icons allowed");
+      showWarning("Maximum 10 icons allowed");
     }
   };
 
@@ -1611,7 +1630,7 @@ export default function EditOrganizationPage() {
     e.preventDefault();
     
     if (!validateForm()) {
-      alert("Please Fix The Validation Errors Before Submitting.");
+      showWarning("Please Fix The Validation Errors Before Submitting.");
       return;
     }
     if (cap) {
@@ -1902,21 +1921,22 @@ export default function EditOrganizationPage() {
                 {/* Existing Intro Image */}
                 {existingIntroImage && !form.introductory_image_base64?.startsWith('data:image') && (
                   <div className="mt-3">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-gray-600 mb-1">Current Introductory Image:</p>
-                      {/* <button
+                    <p className="text-sm text-gray-600 mb-1">Current Introductory Image:</p>
+                    <div className="relative inline-block group">
+                      <img
+                        src={`${existingIntroImage}`}
+                        alt="Existing Intro"
+                        className="h-32 rounded-lg shadow-md border object-cover"
+                      />
+                      <button
                         type="button"
                         onClick={removeIntroImage}
-                        className="text-sm text-red-600 hover:text-red-800"
+                        title="Remove introductory image"
+                        className="cursor-pointer absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-7 h-7 flex items-center justify-center shadow-md transition-transform hover:scale-110"
                       >
-                        Remove
-                      </button> */}
+                        ✕
+                      </button>
                     </div>
-                    <img
-                      src={`${existingIntroImage}`}
-                      alt="Existing Intro"
-                      className="h-32 rounded-lg shadow-md border"
-                    />
                   </div>
                 )}
                 
@@ -1924,11 +1944,23 @@ export default function EditOrganizationPage() {
                 {form.introductory_image_base64 && form.introductory_image_base64.startsWith('data:image') && (
                   <div className="mt-3">
                     <p className="text-sm text-[#1c5e20] mb-1">✓ New Image Selected</p>
-                    <img
-                      src={form.introductory_image_base64}
-                      alt="Intro Preview"
-                      className="h-32 rounded-lg shadow-md border"
-                    />
+                    <div className="relative inline-block group">
+                      <img
+                        src={form.introductory_image_base64}
+                        alt="Intro Preview"
+                        className="h-32 rounded-lg shadow-md border object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setForm(prev => ({ ...prev, introductory_image_base64: "" }));
+                        }}
+                        title="Remove selected image"
+                        className="cursor-pointer absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-7 h-7 flex items-center justify-center shadow-md transition-transform hover:scale-110"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1952,22 +1984,22 @@ export default function EditOrganizationPage() {
                 {/* Existing Partner Image */}
                 {existingPartnerImage && !form.partner_image?.startsWith('data:image') && (
                   <div className="mt-3">
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-gray-600 mb-1">Current Partner Image:</p>
-                      {/* <button
+                    <p className="text-sm text-gray-600 mb-1">Current Partner Image:</p>
+                    <div className="relative inline-block group">
+                      <img
+                        src={`${existingPartnerImage}`}
+                        alt="Existing Partner"
+                        className="h-32 rounded-lg shadow-md border object-cover"
+                      />
+                      <button
                         type="button"
                         onClick={removePartnerImage}
-                        className="text-sm text-red-600 hover:text-red-800"
+                        title="Remove partner image"
+                        className="cursor-pointer absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-7 h-7 flex items-center justify-center shadow-md transition-transform hover:scale-110"
                       >
-                        Remove
-                      </button> */}
-                    
+                        ✕
+                      </button>
                     </div>
-                    <img
-                      src={`${existingPartnerImage}`}
-                      alt="Existing Partner"
-                      className="h-32 rounded-lg shadow-md border"
-                    />
                   </div>
                 )}
                 
@@ -1975,11 +2007,23 @@ export default function EditOrganizationPage() {
                 {form.partner_image && form.partner_image.startsWith('data:image') && (
                   <div className="mt-3">
                     <p className="text-sm text-[#1c5e20] mb-1">✓ New Partner Image Selected</p>
-                    <img
-                      src={form.partner_image}
-                      alt="Partner Preview"
-                      className="h-32 rounded-lg shadow-md border"
-                    />
+                    <div className="relative inline-block group">
+                      <img
+                        src={form.partner_image}
+                        alt="Partner Preview"
+                        className="h-32 rounded-lg shadow-md border object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setForm(prev => ({ ...prev, partner_image: "" }));
+                        }}
+                        title="Remove selected partner image"
+                        className="cursor-pointer absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-7 h-7 flex items-center justify-center shadow-md transition-transform hover:scale-110"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1988,22 +2032,23 @@ export default function EditOrganizationPage() {
               {existingImages.length > 0 && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Existing Images
+                    Existing Images ({existingImages.length})
                   </label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                     {existingImages.map((img, i) => (
-                      <div key={i} className="relative group">
+                      <div key={i} className="relative group border rounded-lg p-1 bg-white shadow-sm hover:shadow-md transition-all">
                         <img
                           src={img}
-                          alt="existing"
-                          className="h-24 w-full object-cover rounded-lg shadow border"
+                          alt={`existing-${i}`}
+                          className="h-28 w-full object-cover rounded-lg"
                         />
                         <button
                           type="button"
                           onClick={() => removeExistingImage(img)}
-                          className="cursor-pointer absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Delete this image"
+                          className="cursor-pointer absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-7 h-7 flex items-center justify-center shadow-lg transition-transform hover:scale-110 z-10"
                         >
-                          ✖
+                          ✕
                         </button>
                       </div>
                     ))}
@@ -2025,20 +2070,21 @@ export default function EditOrganizationPage() {
                 />
                 <p className="text-xs text-gray-500 mt-1">You can upload up to 10 additional WebP images</p>
                 {form.images_base64.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-3">
                     {form.images_base64.map((img, i) => (
-                      <div key={i} className="relative group">
+                      <div key={i} className="relative group border rounded-lg p-1 bg-white shadow-sm hover:shadow-md transition-all">
                         <img
                           src={img}
-                          alt="preview"
-                          className="h-24 w-full object-cover rounded-lg shadow border"
+                          alt={`new-preview-${i}`}
+                          className="h-28 w-full object-cover rounded-lg"
                         />
                         <button
                           type="button"
                           onClick={() => removeNewImage(i)}
-                          className="cursor-pointer absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                          title="Remove this image"
+                          className="cursor-pointer absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-7 h-7 flex items-center justify-center shadow-lg transition-transform hover:scale-110 z-10"
                         >
-                          ✖
+                          ✕
                         </button>
                       </div>
                     ))}

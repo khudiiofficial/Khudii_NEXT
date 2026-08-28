@@ -76,21 +76,27 @@ async function runMigration(request) {
     }
 
     // 5. Optional / Automatic Fix for broken preupload image URLs
+    // preupload- files are FTP-uploaded to /public_html/media and served from
+    // https://media.khudii.com — so the CORRECT URL is media.khudii.com/preupload-*
+    // A previous bad migration may have rewritten them to khudii.com/preupload-*
+    // which is wrong. This block restores those URLs back to media.khudii.com.
     if (fixMedia) {
       try {
         const [itemsResult] = await conn.query(`
           UPDATE items 
-          SET introductory_image_path = REPLACE(introductory_image_path, 'https://media.khudii.com/preupload-', 'https://khudii.com/preupload-')
-          WHERE introductory_image_path LIKE '%media.khudii.com/preupload-%'
+          SET introductory_image_path = REPLACE(introductory_image_path, 'https://khudii.com/preupload-', 'https://media.khudii.com/preupload-')
+          WHERE introductory_image_path LIKE '%khudii.com/preupload-%'
+            AND introductory_image_path NOT LIKE '%media.khudii.com/preupload-%'
         `);
 
         const [itemImagesResult] = await conn.query(`
           UPDATE item_images 
-          SET image_path = REPLACE(image_path, 'https://media.khudii.com/preupload-', 'https://khudii.com/preupload-')
-          WHERE image_path LIKE '%media.khudii.com/preupload-%'
+          SET image_path = REPLACE(image_path, 'https://khudii.com/preupload-', 'https://media.khudii.com/preupload-')
+          WHERE image_path LIKE '%khudii.com/preupload-%'
+            AND image_path NOT LIKE '%media.khudii.com/preupload-%'
         `);
 
-        results.push(`Media fix applied: Updated ${itemsResult.changedRows || 0} items and ${itemImagesResult.changedRows || 0} gallery images`);
+        results.push(`Media fix applied: Restored ${itemsResult.changedRows || 0} items and ${itemImagesResult.changedRows || 0} gallery images from khudii.com → media.khudii.com`);
       } catch (e) {
         results.push(`Media fix error: ${e.message}`);
       }

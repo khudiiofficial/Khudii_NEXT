@@ -19,7 +19,9 @@ function config() {
 }
 
 export function mediaUrl(fileName) {
-  return `${baseUrl}/${encodeURIComponent(fileName)}`;
+  // FTP_BASE_URL (e.g. https://media.khudii.com) is the public root that maps
+  // directly to FTP_UPLOAD_DIR on the server — do NOT double-encode the path.
+  return `${baseUrl}/${fileName}`;
 }
 
 export function sanitizeUploadName(value) {

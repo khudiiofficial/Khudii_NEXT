@@ -875,6 +875,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
 import RichTextEditor from "../../components/editor/TextEditor";
+import { showSuccessAlert, showError, showWarning, confirmAction } from "../../SwalPopupAlert/SwalPopupAlert";
 
 export default function CreateOrganizationPage() {
   const [form, setForm] = useState({
@@ -1254,18 +1255,18 @@ export default function CreateOrganizationPage() {
     const files = Array.from(e.target.files);
     
     if (form.images_base64.length + files.length > 10) {
-      alert("Maximum 10 images allowed");
+      showWarning("Maximum 10 images allowed");
       return;
     }
 
     files.forEach((file) => {
       if (!file.type.startsWith('image/')) {
-        alert("Please select valid image files only");
+        showError("Please select valid image files only");
         return;
       }
 
       if (file.size > 5 * 1024 * 1024) {
-        alert("Each image must be less than 5MB");
+        showError("Each image must be less than 5MB");
         return;
       }
 
@@ -1312,7 +1313,7 @@ export default function CreateOrganizationPage() {
     if (form.urls.length < 5) {
       setForm({ ...form, urls: [...form.urls, ""] });
     } else {
-      alert("Maximum 5 URLs allowed");
+      showWarning("Maximum 5 URLs allowed");
     }
   };
 
@@ -1342,7 +1343,7 @@ export default function CreateOrganizationPage() {
     if (form.icons.length < 10) {
       setForm({ ...form, icons: [...form.icons, { name: "", svg: "", qty: "" }] });
     } else {
-      alert("Maximum 10 icons allowed");
+      showWarning("Maximum 10 icons allowed");
     }
   };
 
@@ -1364,7 +1365,7 @@ export default function CreateOrganizationPage() {
     }
 
     if (!validateForm()) {
-      alert("Please fix the validation errors before submitting.");
+      showWarning("Please fix the validation errors before submitting.");
       return;
     }
 
@@ -1381,7 +1382,7 @@ export default function CreateOrganizationPage() {
 
       console.log("Organization response:", response.data);
 
-      alert("✅ Organization created successfully!");
+      showSuccessAlert("Organization created successfully!");
 
       setForm({
         name: "",
@@ -1433,7 +1434,7 @@ export default function CreateOrganizationPage() {
         err.message ||
         "Unknown error while creating organization";
 
-      alert(`❌ ${errorMessage}`);
+      showError(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -1706,11 +1707,21 @@ export default function CreateOrganizationPage() {
                 {form.partner_image && (
                   <div className="mt-3">
                     <p className="text-sm text-[#1c5e20] mb-1">✓ Partner Image Uploaded Successfully</p>
-                    <img
-                      src={form.partner_image}
-                      alt="Partner Preview"
-                      className="h-32 rounded-lg shadow-md border"
-                    />
+                    <div className="relative inline-block group">
+                      <img
+                        src={form.partner_image}
+                        alt="Partner Preview"
+                        className="h-32 rounded-lg shadow-md border object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setForm(prev => ({ ...prev, partner_image: "" }))}
+                        title="Remove partner image"
+                        className="cursor-pointer absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-7 h-7 flex items-center justify-center shadow-md transition-transform hover:scale-110"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -1729,14 +1740,26 @@ export default function CreateOrganizationPage() {
                 />
                 <p className="text-xs text-[#009dc8] mt-1">You Can Upload Upto 10 Additional Images</p>
                 {form.images_base64.length > 0 && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mt-3">
                     {form.images_base64.map((img, i) => (
-                      <div key={i} className="relative">
+                      <div key={i} className="relative group border rounded-lg p-1 bg-white shadow-sm hover:shadow-md transition-all">
                         <img
                           src={img}
                           alt="preview"
-                          className="h-24 w-full object-cover rounded-lg shadow border"
+                          className="h-28 w-full object-cover rounded-lg"
                         />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = [...form.images_base64];
+                            updated.splice(i, 1);
+                            setForm(prev => ({ ...prev, images_base64: updated }));
+                          }}
+                          title="Remove image"
+                          className="cursor-pointer absolute -top-2 -right-2 bg-red-600 hover:bg-red-700 text-white rounded-full w-7 h-7 flex items-center justify-center shadow-md transition-transform hover:scale-110 z-10"
+                        >
+                          ✕
+                        </button>
                       </div>
                     ))}
                   </div>
