@@ -137,7 +137,9 @@ CREATE TABLE `crousel_images` (
   `image_path` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `isMobile` tinyint(1) DEFAULT 0 COMMENT 'Flag to identify if image is for mobile devices'
+  `isMobile` tinyint(1) DEFAULT 0 COMMENT 'Flag to identify if image is for mobile devices',
+  `open_new_tab` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Open the carousel slug in a new browser tab',
+  `sort_order` int(11) NOT NULL DEFAULT 0 COMMENT 'Display order within desktop or mobile carousel'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -838,7 +840,8 @@ ALTER TABLE `contribute_stories`
 -- Indexes for table `crousel_images`
 --
 ALTER TABLE `crousel_images`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_crousel_images_device_order` (`isMobile`,`sort_order`,`id`);
 
 --
 -- Indexes for table `document`

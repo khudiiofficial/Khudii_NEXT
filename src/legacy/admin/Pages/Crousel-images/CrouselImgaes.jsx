@@ -10,14 +10,24 @@ import {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_PATH || '';
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MAX_BULK_IMAGES = 20;
 
 const toMobileBoolean = (value) => value === true || value === 1 || value === '1';
+const toBoolean = (value) => value === true || value === 1 || value === '1';
+
+const normalizeSlug = (value) => {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) return '';
+  return `/${trimmed.replace(/^\/+/, '')}`;
+};
 
 const emptyUploadForm = () => ({
-  description: '',
-  imageFile: null,
-  previewUrl: '',
+  files: [],
+  previews: [],
 });
+
+const getImageKey = (image) =>
+  image.__pendingCreate ? String(image.clientId) : String(image.id);
 
 const CarouselAdmin = () => {
   const [images, setImages] = useState([]);
@@ -25,6 +35,11 @@ const CarouselAdmin = () => {
   const [saving, setSaving] = useState(false);
   const [activeFilter, setActiveFilter] = useState('all');
   const [notice, setNotice] = useState('');
+
+  const [sharedLink, setSharedLink] = useState({
+    description: '/',
+    openNewTab: false,
+  });
 
   const [desktopForm, setDesktopForm] = useState(emptyUploadForm());
   const [mobileForm, setMobileForm] = useState(emptyUploadForm());
@@ -37,6 +52,8 @@ const CarouselAdmin = () => {
     imageFile: null,
     previewUrl: '',
     isMobile: false,
+    openNewTab: false,
+    sortOrder: 0,
   });
   const editFileRef = useRef(null);
 
@@ -44,13 +61,35 @@ const CarouselAdmin = () => {
   const [pendingUpdates, setPendingUpdates] = useState({});
   const [pendingDeletes, setPendingDeletes] = useState([]);
 
+  const [draggedKey, setDraggedKey] = useState(null);
+  const [dragOverKey, setDragOverKey] = useState(null);
+
   const fetchImages = async () => {
     try {
       setLoading(true);
       const response = await axios.get(`${API_BASE_URL}/api/carousel`, {
         withCredentials: true,
       });
-      setImages(Array.isArray(response.data?.data) ? response.data.data : []);
+
+      const rows = Array.isArray(response.data?.data) ? response.data.data : [];
+      const typeCounters = { desktop: 0, mobile: 0 };
+      const normalized = rows.map((row) => {
+        const isMobile = toMobileBoolean(row.isMobile);
+        const typeKey = isMobile ? 'mobile' : 'desktop';
+        typeCounters[typeKey] += 1;
+
+        return {
+          ...row,
+          isMobile,
+          open_new_tab: toBoolean(row.open_new_tab),
+          sort_order:
+            Number.isFinite(Number(row.sort_order)) && Number(row.sort_order) > 0
+              ? Number(row.sort_order)
+              : typeCounters[typeKey],
+        };
+      });
+
+      setImages(normalized);
     } catch (error) {
       console.error('Error fetching carousel images:', error);
       showError(error.response?.data?.message || 'Failed to fetch carousel images.');
@@ -93,66 +132,154 @@ const CarouselAdmin = () => {
     const isWebp =
       file.type === 'image/webp' || file.name.toLowerCase().endsWith('.webp');
 
-    if (!isWebp) return 'Only WEBP images are allowed.';
-    if (file.size > MAX_FILE_SIZE) return 'Image size must be 5MB or less.';
+    if (!isWebp) return `${file.name}: only WEBP images are allowed.`;
+    if (file.size > MAX_FILE_SIZE) return `${file.name}: image size must be 5MB or less.`;
 
     return '';
   };
 
-  const readPreview = (file, onComplete) => {
-    const reader = new FileReader();
-    reader.onload = (event) => onComplete(event.target.result);
-    reader.readAsDataURL(file);
+  const revokePreview = (url) => {
+    if (url && String(url).startsWith('blob:')) {
+      URL.revokeObjectURL(url);
+    }
   };
 
   const handleUploadFileSelect = (event, type) => {
-    const file = event.target.files?.[0];
-    const errorMessage = validateWebpFile(file);
+    const selectedFiles = Array.from(event.target.files || []);
 
-    if (errorMessage) {
-      showWarning(errorMessage);
+    if (selectedFiles.length < 1) return;
+
+    if (selectedFiles.length > MAX_BULK_IMAGES) {
+      showWarning(`Select between 1 and ${MAX_BULK_IMAGES} images at a time.`);
       event.target.value = '';
       return;
     }
 
-    readPreview(file, (previewUrl) => {
-      const updater = type === 'mobile' ? setMobileForm : setDesktopForm;
-      updater((current) => ({ ...current, imageFile: file, previewUrl }));
+    const firstError = selectedFiles.map(validateWebpFile).find(Boolean);
+    if (firstError) {
+      showWarning(firstError);
+      event.target.value = '';
+      return;
+    }
+
+    const previews = selectedFiles.map((file) => ({
+      name: file.name,
+      url: URL.createObjectURL(file),
+    }));
+
+    const updater = type === 'mobile' ? setMobileForm : setDesktopForm;
+    updater((current) => {
+      current.previews.forEach((preview) => revokePreview(preview.url));
+      return { files: selectedFiles, previews };
     });
   };
 
-  const queueNewImage = (event, isMobile) => {
+  const displayImages = useMemo(() => {
+    const stagedExisting = images.map((image) => {
+      const update = pendingUpdates[image.id];
+      const isPendingDelete = pendingDeletes.includes(image.id);
+
+      return {
+        ...image,
+        description:
+          update?.description !== undefined ? update.description : image.description,
+        image_path: update?.previewUrl || image.image_path,
+        isMobile:
+          update?.isMobile !== undefined
+            ? toMobileBoolean(update.isMobile)
+            : toMobileBoolean(image.isMobile),
+        open_new_tab:
+          update?.openNewTab !== undefined
+            ? Boolean(update.openNewTab)
+            : toBoolean(image.open_new_tab),
+        sort_order:
+          update?.sortOrder !== undefined
+            ? Number(update.sortOrder)
+            : Number(image.sort_order || 0),
+        __pendingUpdate: Boolean(update),
+        __pendingDelete: isPendingDelete,
+      };
+    });
+
+    const stagedCreates = pendingCreates.map((item) => ({
+      id: item.clientId,
+      clientId: item.clientId,
+      image_path: item.previewUrl,
+      description: item.description,
+      isMobile: item.isMobile,
+      open_new_tab: item.openNewTab,
+      sort_order: item.sortOrder,
+      created_at: item.created_at,
+      __pendingCreate: true,
+    }));
+
+    return [...stagedExisting, ...stagedCreates].sort((a, b) => {
+      const typeDifference = Number(toMobileBoolean(a.isMobile)) - Number(toMobileBoolean(b.isMobile));
+      if (typeDifference !== 0) return typeDifference;
+
+      const orderDifference = Number(a.sort_order || 0) - Number(b.sort_order || 0);
+      if (orderDifference !== 0) return orderDifference;
+
+      return String(getImageKey(a)).localeCompare(String(getImageKey(b)));
+    });
+  }, [images, pendingCreates, pendingUpdates, pendingDeletes]);
+
+  const getNextSortOrder = (isMobile, excludeId = null) => {
+    const relevant = displayImages.filter((image) => {
+      if (image.__pendingDelete) return false;
+      if (excludeId !== null && String(getImageKey(image)) === String(excludeId)) return false;
+      return toMobileBoolean(image.isMobile) === Boolean(isMobile);
+    });
+
+    return relevant.reduce(
+      (maximum, image) => Math.max(maximum, Number(image.sort_order || 0)),
+      0
+    ) + 1;
+  };
+
+  const queueNewImages = (event, isMobile) => {
     event.preventDefault();
 
     const form = isMobile ? mobileForm : desktopForm;
     const setForm = isMobile ? setMobileForm : setDesktopForm;
     const fileRef = isMobile ? mobileFileRef : desktopFileRef;
+    const slug = normalizeSlug(sharedLink.description);
 
-    if (!form.imageFile) {
-      showWarning(`Please select a ${isMobile ? 'mobile' : 'desktop'} WEBP banner.`);
+    if (form.files.length < 1) {
+      showWarning(`Please select at least 1 ${isMobile ? 'mobile' : 'desktop'} WEBP banner.`);
       return;
     }
 
-    if (!form.description.trim()) {
-      showWarning('Slug is required.');
+    if (form.files.length > MAX_BULK_IMAGES) {
+      showWarning(`A maximum of ${MAX_BULK_IMAGES} images can be queued at once.`);
       return;
     }
 
-    const pendingItem = {
-      clientId: `pending-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      description: form.description.trim(),
-      imageFile: form.imageFile,
-      previewUrl: form.previewUrl,
+    if (!slug || !slug.startsWith('/')) {
+      showWarning('Enter a valid slug starting with “/”.');
+      return;
+    }
+
+    const startingOrder = getNextSortOrder(isMobile);
+    const timestamp = Date.now();
+
+    const pendingItems = form.files.map((file, index) => ({
+      clientId: `pending-${timestamp}-${index}-${Math.random().toString(36).slice(2, 8)}`,
+      description: slug,
+      openNewTab: sharedLink.openNewTab,
+      imageFile: file,
+      previewUrl: form.previews[index]?.url || '',
       isMobile,
+      sortOrder: startingOrder + index,
       created_at: new Date().toISOString(),
-    };
+    }));
 
-    setPendingCreates((current) => [pendingItem, ...current]);
+    setPendingCreates((current) => [...current, ...pendingItems]);
     setForm(emptyUploadForm());
     if (fileRef.current) fileRef.current.value = '';
 
     setNotice(
-      `${isMobile ? 'Mobile' : 'Desktop'} banner queued. Click “Update Carousel” to save it permanently.`
+      `${pendingItems.length} ${isMobile ? 'mobile' : 'desktop'} banner${pendingItems.length === 1 ? '' : 's'} queued with ${slug}. Click “Update Carousel” to save.`
     );
   };
 
@@ -166,8 +293,10 @@ const CarouselAdmin = () => {
       return;
     }
 
-    readPreview(file, (previewUrl) => {
-      setEditForm((current) => ({ ...current, imageFile: file, previewUrl }));
+    const previewUrl = URL.createObjectURL(file);
+    setEditForm((current) => {
+      if (current.imageFile) revokePreview(current.previewUrl);
+      return { ...current, imageFile: file, previewUrl };
     });
   };
 
@@ -176,10 +305,12 @@ const CarouselAdmin = () => {
 
     setEditingId(image.id);
     setEditForm({
-      description: image.description || '',
+      description: normalizeSlug(image.description || '/'),
       imageFile: null,
       previewUrl: image.image_path,
       isMobile: toMobileBoolean(image.isMobile),
+      openNewTab: toBoolean(image.open_new_tab),
+      sortOrder: Number(image.sort_order || 0),
     });
 
     if (editFileRef.current) editFileRef.current.value = '';
@@ -195,38 +326,70 @@ const CarouselAdmin = () => {
     event.preventDefault();
 
     if (!editingId) return;
-    if (!editForm.description.trim()) {
-      showWarning('Slug is required.');
+
+    const slug = normalizeSlug(editForm.description);
+    if (!slug || !slug.startsWith('/')) {
+      showWarning('Slug is required and must start with “/”.');
       return;
+    }
+
+    const currentImage = displayImages.find(
+      (image) => !image.__pendingCreate && String(image.id) === String(editingId)
+    );
+    const typeChanged =
+      currentImage &&
+      toMobileBoolean(currentImage.isMobile) !== Boolean(editForm.isMobile);
+
+    const existingPendingUpdate = pendingUpdates[editingId];
+    if (
+      editForm.imageFile &&
+      existingPendingUpdate?.imageFile &&
+      existingPendingUpdate.previewUrl !== editForm.previewUrl
+    ) {
+      revokePreview(existingPendingUpdate.previewUrl);
     }
 
     setPendingUpdates((current) => ({
       ...current,
       [editingId]: {
-        description: editForm.description.trim(),
-        imageFile: editForm.imageFile,
-        previewUrl: editForm.previewUrl,
+        ...current[editingId],
+        description: slug,
+        imageFile: editForm.imageFile || current[editingId]?.imageFile || null,
+        previewUrl:
+          editForm.imageFile
+            ? editForm.previewUrl
+            : (current[editingId]?.previewUrl || editForm.previewUrl),
         isMobile: editForm.isMobile,
+        openNewTab: editForm.openNewTab,
+        sortOrder: typeChanged
+          ? getNextSortOrder(editForm.isMobile, editingId)
+          : Number(editForm.sortOrder || currentImage?.sort_order || 1),
       },
     }));
 
     setNotice('Image changes queued. Click “Update Carousel” to save them permanently.');
-    cancelEdit();
+    cancelEdit({ preserveQueuedPreview: true });
   };
 
-  const cancelEdit = () => {
+  const cancelEdit = ({ preserveQueuedPreview = false } = {}) => {
     setEditingId(null);
-    setEditForm({
-      description: '',
-      imageFile: null,
-      previewUrl: '',
-      isMobile: false,
+    setEditForm((current) => {
+      if (current.imageFile && !preserveQueuedPreview) revokePreview(current.previewUrl);
+      return {
+        description: '',
+        imageFile: null,
+        previewUrl: '',
+        isMobile: false,
+        openNewTab: false,
+        sortOrder: 0,
+      };
     });
     if (editFileRef.current) editFileRef.current.value = '';
   };
 
   const handleDeleteImage = async (image) => {
     if (image.__pendingCreate) {
+      revokePreview(image.image_path);
       setPendingCreates((current) =>
         current.filter((item) => item.clientId !== image.clientId)
       );
@@ -259,18 +422,26 @@ const CarouselAdmin = () => {
     setNotice('Deletion queued. Click “Update Carousel” to apply it permanently.');
   };
 
+  const revokePendingUpdatePreviews = () => {
+    Object.values(pendingUpdates).forEach((update) => {
+      if (update?.imageFile) revokePreview(update.previewUrl);
+    });
+  };
+
   const discardPendingChanges = async () => {
     if (!hasPendingChanges) return;
 
     const confirmed = await confirmAction({
       title: 'Discard unsaved carousel changes?',
-      text: 'All queued additions, edits, and deletions on this page will be cleared.',
+      text: 'All queued additions, edits, deletions, and ordering changes on this page will be cleared.',
       confirmButtonText: 'Discard Changes',
       cancelButtonText: 'Keep Editing',
     });
 
     if (!confirmed) return;
 
+    pendingCreates.forEach((item) => revokePreview(item.previewUrl));
+    revokePendingUpdatePreviews();
     setPendingCreates([]);
     setPendingUpdates({});
     setPendingDeletes([]);
@@ -287,7 +458,7 @@ const CarouselAdmin = () => {
 
     const confirmed = await confirmAction({
       title: 'Update carousel images?',
-      text: `This will permanently save ${createCount} new, ${updateCount} edited, and ${deleteCount} deleted carousel image${createCount + updateCount + deleteCount === 1 ? '' : 's'}.`,
+      text: `This will permanently save ${createCount} new, ${updateCount} edited/reordered, and ${deleteCount} deleted carousel image${createCount + updateCount + deleteCount === 1 ? '' : 's'}.`,
       confirmButtonText: 'Yes, Update Carousel',
       cancelButtonText: 'Cancel',
       icon: 'question',
@@ -306,10 +477,12 @@ const CarouselAdmin = () => {
       }
 
       for (const [id, update] of Object.entries(pendingUpdates)) {
-        const requestData = {
-          description: update.description,
-          isMobile: update.isMobile,
-        };
+        const requestData = {};
+
+        if (update.description !== undefined) requestData.description = normalizeSlug(update.description);
+        if (update.isMobile !== undefined) requestData.isMobile = update.isMobile;
+        if (update.openNewTab !== undefined) requestData.openNewTab = update.openNewTab;
+        if (update.sortOrder !== undefined) requestData.sortOrder = Number(update.sortOrder);
 
         if (update.imageFile) {
           requestData.imageBase64 = await fileToBase64(update.imageFile);
@@ -326,13 +499,17 @@ const CarouselAdmin = () => {
           `${API_BASE_URL}/api/carousel`,
           {
             imageBase64,
-            description: item.description,
+            description: normalizeSlug(item.description),
             isMobile: item.isMobile,
+            openNewTab: item.openNewTab,
+            sortOrder: Number(item.sortOrder),
           },
           { withCredentials: true }
         );
       }
 
+      pendingCreates.forEach((item) => revokePreview(item.previewUrl));
+      revokePendingUpdatePreviews();
       setPendingCreates([]);
       setPendingUpdates({});
       setPendingDeletes([]);
@@ -343,7 +520,8 @@ const CarouselAdmin = () => {
     } catch (error) {
       console.error('Error applying carousel changes:', error);
 
-      // Avoid replaying requests that may already have succeeded before a later request failed.
+      pendingCreates.forEach((item) => revokePreview(item.previewUrl));
+      revokePendingUpdatePreviews();
       setPendingCreates([]);
       setPendingUpdates({});
       setPendingDeletes([]);
@@ -357,34 +535,6 @@ const CarouselAdmin = () => {
       setSaving(false);
     }
   };
-
-  const displayImages = useMemo(() => {
-    const stagedExisting = images.map((image) => {
-      const update = pendingUpdates[image.id];
-      const isPendingDelete = pendingDeletes.includes(image.id);
-
-      return {
-        ...image,
-        description: update ? update.description : image.description,
-        image_path: update?.previewUrl || image.image_path,
-        isMobile: update ? update.isMobile : image.isMobile,
-        __pendingUpdate: Boolean(update),
-        __pendingDelete: isPendingDelete,
-      };
-    });
-
-    const stagedCreates = pendingCreates.map((item) => ({
-      id: item.clientId,
-      clientId: item.clientId,
-      image_path: item.previewUrl,
-      description: item.description,
-      isMobile: item.isMobile,
-      created_at: item.created_at,
-      __pendingCreate: true,
-    }));
-
-    return [...stagedCreates, ...stagedExisting];
-  }, [images, pendingCreates, pendingUpdates, pendingDeletes]);
 
   const filteredImages = useMemo(() => {
     if (activeFilter === 'mobile') {
@@ -411,16 +561,116 @@ const CarouselAdmin = () => {
     });
   };
 
+  const reorderTypeImages = (sourceKey, targetKey) => {
+    if (activeFilter === 'all' || sourceKey === targetKey) return;
+
+    const isMobile = activeFilter === 'mobile';
+    const ordered = displayImages.filter(
+      (image) =>
+        !image.__pendingDelete &&
+        toMobileBoolean(image.isMobile) === isMobile
+    );
+
+    const sourceIndex = ordered.findIndex((image) => getImageKey(image) === sourceKey);
+    const targetIndex = ordered.findIndex((image) => getImageKey(image) === targetKey);
+
+    if (sourceIndex < 0 || targetIndex < 0) return;
+
+    const next = [...ordered];
+    const [moved] = next.splice(sourceIndex, 1);
+    next.splice(targetIndex, 0, moved);
+
+    const pendingCreateOrders = new Map();
+    const existingOrders = new Map();
+
+    next.forEach((image, index) => {
+      const newOrder = index + 1;
+      if (image.__pendingCreate) {
+        pendingCreateOrders.set(image.clientId, newOrder);
+      } else {
+        existingOrders.set(image.id, newOrder);
+      }
+    });
+
+    setPendingCreates((current) =>
+      current.map((item) =>
+        pendingCreateOrders.has(item.clientId)
+          ? { ...item, sortOrder: pendingCreateOrders.get(item.clientId) }
+          : item
+      )
+    );
+
+    setPendingUpdates((current) => {
+      const nextUpdates = { ...current };
+      for (const [id, sortOrder] of existingOrders.entries()) {
+        nextUpdates[id] = {
+          ...nextUpdates[id],
+          sortOrder,
+        };
+      }
+      return nextUpdates;
+    });
+
+    setNotice(
+      `${isMobile ? 'Mobile' : 'Desktop'} banner order changed. Click “Update Carousel” to publish the new frontend order.`
+    );
+  };
+
+  const handleDragStart = (event, image) => {
+    if (activeFilter === 'all' || image.__pendingDelete || saving) {
+      event.preventDefault();
+      return;
+    }
+
+    const key = getImageKey(image);
+    setDraggedKey(key);
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', key);
+  };
+
+  const handleDrop = (event, targetImage) => {
+    event.preventDefault();
+    const sourceKey = draggedKey || event.dataTransfer.getData('text/plain');
+    const targetKey = getImageKey(targetImage);
+
+    if (sourceKey && targetKey) {
+      reorderTypeImages(sourceKey, targetKey);
+    }
+
+    setDraggedKey(null);
+    setDragOverKey(null);
+  };
+
+  const renderBulkPreviews = (form, isMobile) => {
+    if (!form.previews.length) return null;
+
+    return (
+      <div className="bulk-preview-section">
+        <div className="bulk-preview-header">
+          <strong>{form.previews.length} image{form.previews.length === 1 ? '' : 's'} selected</strong>
+          <span>1 to {MAX_BULK_IMAGES} images per upload</span>
+        </div>
+        <div className={`bulk-preview-grid ${isMobile ? 'bulk-preview-grid-mobile' : ''}`}>
+          {form.previews.map((preview, index) => (
+            <div className="bulk-preview-item" key={`${preview.name}-${index}`}>
+              <img src={preview.url} alt={preview.name} />
+              <span>{index + 1}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   const renderUploadCard = ({ isMobile }) => {
     const form = isMobile ? mobileForm : desktopForm;
-    const setForm = isMobile ? setMobileForm : setDesktopForm;
     const fileRef = isMobile ? mobileFileRef : desktopFileRef;
     const typeLabel = isMobile ? 'Mobile' : 'Desktop';
 
     return (
       <form
         className={`upload-card ${isMobile ? 'upload-card-mobile' : 'upload-card-desktop'}`}
-        onSubmit={(event) => queueNewImage(event, isMobile)}
+        onSubmit={(event) => queueNewImages(event, isMobile)}
       >
         <div className="upload-card-heading">
           <div>
@@ -429,11 +679,13 @@ const CarouselAdmin = () => {
             </span>
             <h3>{typeLabel} Banner Upload</h3>
           </div>
-          <p>Upload a WEBP banner prepared specifically for {typeLabel.toLowerCase()} screens.</p>
+          <p>
+            Select 1 to {MAX_BULK_IMAGES} WEBP banners prepared for {typeLabel.toLowerCase()} screens.
+          </p>
         </div>
 
         <div className="form-group">
-          <label htmlFor={`${typeLabel.toLowerCase()}ImageFile`}>Image File *</label>
+          <label htmlFor={`${typeLabel.toLowerCase()}ImageFile`}>Image Files *</label>
           <input
             type="file"
             id={`${typeLabel.toLowerCase()}ImageFile`}
@@ -442,40 +694,20 @@ const CarouselAdmin = () => {
               handleUploadFileSelect(event, isMobile ? 'mobile' : 'desktop')
             }
             accept=".webp,image/webp"
+            multiple
             className="file-input"
           />
-          <small>WEBP only. Maximum file size: 5MB.</small>
+          <small>WEBP only. Select 1–20 images. Maximum 5MB per image.</small>
         </div>
 
-        {form.previewUrl && (
-          <div className="preview-section">
-            <label>Preview</label>
-            <div className={`image-preview ${isMobile ? 'image-preview-mobile' : ''}`}>
-              <img src={form.previewUrl} alt={`${typeLabel} banner preview`} />
-            </div>
-          </div>
-        )}
-
-        <div className="form-group">
-          <label htmlFor={`${typeLabel.toLowerCase()}Description`}>Slug *</label>
-          <input
-            type="text"
-            id={`${typeLabel.toLowerCase()}Description`}
-            value={form.description}
-            onChange={(event) =>
-              setForm((current) => ({ ...current, description: event.target.value }))
-            }
-            placeholder="Enter organization slug"
-            required
-          />
-        </div>
+        {renderBulkPreviews(form, isMobile)}
 
         <button
           type="submit"
           className="btn btn-primary"
-          disabled={!form.imageFile || saving}
+          disabled={form.files.length < 1 || saving}
         >
-          Queue {typeLabel} Banner
+          Queue {form.files.length || ''} {typeLabel} Banner{form.files.length === 1 ? '' : 's'}
         </button>
       </form>
     );
@@ -485,7 +717,7 @@ const CarouselAdmin = () => {
     <div className="carousel-admin">
       <div className="admin-header">
         <h1>Carousel Images Admin</h1>
-        <p>Manage desktop and mobile carousel banners separately.</p>
+        <p>Manage desktop/mobile banners, links, new-tab behavior, and frontend display order.</p>
       </div>
 
       <div className={`page-update-bar ${hasPendingChanges ? 'has-pending' : ''}`}>
@@ -493,8 +725,8 @@ const CarouselAdmin = () => {
           <strong>{hasPendingChanges ? 'Unsaved carousel changes' : 'No unsaved changes'}</strong>
           <span>
             {hasPendingChanges
-              ? `${pendingCreates.length} new · ${Object.keys(pendingUpdates).length} edited · ${pendingDeletes.length} deleted`
-              : 'Add, edit, or delete banners. Nothing is stored until Update Carousel is confirmed.'}
+              ? `${pendingCreates.length} new · ${Object.keys(pendingUpdates).length} edited/reordered · ${pendingDeletes.length} deleted`
+              : 'Nothing is stored or published until Update Carousel is confirmed.'}
           </span>
         </div>
         <div className="page-update-actions">
@@ -522,8 +754,54 @@ const CarouselAdmin = () => {
       <section className="image-form-section">
         <div className="section-title-block">
           <h2>Add New Carousel Images</h2>
-          <p>Desktop and mobile banners now have separate upload controls.</p>
+          <p>One common link applies to the desktop or mobile batch you queue.</p>
         </div>
+
+        <div className="shared-link-settings">
+          <div className="form-group shared-slug-field">
+            <label htmlFor="carouselSharedSlug">Common Slug *</label>
+            <input
+              type="text"
+              id="carouselSharedSlug"
+              value={sharedLink.description}
+              onChange={(event) =>
+                setSharedLink((current) => ({
+                  ...current,
+                  description: normalizeSlug(event.target.value),
+                }))
+              }
+              onBlur={() =>
+                setSharedLink((current) => ({
+                  ...current,
+                  description: normalizeSlug(current.description) || '/',
+                }))
+              }
+              placeholder="/organization-slug"
+            />
+            <small>Stored as an internal path and always starts with “/”. Example: /karakoram-development-foundation-kdf</small>
+          </div>
+
+          <div className="new-tab-setting">
+            <div>
+              <strong>Open in New Tab</strong>
+              <span>Use the same behavior for this upload batch.</span>
+            </div>
+            <label className="switch-control" aria-label="Open uploaded banner link in a new tab">
+              <input
+                type="checkbox"
+                checked={sharedLink.openNewTab}
+                onChange={(event) =>
+                  setSharedLink((current) => ({
+                    ...current,
+                    openNewTab: event.target.checked,
+                  }))
+                }
+              />
+              <span className="switch-slider" />
+            </label>
+          </div>
+        </div>
+
         <div className="upload-grid">
           {renderUploadCard({ isMobile: false })}
           {renderUploadCard({ isMobile: true })}
@@ -534,7 +812,7 @@ const CarouselAdmin = () => {
         <section className="image-form-section edit-section" id="carousel-edit-section">
           <div className="section-title-block">
             <h2>Edit Carousel Image</h2>
-            <p>Queue the changes here, then use Update Carousel to store them.</p>
+            <p>Queue the change here, then use Update Carousel to store and publish it.</p>
           </div>
 
           <form onSubmit={queueEdit} className="edit-form">
@@ -562,11 +840,32 @@ const CarouselAdmin = () => {
                     onChange={(event) =>
                       setEditForm((current) => ({
                         ...current,
-                        description: event.target.value,
+                        description: normalizeSlug(event.target.value),
                       }))
                     }
                     required
                   />
+                  <small>Slug is stored with a leading “/”.</small>
+                </div>
+
+                <div className="new-tab-setting edit-new-tab-setting">
+                  <div>
+                    <strong>Open in New Tab</strong>
+                    <span>Open this banner link in a separate browser tab.</span>
+                  </div>
+                  <label className="switch-control" aria-label="Open this banner link in a new tab">
+                    <input
+                      type="checkbox"
+                      checked={editForm.openNewTab}
+                      onChange={(event) =>
+                        setEditForm((current) => ({
+                          ...current,
+                          openNewTab: event.target.checked,
+                        }))
+                      }
+                    />
+                    <span className="switch-slider" />
+                  </label>
                 </div>
 
                 <div className="form-group">
@@ -640,21 +939,32 @@ const CarouselAdmin = () => {
             Mobile ({mobileCount})
           </button>
         </div>
+        <div className="drag-order-help">
+          {activeFilter === 'all'
+            ? 'Select Desktop or Mobile to drag banners into frontend display order.'
+            : `Drag ${activeFilter} cards to reorder them. Save with Update Carousel.`}
+        </div>
       </div>
 
       <section className="images-list-section">
         <div className="section-header">
-          <h2>
-            {activeFilter === 'all' && 'All Carousel Images '}
-            {activeFilter === 'desktop' && 'Desktop Images '}
-            {activeFilter === 'mobile' && 'Mobile Images '}
-            ({filteredImages.length})
-          </h2>
+          <div>
+            <h2>
+              {activeFilter === 'all' && 'All Carousel Images '}
+              {activeFilter === 'desktop' && 'Desktop Images '}
+              {activeFilter === 'mobile' && 'Mobile Images '}
+              ({filteredImages.length})
+            </h2>
+            {activeFilter !== 'all' && (
+              <p className="order-section-note">↕ Drag and drop cards to change frontend banner order.</p>
+            )}
+          </div>
           <button
             type="button"
             onClick={fetchImages}
-            disabled={loading || saving}
+            disabled={loading || saving || hasPendingChanges}
             className="btn btn-refresh"
+            title={hasPendingChanges ? 'Save or discard pending changes before refreshing.' : ''}
           >
             {loading ? 'Refreshing...' : 'Refresh'}
           </button>
@@ -673,81 +983,116 @@ const CarouselAdmin = () => {
           </div>
         ) : (
           <div className="images-grid">
-            {filteredImages.map((image) => (
-              <article
-                key={image.id}
-                className={`image-card ${image.__pendingDelete ? 'pending-delete-card' : ''}`}
-              >
-                <div className="image-container">
-                  <img src={image.image_path} alt={image.description || 'Carousel image'} />
-                  <div
-                    className={`image-badge ${
-                      image.isMobile ? 'image-badge-mobile' : 'image-badge-desktop'
-                    }`}
-                  >
-                    {image.isMobile ? '📱 Mobile' : '🖥️ Desktop'}
-                  </div>
+            {filteredImages.map((image) => {
+              const imageKey = getImageKey(image);
+              const canDrag =
+                activeFilter !== 'all' && !image.__pendingDelete && !saving;
 
-                  {image.__pendingCreate && (
-                    <div className="pending-badge pending-badge-create">Pending new</div>
-                  )}
-                  {image.__pendingUpdate && !image.__pendingDelete && (
-                    <div className="pending-badge pending-badge-update">Pending edit</div>
-                  )}
-                  {image.__pendingDelete && (
-                    <div className="pending-badge pending-badge-delete">Pending delete</div>
-                  )}
-                </div>
-
-                <div className="image-details">
-                  <p className="image-description">{image.description || 'No slug'}</p>
-                  <div className="image-meta">
-                    <p className="image-date">
-                      {image.__pendingCreate ? 'Queued: ' : 'Added: '}
-                      {formatDate(image.created_at)}
-                    </p>
-                    <p
-                      className={`image-type ${
-                        image.isMobile ? 'image-type-mobile' : 'image-type-desktop'
+              return (
+                <article
+                  key={imageKey}
+                  draggable={canDrag}
+                  onDragStart={(event) => handleDragStart(event, image)}
+                  onDragEnd={() => {
+                    setDraggedKey(null);
+                    setDragOverKey(null);
+                  }}
+                  onDragOver={(event) => {
+                    if (!canDrag) return;
+                    event.preventDefault();
+                    event.dataTransfer.dropEffect = 'move';
+                    setDragOverKey(imageKey);
+                  }}
+                  onDragLeave={() => {
+                    if (dragOverKey === imageKey) setDragOverKey(null);
+                  }}
+                  onDrop={(event) => handleDrop(event, image)}
+                  className={`image-card ${image.__pendingDelete ? 'pending-delete-card' : ''} ${
+                    canDrag ? 'draggable-card' : ''
+                  } ${draggedKey === imageKey ? 'dragging-card' : ''} ${
+                    dragOverKey === imageKey ? 'drag-over-card' : ''
+                  }`}
+                >
+                  <div className="image-container">
+                    <img src={image.image_path} alt={image.description || 'Carousel image'} />
+                    <div
+                      className={`image-badge ${
+                        image.isMobile ? 'image-badge-mobile' : 'image-badge-desktop'
                       }`}
                     >
-                      Type: {image.isMobile ? 'Mobile' : 'Desktop'}
-                    </p>
-                  </div>
-                </div>
+                      {image.isMobile ? '📱 Mobile' : '🖥️ Desktop'}
+                    </div>
 
-                <div className="image-actions">
-                  {image.__pendingCreate ? (
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteImage(image)}
-                      className="btn btn-delete"
-                    >
-                      Remove Pending
-                    </button>
-                  ) : (
-                    <>
-                      <button
-                        type="button"
-                        onClick={() => handleEditImage(image)}
-                        className="btn btn-edit"
-                        disabled={image.__pendingDelete || saving}
+                    {activeFilter !== 'all' && !image.__pendingDelete && (
+                      <div className="drag-handle" title="Drag to reorder">⋮⋮</div>
+                    )}
+
+                    <div className="order-badge">#{Number(image.sort_order || 0)}</div>
+
+                    {image.__pendingCreate && (
+                      <div className="pending-badge pending-badge-create">Pending new</div>
+                    )}
+                    {image.__pendingUpdate && !image.__pendingDelete && (
+                      <div className="pending-badge pending-badge-update">Pending edit/order</div>
+                    )}
+                    {image.__pendingDelete && (
+                      <div className="pending-badge pending-badge-delete">Pending delete</div>
+                    )}
+                  </div>
+
+                  <div className="image-details">
+                    <p className="image-description">{image.description || 'No slug'}</p>
+                    <div className="link-behavior-row">
+                      <span>{toBoolean(image.open_new_tab) ? '↗ Opens in new tab' : '→ Opens in same tab'}</span>
+                    </div>
+                    <div className="image-meta">
+                      <p className="image-date">
+                        {image.__pendingCreate ? 'Queued: ' : 'Added: '}
+                        {formatDate(image.created_at)}
+                      </p>
+                      <p
+                        className={`image-type ${
+                          image.isMobile ? 'image-type-mobile' : 'image-type-desktop'
+                        }`}
                       >
-                        Edit
-                      </button>
+                        Type: {image.isMobile ? 'Mobile' : 'Desktop'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="image-actions">
+                    {image.__pendingCreate ? (
                       <button
                         type="button"
                         onClick={() => handleDeleteImage(image)}
-                        className={`btn ${image.__pendingDelete ? 'btn-undo' : 'btn-delete'}`}
-                        disabled={saving}
+                        className="btn btn-delete"
                       >
-                        {image.__pendingDelete ? 'Undo Delete' : 'Delete'}
+                        Remove Pending
                       </button>
-                    </>
-                  )}
-                </div>
-              </article>
-            ))}
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => handleEditImage(image)}
+                          className="btn btn-edit"
+                          disabled={image.__pendingDelete || saving}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteImage(image)}
+                          className={`btn ${image.__pendingDelete ? 'btn-undo' : 'btn-delete'}`}
+                          disabled={saving}
+                        >
+                          {image.__pendingDelete ? 'Undo Delete' : 'Delete'}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
           </div>
         )}
       </section>

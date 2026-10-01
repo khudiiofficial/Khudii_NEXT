@@ -5817,320 +5817,351 @@ async function resolveImageInput(value, prefix = 'media') {
 // Helper functions
 
 
-// Get all carousel images (BOTH mobile and desktop - NO filtering)
-export const getAllCarouselImages = (req, res) => {
-  const query = "SELECT * FROM crousel_images ORDER BY created_at DESC";
-  
-  db1.query(query, (err, results) => {
-    if (err) {
-      console.error("❌ Error fetching carousel images:", err);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to fetch carousel images",
-        error: err.message
-      });
-    }
-    
-    // Return ALL images (both mobile and desktop)
-    res.json({
+// Carousel helpers
+const normalizeCarouselSlug = (value) => {
+  const trimmed = String(value || '').trim();
+  if (!trimmed) return '';
+  return `/${trimmed.replace(/^\/+/, '')}`;
+};
+
+const normalizeCarouselBoolean = (value) =>
+  value === true || value === 1 || value === '1' || value === 'true';
+
+const normalizeCarouselSortOrder = (value) => {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+};
+
+const carouselOrderClause = 'ORDER BY isMobile ASC, sort_order ASC, created_at ASC, id ASC';
+
+// Get all carousel images (desktop + mobile) in the saved frontend order.
+export const getAllCarouselImages = async (req, res) => {
+  try {
+    const [results] = await db1.promise().query(
+      `SELECT * FROM crousel_images ${carouselOrderClause}`
+    );
+
+    return res.json({
       success: true,
       data: results,
       count: results.length,
       stats: {
         total: results.length,
-        mobile: results.filter(img => img.isMobile === 1 || img.isMobile === true).length,
-        desktop: results.filter(img => img.isMobile === 0 || img.isMobile === false).length
-      }
+        mobile: results.filter((img) => normalizeCarouselBoolean(img.isMobile)).length,
+        desktop: results.filter((img) => !normalizeCarouselBoolean(img.isMobile)).length,
+      },
     });
-  });
+  } catch (error) {
+    console.error('❌ Error fetching carousel images:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch carousel images',
+      error: error.message,
+    });
+  }
 };
 
-// Get desktop images only (separate endpoint if needed)
-export const getDesktopImages = (req, res) => {
-  const query = "SELECT * FROM crousel_images WHERE isMobile = FALSE ORDER BY created_at DESC";
-  
-  db1.query(query, (err, results) => {
-    if (err) {
-      console.error("❌ Error fetching desktop images:", err);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to fetch desktop images",
-        error: err.message
-      });
-    }
-    
-    res.json({
-      success: true,
-      data: results,
-      count: results.length
+// Get desktop images only, ordered exactly as they should display on the frontend.
+export const getDesktopImages = async (req, res) => {
+  try {
+    const [results] = await db1.promise().query(
+      'SELECT * FROM crousel_images WHERE isMobile = FALSE ORDER BY sort_order ASC, created_at ASC, id ASC'
+    );
+
+    return res.json({ success: true, data: results, count: results.length });
+  } catch (error) {
+    console.error('❌ Error fetching desktop images:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch desktop images',
+      error: error.message,
     });
-  });
+  }
 };
 
-// Get mobile images only (separate endpoint if needed)
-export const getMobileImages = (req, res) => {
-  const query = "SELECT * FROM crousel_images WHERE isMobile = TRUE ORDER BY created_at DESC";
-  
-  db1.query(query, (err, results) => {
-    if (err) {
-      console.error("❌ Error fetching mobile images:", err);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to fetch mobile images",
-        error: err.message
-      });
-    }
-    
-    res.json({
-      success: true,
-      data: results,
-      count: results.length
+// Get mobile images only, ordered exactly as they should display on the frontend.
+export const getMobileImages = async (req, res) => {
+  try {
+    const [results] = await db1.promise().query(
+      'SELECT * FROM crousel_images WHERE isMobile = TRUE ORDER BY sort_order ASC, created_at ASC, id ASC'
+    );
+
+    return res.json({ success: true, data: results, count: results.length });
+  } catch (error) {
+    console.error('❌ Error fetching mobile images:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch mobile images',
+      error: error.message,
     });
-  });
+  }
 };
 
-// Get single carousel image by ID
-export const getCarouselImageById = (req, res) => {
-  const { id } = req.params;
-  const query = "SELECT * FROM crousel_images WHERE id = ?";
-  
-  db1.query(query, [id], (err, results) => {
-    if (err) {
-      console.error("❌ Error fetching carousel image:", err);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to fetch carousel image",
-        error: err.message
-      });
-    }
-    
+// Get single carousel image by ID.
+export const getCarouselImageById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [results] = await db1.promise().query(
+      'SELECT * FROM crousel_images WHERE id = ?',
+      [id]
+    );
+
     if (results.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "Carousel image not found"
+        message: 'Carousel image not found',
       });
     }
-    
-    res.json({
-      success: true,
-      data: results[0]
+
+    return res.json({ success: true, data: results[0] });
+  } catch (error) {
+    console.error('❌ Error fetching carousel image:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to fetch carousel image',
+      error: error.message,
     });
-  });
+  }
 };
 
-// Create new carousel image
+// Create one carousel image. The admin UI can call this repeatedly for a bulk batch.
 export const createCarouselImage = async (req, res) => {
-  try {
-    const { imageBase64, description, isMobile = false } = req.body;
+  let imageUrl = null;
 
-    // Validate required fields
+  try {
+    const {
+      imageBase64,
+      description,
+      isMobile = false,
+      openNewTab = false,
+      sortOrder,
+    } = req.body;
+
     if (!imageBase64) {
       return res.status(400).json({
         success: false,
-        message: "Image base64 data is required"
+        message: 'Image base64 data is required',
       });
     }
 
-    const imageUrl = await resolveImageInput(imageBase64, 'carousel');
-
-    // Insert into database
-    const query = "INSERT INTO crousel_images (image_path, description, isMobile) VALUES (?, ?, ?)";
-    
-    db1.query(query, [imageUrl, description || null, isMobile], (err, results) => {
-      if (err) {
-        console.error("❌ Error creating carousel image:", err);
-        
-        // Delete from FTP if database insert fails
-        deleteFromFTP(imageUrl);
-        
-        return res.status(500).json({
-          success: false,
-          message: "Failed to create carousel image",
-          error: err.message
-        });
-      }
-      
-      res.status(201).json({
-        success: true,
-        message: "Carousel image created successfully",
-        data: {
-          id: results.insertId,
-          image_path: imageUrl,
-          description: description || null,
-          isMobile: Boolean(isMobile)
-        }
+    const normalizedSlug = normalizeCarouselSlug(description);
+    if (!normalizedSlug) {
+      return res.status(400).json({
+        success: false,
+        message: 'Carousel slug is required and must start with /',
       });
+    }
+
+    const mobileValue = normalizeCarouselBoolean(isMobile) ? 1 : 0;
+    const newTabValue = normalizeCarouselBoolean(openNewTab) ? 1 : 0;
+    let normalizedOrder = normalizeCarouselSortOrder(sortOrder);
+
+    if (!normalizedOrder) {
+      const [orderRows] = await db1.promise().query(
+        'SELECT COALESCE(MAX(sort_order), 0) AS max_order FROM crousel_images WHERE isMobile = ?',
+        [mobileValue]
+      );
+      normalizedOrder = Number(orderRows[0]?.max_order || 0) + 1;
+    }
+
+    imageUrl = await resolveImageInput(imageBase64, 'carousel');
+
+    const [result] = await db1.promise().query(
+      `INSERT INTO crousel_images
+        (image_path, description, isMobile, open_new_tab, sort_order)
+       VALUES (?, ?, ?, ?, ?)`,
+      [imageUrl, normalizedSlug, mobileValue, newTabValue, normalizedOrder]
+    );
+
+    return res.status(201).json({
+      success: true,
+      message: 'Carousel image created successfully',
+      data: {
+        id: result.insertId,
+        image_path: imageUrl,
+        description: normalizedSlug,
+        isMobile: Boolean(mobileValue),
+        open_new_tab: Boolean(newTabValue),
+        sort_order: normalizedOrder,
+      },
     });
-    
   } catch (error) {
-    console.error("❌ Error in createCarouselImage:", error);
-    res.status(500).json({
+    console.error('❌ Error in createCarouselImage:', error);
+
+    if (imageUrl) {
+      try {
+        await deleteFromFTP(imageUrl);
+      } catch (cleanupError) {
+        console.error('❌ Failed to clean up uploaded carousel image:', cleanupError);
+      }
+    }
+
+    return res.status(500).json({
       success: false,
-      message: "Failed to create carousel image",
-      error: error.message
+      message: 'Failed to create carousel image',
+      error: error.message,
     });
   }
 };
 
-// Update carousel image
+// Update carousel image metadata, image file, link behavior, type, or display order.
 export const updateCarouselImage = async (req, res) => {
   try {
     const { id } = req.params;
-    const { description, imageBase64, isMobile } = req.body;
+    const {
+      description,
+      imageBase64,
+      isMobile,
+      openNewTab,
+      sortOrder,
+    } = req.body;
 
-    // First, get the current image data
-    const getQuery = "SELECT * FROM crousel_images WHERE id = ?";
-    
-    db1.query(getQuery, [id], async (err, results) => {
-      if (err) {
-        console.error("❌ Error fetching carousel image for update:", err);
-        return res.status(500).json({
-          success: false,
-          message: "Failed to fetch carousel image",
-          error: err.message
-        });
-      }
-      
-      if (results.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: "Carousel image not found"
-        });
-      }
+    const [results] = await db1.promise().query(
+      'SELECT * FROM crousel_images WHERE id = ?',
+      [id]
+    );
 
-      const currentImage = results[0];
-      let newImagePath = currentImage.image_path;
-
-      // If new image is provided, upload it and delete old one
-      if (imageBase64) {
-        try {
-          newImagePath = await resolveImageInput(imageBase64, 'carousel');
-
-          // Delete the previous file only after the replacement is available.
-          if (currentImage.image_path && currentImage.image_path !== newImagePath) {
-            await deleteFromFTP(currentImage.image_path);
-          }
-          
-        } catch (ftpError) {
-          console.error("❌ FTP error during update:", ftpError);
-          return res.status(500).json({
-            success: false,
-            message: "Failed to update image file",
-            error: ftpError.message
-          });
-        }
-      }
-
-      // Prepare update values
-      const updateValues = {
-        image_path: newImagePath,
-        description: description !== undefined ? description : currentImage.description,
-        isMobile: isMobile !== undefined ? isMobile : currentImage.isMobile
-      };
-
-      // Update database
-      const updateQuery = "UPDATE crousel_images SET image_path = ?, description = ?, isMobile = ? WHERE id = ?";
-      const updateParams = [
-        updateValues.image_path,
-        updateValues.description,
-        updateValues.isMobile,
-        id
-      ];
-
-      db1.query(updateQuery, updateParams, (err, updateResults) => {
-        if (err) {
-          console.error("❌ Error updating carousel image:", err);
-          return res.status(500).json({
-            success: false,
-            message: "Failed to update carousel image",
-            error: err.message
-          });
-        }
-        
-        res.json({
-          success: true,
-          message: "Carousel image updated successfully",
-          data: {
-            id: parseInt(id),
-            image_path: updateValues.image_path,
-            description: updateValues.description,
-            isMobile: Boolean(updateValues.isMobile)
-          }
-        });
+    if (results.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Carousel image not found',
       });
+    }
+
+    const currentImage = results[0];
+    let newImagePath = currentImage.image_path;
+    let uploadedReplacement = null;
+
+    if (imageBase64) {
+      uploadedReplacement = await resolveImageInput(imageBase64, 'carousel');
+      newImagePath = uploadedReplacement;
+    }
+
+    const normalizedDescription =
+      description !== undefined
+        ? normalizeCarouselSlug(description)
+        : currentImage.description;
+
+    if (!normalizedDescription) {
+      if (uploadedReplacement) await deleteFromFTP(uploadedReplacement);
+      return res.status(400).json({
+        success: false,
+        message: 'Carousel slug is required and must start with /',
+      });
+    }
+
+    const updateValues = {
+      image_path: newImagePath,
+      description: normalizedDescription,
+      isMobile:
+        isMobile !== undefined
+          ? (normalizeCarouselBoolean(isMobile) ? 1 : 0)
+          : currentImage.isMobile,
+      open_new_tab:
+        openNewTab !== undefined
+          ? (normalizeCarouselBoolean(openNewTab) ? 1 : 0)
+          : currentImage.open_new_tab,
+      sort_order:
+        sortOrder !== undefined
+          ? (normalizeCarouselSortOrder(sortOrder) || currentImage.sort_order || 1)
+          : currentImage.sort_order,
+    };
+
+    try {
+      await db1.promise().query(
+        `UPDATE crousel_images
+         SET image_path = ?, description = ?, isMobile = ?, open_new_tab = ?, sort_order = ?
+         WHERE id = ?`,
+        [
+          updateValues.image_path,
+          updateValues.description,
+          updateValues.isMobile,
+          updateValues.open_new_tab,
+          updateValues.sort_order,
+          id,
+        ]
+      );
+    } catch (databaseError) {
+      if (uploadedReplacement) await deleteFromFTP(uploadedReplacement);
+      throw databaseError;
+    }
+
+    if (
+      uploadedReplacement &&
+      currentImage.image_path &&
+      currentImage.image_path !== uploadedReplacement
+    ) {
+      try {
+        await deleteFromFTP(currentImage.image_path);
+      } catch (cleanupError) {
+        console.error('❌ Failed to delete previous carousel image:', cleanupError);
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: 'Carousel image updated successfully',
+      data: {
+        id: Number.parseInt(id, 10),
+        image_path: updateValues.image_path,
+        description: updateValues.description,
+        isMobile: Boolean(updateValues.isMobile),
+        open_new_tab: Boolean(updateValues.open_new_tab),
+        sort_order: updateValues.sort_order,
+      },
     });
-    
   } catch (error) {
-    console.error("❌ Error in updateCarouselImage:", error);
-    res.status(500).json({
+    console.error('❌ Error in updateCarouselImage:', error);
+    return res.status(500).json({
       success: false,
-      message: "Failed to update carousel image",
-      error: error.message
+      message: 'Failed to update carousel image',
+      error: error.message,
     });
   }
 };
 
-// Delete carousel image
+// Delete carousel image.
 export const deleteCarouselImage = async (req, res) => {
   try {
     const { id } = req.params;
+    const [results] = await db1.promise().query(
+      'SELECT * FROM crousel_images WHERE id = ?',
+      [id]
+    );
 
-    // First, get the image data
-    const getQuery = "SELECT * FROM crousel_images WHERE id = ?";
-    
-    db1.query(getQuery, [id], async (err, results) => {
-      if (err) {
-        console.error("❌ Error fetching carousel image for deletion:", err);
-        return res.status(500).json({
-          success: false,
-          message: "Failed to fetch carousel image",
-          error: err.message
-        });
-      }
-      
-      if (results.length === 0) {
-        return res.status(404).json({
-          success: false,
-          message: "Carousel image not found"
-        });
-      }
-
-      const image = results[0];
-
-      // Delete from FTP
-      await deleteFromFTP(image.image_path);
-
-      // Delete from database
-      const deleteQuery = "DELETE FROM crousel_images WHERE id = ?";
-      
-      db1.query(deleteQuery, [id], (err, deleteResults) => {
-        if (err) {
-          console.error("❌ Error deleting carousel image:", err);
-          return res.status(500).json({
-            success: false,
-            message: "Failed to delete carousel image",
-            error: err.message
-          });
-        }
-        
-        res.json({
-          success: true,
-          message: "Carousel image deleted successfully",
-          data: {
-            id: parseInt(id),
-            image_path: image.image_path,
-            wasMobile: Boolean(image.isMobile)
-          }
-        });
+    if (results.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Carousel image not found',
       });
+    }
+
+    const image = results[0];
+    await db1.promise().query('DELETE FROM crousel_images WHERE id = ?', [id]);
+
+    if (image.image_path) {
+      try {
+        await deleteFromFTP(image.image_path);
+      } catch (cleanupError) {
+        console.error('❌ Failed to delete carousel file after DB deletion:', cleanupError);
+      }
+    }
+
+    return res.json({
+      success: true,
+      message: 'Carousel image deleted successfully',
+      data: {
+        id: Number.parseInt(id, 10),
+        image_path: image.image_path,
+        wasMobile: Boolean(image.isMobile),
+      },
     });
-    
   } catch (error) {
-    console.error("❌ Error in deleteCarouselImage:", error);
-    res.status(500).json({
+    console.error('❌ Error in deleteCarouselImage:', error);
+    return res.status(500).json({
       success: false,
-      message: "Failed to delete carousel image",
-      error: error.message
+      message: 'Failed to delete carousel image',
+      error: error.message,
     });
   }
 };

@@ -648,3 +648,261 @@
     flex-direction: column;
   }
 }
+
+/* Shared carousel link settings */
+.carousel-admin .shared-link-settings {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  gap: 20px;
+  align-items: stretch;
+  margin-bottom: 22px;
+  padding: 18px;
+  border: 1px solid #dbe2ea;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.carousel-admin .shared-slug-field {
+  margin-bottom: 0;
+}
+
+.carousel-admin .new-tab-setting {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 14px 16px;
+  border: 1px solid #e0e5eb;
+  border-radius: 9px;
+  background: #f8fafc;
+}
+
+.carousel-admin .new-tab-setting > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.carousel-admin .new-tab-setting strong {
+  color: #26394c;
+  font-size: 14px;
+}
+
+.carousel-admin .new-tab-setting span {
+  color: #758392;
+  font-size: 12px;
+}
+
+.carousel-admin .edit-new-tab-setting {
+  margin-bottom: 18px;
+}
+
+.carousel-admin .switch-control {
+  position: relative;
+  display: inline-flex;
+  width: 48px;
+  height: 26px;
+  flex: 0 0 48px;
+  cursor: pointer;
+}
+
+.carousel-admin .switch-control input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.carousel-admin .switch-slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: #c7ced6;
+  transition: background 0.2s ease;
+}
+
+.carousel-admin .switch-slider::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 3px;
+  top: 3px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.carousel-admin .switch-control input:checked + .switch-slider {
+  background: #02236e;
+}
+
+.carousel-admin .switch-control input:checked + .switch-slider::after {
+  transform: translateX(22px);
+}
+
+.carousel-admin .switch-control input:focus-visible + .switch-slider {
+  outline: 3px solid rgba(47, 101, 170, 0.25);
+  outline-offset: 2px;
+}
+
+/* Multi-image selection previews */
+.carousel-admin .bulk-preview-section {
+  margin: 0 0 18px;
+  padding: 12px;
+  border: 1px solid #e2e7ec;
+  border-radius: 9px;
+  background: #f8fafc;
+}
+
+.carousel-admin .bulk-preview-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 12px;
+}
+
+.carousel-admin .bulk-preview-header strong {
+  color: #2c3e50;
+}
+
+.carousel-admin .bulk-preview-header span {
+  color: #7f8c8d;
+}
+
+.carousel-admin .bulk-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+  gap: 8px;
+  max-height: 250px;
+  overflow: auto;
+}
+
+.carousel-admin .bulk-preview-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 7px;
+  border: 1px solid #d8dee5;
+  background: #ffffff;
+  aspect-ratio: 16 / 7;
+}
+
+.carousel-admin .bulk-preview-grid-mobile .bulk-preview-item {
+  aspect-ratio: 4 / 5;
+}
+
+.carousel-admin .bulk-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.carousel-admin .bulk-preview-item span {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(2, 35, 110, 0.9);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+/* Drag-and-drop order management */
+.carousel-admin .drag-order-help {
+  margin-top: 12px;
+  color: #687887;
+  font-size: 13px;
+}
+
+.carousel-admin .order-section-note {
+  margin: 6px 0 0;
+  color: #687887;
+  font-size: 13px;
+}
+
+.carousel-admin .draggable-card {
+  cursor: grab;
+}
+
+.carousel-admin .draggable-card:active {
+  cursor: grabbing;
+}
+
+.carousel-admin .dragging-card {
+  opacity: 0.45;
+}
+
+.carousel-admin .drag-over-card {
+  outline: 3px solid rgba(2, 35, 110, 0.28);
+  outline-offset: 3px;
+}
+
+.carousel-admin .drag-handle {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  min-width: 34px;
+  height: 28px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #23384d;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+  user-select: none;
+}
+
+.carousel-admin .order-badge {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  min-width: 34px;
+  height: 26px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(20, 33, 48, 0.88);
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.carousel-admin .link-behavior-row {
+  margin-top: 4px;
+  color: #536577;
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .carousel-admin .shared-link-settings {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .carousel-admin .bulk-preview-header,
+  .carousel-admin .new-tab-setting {
+    align-items: flex-start;
+  }
+
+  .carousel-admin .bulk-preview-header {
+    flex-direction: column;
+  }
+}

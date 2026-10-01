@@ -1251,7 +1251,7 @@ export const getCBN=async(req,res)=>{
 
 //get images
 export const getAllCarouselImages = (req, res) => {
-  const query = "SELECT * FROM crousel_images ORDER BY created_at ASC";
+  const query = "SELECT * FROM crousel_images ORDER BY isMobile ASC, sort_order ASC, created_at ASC, id ASC";
   
   db.query(query, (err, results) => {
     if (err) {

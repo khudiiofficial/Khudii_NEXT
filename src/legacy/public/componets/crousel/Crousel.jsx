@@ -496,6 +496,14 @@ import axios from 'axios'
 import { useNavigate } from '@/lib/router-compat'
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
 
+const carouselTarget = (value) => {
+    const slug = String(value || '').trim();
+    if (!slug) return '/';
+    return slug.startsWith('/') ? slug : `/${slug}`;
+};
+
+const opensInNewTab = (value) => value === true || value === 1 || value === '1';
+
 const Crousel = () => {
     const [hero, sethero] = useState([
         { image_path: '/1-taryaq-flood-2025-monthly-theme-khudii.webp' },
@@ -523,6 +531,7 @@ const Crousel = () => {
                 if (res.status === 200) {
                     settemp(res.data.data)
                     const isMobileView = window.innerWidth < 600;
+                    setIsMobile(isMobileView);
                     const filtered = res.data.data.filter((ele) =>
                         isMobileView ? ele.isMobile === 1 : ele.isMobile === 0
                     )
@@ -593,8 +602,15 @@ const Crousel = () => {
                         
                         return (
                             <button
-                                key={i}
-                                onClick={() => nav(`/${src.description}`)}
+                                key={src.id || i}
+                                onClick={() => {
+                                    const target = carouselTarget(src.description);
+                                    if (opensInNewTab(src.open_new_tab)) {
+                                        window.open(target, '_blank', 'noopener,noreferrer');
+                                    } else {
+                                        nav(target);
+                                    }
+                                }}
                                 className={styles.imageButton}
                                 aria-label={`Open ${src.description || `slide ${i + 1}`}`}
                                 style={{
