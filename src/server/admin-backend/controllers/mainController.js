@@ -5972,21 +5972,41 @@ export const createCarouselImage = async (req, res) => {
     let normalizedOrder = normalizeCarouselSortOrder(sortOrder);
 
     if (!normalizedOrder) {
-      const [orderRows] = await db1.promise().query(
-        'SELECT COALESCE(MAX(sort_order), 0) AS max_order FROM crousel_images WHERE isMobile = ?',
-        [mobileValue]
-      );
-      normalizedOrder = Number(orderRows[0]?.max_order || 0) + 1;
+      let maxOrder = 0;
+      try {
+        const [orderRows] = await db1.promise().query(
+          'SELECT COALESCE(MAX(sort_order), 0) AS max_order FROM crousel_images WHERE isMobile = ?',
+          [mobileValue]
+        );
+        maxOrder = Number(orderRows[0]?.max_order || 0);
+      } catch (orderErr) {
+        if (orderErr.code !== 'ER_BAD_FIELD_ERROR' && orderErr.errno !== 1054) throw orderErr;
+      }
+      normalizedOrder = maxOrder + 1;
     }
 
     imageUrl = await resolveImageInput(imageBase64, 'carousel');
 
-    const [result] = await db1.promise().query(
-      `INSERT INTO crousel_images
-        (image_path, description, isMobile, open_new_tab, sort_order)
-       VALUES (?, ?, ?, ?, ?)`,
-      [imageUrl, normalizedSlug, mobileValue, newTabValue, normalizedOrder]
-    );
+    let result;
+    try {
+      [result] = await db1.promise().query(
+        `INSERT INTO crousel_images
+          (image_path, description, isMobile, open_new_tab, sort_order)
+         VALUES (?, ?, ?, ?, ?)`,
+        [imageUrl, normalizedSlug, mobileValue, newTabValue, normalizedOrder]
+      );
+    } catch (insertErr) {
+      if (insertErr.code === 'ER_BAD_FIELD_ERROR' || insertErr.errno === 1054) {
+        [result] = await db1.promise().query(
+          `INSERT INTO crousel_images
+            (image_path, description, isMobile)
+           VALUES (?, ?, ?)`,
+          [imageUrl, normalizedSlug, mobileValue]
+        );
+      } else {
+        throw insertErr;
+      }
+    }
 
     return res.status(201).json({
       success: true,
@@ -6097,8 +6117,22 @@ export const updateCarouselImage = async (req, res) => {
         ]
       );
     } catch (databaseError) {
-      if (uploadedReplacement) await deleteFromFTP(uploadedReplacement);
-      throw databaseError;
+      if (databaseError.code === 'ER_BAD_FIELD_ERROR' || databaseError.errno === 1054) {
+        await db1.promise().query(
+          `UPDATE crousel_images
+           SET image_path = ?, description = ?, isMobile = ?
+           WHERE id = ?`,
+          [
+            updateValues.image_path,
+            updateValues.description,
+            updateValues.isMobile,
+            id,
+          ]
+        );
+      } else {
+        if (uploadedReplacement) await deleteFromFTP(uploadedReplacement);
+        throw databaseError;
+      }
     }
 
     if (

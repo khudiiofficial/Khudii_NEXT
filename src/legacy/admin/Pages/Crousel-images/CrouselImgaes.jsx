@@ -387,6 +387,172 @@ const CarouselAdmin = () => {
     if (editFileRef.current) editFileRef.current.value = '';
   };
 
+  const handleInlineSlugChange = (id, newSlug) => {
+    const isPendingCreate = pendingCreates.some((item) => String(item.clientId) === String(id));
+    if (isPendingCreate) {
+      setPendingCreates((current) =>
+        current.map((item) =>
+          String(item.clientId) === String(id) ? { ...item, description: newSlug } : item
+        )
+      );
+      return;
+    }
+
+    setPendingUpdates((current) => ({
+      ...current,
+      [id]: {
+        ...current[id],
+        description: newSlug,
+      },
+    }));
+  };
+
+  const handleInlineSlugBlur = (id, value) => {
+    const normalized = normalizeSlug(value);
+    if (!normalized) return;
+
+    const isPendingCreate = pendingCreates.some((item) => String(item.clientId) === String(id));
+    if (isPendingCreate) {
+      setPendingCreates((current) =>
+        current.map((item) =>
+          String(item.clientId) === String(id) ? { ...item, description: normalized } : item
+        )
+      );
+      return;
+    }
+
+    setPendingUpdates((current) => ({
+      ...current,
+      [id]: {
+        ...current[id],
+        description: normalized,
+      },
+    }));
+  };
+
+  const handleInlineNewTabChange = (id, checked) => {
+    const isPendingCreate = pendingCreates.some((item) => String(item.clientId) === String(id));
+    if (isPendingCreate) {
+      setPendingCreates((current) =>
+        current.map((item) =>
+          String(item.clientId) === String(id) ? { ...item, openNewTab: checked } : item
+        )
+      );
+      return;
+    }
+
+    setPendingUpdates((current) => ({
+      ...current,
+      [id]: {
+        ...current[id],
+        openNewTab: checked,
+      },
+    }));
+  };
+
+  const handleQuickSaveCard = async (image) => {
+    const update = pendingUpdates[image.id];
+    if (!update && !image.__pendingUpdate) return;
+
+    const slug = normalizeSlug(
+      update?.description !== undefined ? update.description : image.description
+    );
+    if (!slug || !slug.startsWith('/')) {
+      showWarning('Slug is required and must start with “/”.');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      const requestData = {
+        description: slug,
+        openNewTab:
+          update?.openNewTab !== undefined
+            ? update.openNewTab
+            : toBoolean(image.open_new_tab),
+        isMobile:
+          update?.isMobile !== undefined
+            ? update.isMobile
+            : toMobileBoolean(image.isMobile),
+        sortOrder:
+          update?.sortOrder !== undefined
+            ? update.sortOrder
+            : Number(image.sort_order || 0),
+      };
+
+      if (update?.imageFile) {
+        requestData.imageBase64 = await fileToBase64(update.imageFile);
+      }
+
+      await axios.put(`${API_BASE_URL}/api/carousel/${image.id}`, requestData, {
+        withCredentials: true,
+      });
+
+      setPendingUpdates((current) => {
+        const next = { ...current };
+        delete next[image.id];
+        return next;
+      });
+
+      await fetchImages();
+      await showSuccessAlert('Banner updated successfully.');
+    } catch (err) {
+      console.error('Error saving banner:', err);
+      showError(err.response?.data?.message || err.message || 'Failed to update banner.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const applyCommonSlugToVisible = async () => {
+    const slug = normalizeSlug(sharedLink.description);
+    if (!slug || !slug.startsWith('/') || slug.length < 2) {
+      showWarning('Please enter a valid slug starting with “/” first.');
+      return;
+    }
+
+    const targetBanners = filteredImages.filter((img) => !img.__pendingDelete);
+    if (targetBanners.length === 0) {
+      showWarning('No banners available to update.');
+      return;
+    }
+
+    const confirmed = await confirmAction({
+      title: 'Apply slug to banners?',
+      text: `Update the slug of ${targetBanners.length} banner(s) to "${slug}"?`,
+      confirmButtonText: 'Yes, Apply Slug',
+      cancelButtonText: 'Cancel',
+    });
+
+    if (!confirmed) return;
+
+    setPendingUpdates((current) => {
+      const next = { ...current };
+      targetBanners.forEach((img) => {
+        if (!img.__pendingCreate) {
+          next[img.id] = {
+            ...next[img.id],
+            description: slug,
+            openNewTab: sharedLink.openNewTab,
+          };
+        }
+      });
+      return next;
+    });
+
+    setPendingCreates((current) =>
+      current.map((item) => ({
+        ...item,
+        description: slug,
+        openNewTab: sharedLink.openNewTab,
+      }))
+    );
+
+    setNotice(
+      `Slug "${slug}" applied to ${targetBanners.length} banner(s). Click “Update Carousel” to save.`
+    );
+  };
+
   const handleDeleteImage = async (image) => {
     if (image.__pendingCreate) {
       revokePreview(image.image_path);
@@ -753,13 +919,23 @@ const CarouselAdmin = () => {
 
       <section className="image-form-section">
         <div className="section-title-block">
-          <h2>Add New Carousel Images</h2>
-          <p>One common link applies to the desktop or mobile batch you queue.</p>
+          <h2>Add New Carousel Images (Batch Upload)</h2>
+          <p>Choose WEBP images below and queue them to add new banners.</p>
+        </div>
+
+        <div className="section-help-callout">
+          <div>
+            <strong>💡 How to update banner links:</strong>
+            <ul>
+              <li><strong>To update an existing banner&apos;s slug:</strong> Scroll down to the banner cards below and edit the <strong>Banner Slug / Link</strong> input directly on the card!</li>
+              <li><strong>To upload brand new banners:</strong> Enter the slug below, select your WEBP files in Desktop or Mobile card, and click <em>Queue Banner</em>.</li>
+            </ul>
+          </div>
         </div>
 
         <div className="shared-link-settings">
           <div className="form-group shared-slug-field">
-            <label htmlFor="carouselSharedSlug">Common Slug *</label>
+            <label htmlFor="carouselSharedSlug">Common Slug (for new uploads or batch apply) *</label>
             <input
               type="text"
               id="carouselSharedSlug"
@@ -779,6 +955,16 @@ const CarouselAdmin = () => {
               placeholder="/organization-slug"
             />
             <small>Stored as an internal path and always starts with “/”. Example: /karakoram-development-foundation-kdf</small>
+
+            <button
+              type="button"
+              className="btn-apply-slug"
+              onClick={applyCommonSlugToVisible}
+              disabled={!sharedLink.description || sharedLink.description === '/' || saving}
+              title="Apply this slug to all currently filtered banners below"
+            >
+              ⚡ Apply this slug to all {filteredImages.length} visible banner{filteredImages.length === 1 ? '' : 's'} below
+            </button>
           </div>
 
           <div className="new-tab-setting">
@@ -1041,9 +1227,31 @@ const CarouselAdmin = () => {
                   </div>
 
                   <div className="image-details">
-                    <p className="image-description">{image.description || 'No slug'}</p>
-                    <div className="link-behavior-row">
-                      <span>{toBoolean(image.open_new_tab) ? '↗ Opens in new tab' : '→ Opens in same tab'}</span>
+                    <div className="card-slug-editor">
+                      <label className="card-slug-label">Banner Slug / Link:</label>
+                      <input
+                        type="text"
+                        className="card-slug-input"
+                        value={image.description || ''}
+                        onChange={(e) => handleInlineSlugChange(image.id, e.target.value)}
+                        onBlur={(e) => handleInlineSlugBlur(image.id, e.target.value)}
+                        placeholder="/organization-slug"
+                        disabled={image.__pendingDelete || saving}
+                      />
+                    </div>
+                    <div className="card-new-tab-row">
+                      <label className="switch-control switch-control-sm" aria-label="Open in new tab">
+                        <input
+                          type="checkbox"
+                          checked={toBoolean(image.open_new_tab)}
+                          onChange={(e) => handleInlineNewTabChange(image.id, e.target.checked)}
+                          disabled={image.__pendingDelete || saving}
+                        />
+                        <span className="switch-slider switch-slider-sm" />
+                      </label>
+                      <span className="card-new-tab-text">
+                        {toBoolean(image.open_new_tab) ? '↗ Opens in new tab' : '→ Opens in same tab'}
+                      </span>
                     </div>
                     <div className="image-meta">
                       <p className="image-date">
@@ -1071,13 +1279,24 @@ const CarouselAdmin = () => {
                       </button>
                     ) : (
                       <>
+                        {image.__pendingUpdate && !image.__pendingDelete && (
+                          <button
+                            type="button"
+                            onClick={() => handleQuickSaveCard(image)}
+                            className="btn btn-save-inline"
+                            disabled={saving}
+                            title="Save this banner immediately"
+                          >
+                            Save
+                          </button>
+                        )}
                         <button
                           type="button"
                           onClick={() => handleEditImage(image)}
                           className="btn btn-edit"
                           disabled={image.__pendingDelete || saving}
                         >
-                          Edit
+                          Change Image
                         </button>
                         <button
                           type="button"
