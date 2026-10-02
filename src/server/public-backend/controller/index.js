@@ -1255,6 +1255,26 @@ export const getAllCarouselImages = (req, res) => {
   
   db.query(query, (err, results) => {
     if (err) {
+      // Graceful fallback if sort_order column does not exist yet in DB
+      if (err.code === 'ER_BAD_FIELD_ERROR' || err.errno === 1054) {
+        const fallbackQuery = "SELECT * FROM crousel_images ORDER BY isMobile ASC, created_at ASC, id ASC";
+        return db.query(fallbackQuery, (fbErr, fbResults) => {
+          if (fbErr) {
+            console.error("❌ Error fetching carousel images (fallback):", fbErr);
+            return res.status(500).json({
+              success: false,
+              message: "Failed to fetch carousel images",
+              error: fbErr.message
+            });
+          }
+          return res.status(200).json({
+            success: true,
+            data: fbResults,
+            count: fbResults.length
+          });
+        });
+      }
+
       console.error("❌ Error fetching carousel images:", err);
       return res.status(500).json({
         success: false,

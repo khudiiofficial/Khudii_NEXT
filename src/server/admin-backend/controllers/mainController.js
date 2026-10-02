@@ -5833,12 +5833,25 @@ const normalizeCarouselSortOrder = (value) => {
 };
 
 const carouselOrderClause = 'ORDER BY isMobile ASC, sort_order ASC, created_at ASC, id ASC';
+const fallbackCarouselOrderClause = 'ORDER BY isMobile ASC, created_at ASC, id ASC';
+
+const executeCarouselQueryWithFallback = async (queryWithSortOrder, queryFallback) => {
+  try {
+    return await db1.promise().query(queryWithSortOrder);
+  } catch (err) {
+    if (err.code === 'ER_BAD_FIELD_ERROR' || err.errno === 1054) {
+      return await db1.promise().query(queryFallback);
+    }
+    throw err;
+  }
+};
 
 // Get all carousel images (desktop + mobile) in the saved frontend order.
 export const getAllCarouselImages = async (req, res) => {
   try {
-    const [results] = await db1.promise().query(
-      `SELECT * FROM crousel_images ${carouselOrderClause}`
+    const [results] = await executeCarouselQueryWithFallback(
+      `SELECT * FROM crousel_images ${carouselOrderClause}`,
+      `SELECT * FROM crousel_images ${fallbackCarouselOrderClause}`
     );
 
     return res.json({
@@ -5864,8 +5877,9 @@ export const getAllCarouselImages = async (req, res) => {
 // Get desktop images only, ordered exactly as they should display on the frontend.
 export const getDesktopImages = async (req, res) => {
   try {
-    const [results] = await db1.promise().query(
-      'SELECT * FROM crousel_images WHERE isMobile = FALSE ORDER BY sort_order ASC, created_at ASC, id ASC'
+    const [results] = await executeCarouselQueryWithFallback(
+      'SELECT * FROM crousel_images WHERE isMobile = FALSE ORDER BY sort_order ASC, created_at ASC, id ASC',
+      'SELECT * FROM crousel_images WHERE isMobile = FALSE ORDER BY created_at ASC, id ASC'
     );
 
     return res.json({ success: true, data: results, count: results.length });
@@ -5882,8 +5896,9 @@ export const getDesktopImages = async (req, res) => {
 // Get mobile images only, ordered exactly as they should display on the frontend.
 export const getMobileImages = async (req, res) => {
   try {
-    const [results] = await db1.promise().query(
-      'SELECT * FROM crousel_images WHERE isMobile = TRUE ORDER BY sort_order ASC, created_at ASC, id ASC'
+    const [results] = await executeCarouselQueryWithFallback(
+      'SELECT * FROM crousel_images WHERE isMobile = TRUE ORDER BY sort_order ASC, created_at ASC, id ASC',
+      'SELECT * FROM crousel_images WHERE isMobile = TRUE ORDER BY created_at ASC, id ASC'
     );
 
     return res.json({ success: true, data: results, count: results.length });

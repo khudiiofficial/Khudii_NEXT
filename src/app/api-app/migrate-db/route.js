@@ -75,6 +75,42 @@ async function runMigration(request) {
       results.push(`organization_submissions error: ${e.message}`);
     }
 
+    // 5. Ensure crousel_images has sort_order and open_new_tab columns
+    const carouselColumns = [
+      { name: 'open_new_tab', type: 'TINYINT(1) NOT NULL DEFAULT 0' },
+      { name: 'sort_order', type: 'INT(11) NOT NULL DEFAULT 0' },
+    ];
+
+    for (const col of carouselColumns) {
+      try {
+        await conn.query(`ALTER TABLE crousel_images ADD COLUMN ${col.name} ${col.type}`);
+        results.push(`Added ${col.name} to crousel_images table`);
+      } catch (e) {
+        results.push(`crousel_images.${col.name}: ${e.message}`);
+      }
+    }
+
+    try {
+      await conn.query(`
+        UPDATE crousel_images
+        SET sort_order = id
+        WHERE id > 0 AND (sort_order = 0 OR sort_order IS NULL)
+      `);
+      results.push('Populated default sort_order in crousel_images');
+    } catch (e) {
+      results.push(`crousel_images sort_order init: ${e.message}`);
+    }
+
+    try {
+      await conn.query(`
+        CREATE INDEX idx_crousel_images_device_order
+        ON crousel_images (isMobile, sort_order, id)
+      `);
+      results.push('Created idx_crousel_images_device_order index on crousel_images');
+    } catch (e) {
+      results.push(`crousel_images index: ${e.message}`);
+    }
+
     // 5. Optional / Automatic Fix for broken preupload image URLs
     // preupload- files are FTP-uploaded to /public_html/media and served from
     // https://media.khudii.com — so the CORRECT URL is media.khudii.com/preupload-*
