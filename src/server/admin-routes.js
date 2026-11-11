@@ -1,3 +1,11 @@
+import { listFormsInbox, updateFormInboxState, listFormEmailLogs } from './form-management.js';
+import {listSeoIntelligence,updateSeoEntity,getSeoAuditHistory,captureSeoAuditSnapshot} from './seo-intelligence.js';
+import {getBackendLogs,exportBackendLogs,listRedirects,createRedirect,updateRedirect,deleteRedirect} from './site-diagnostics.js';
+import { reorderAdminCollection } from './admin-backend/controllers/reorder.js';
+import { receiveAdminAnalytics } from './admin-backend/controllers/analytics.js';
+import { listAdminPodcasts, getAdminPodcast, createPodcast, updatePodcast, deletePodcast, reorderPodcasts, getYoutubePodcastMetadata } from './podcast-controller.js';
+import { getActivityLogs, downloadActivityLogs } from './admin-backend/controllers/activityLogs.js';
+import { getAdminOverview } from './admin-backend/controllers/reporting.js';
 import {
   authlogin,
   changePassword,
@@ -122,11 +130,32 @@ import {
   updateWelcomeSection,
 } from './admin-backend/controllers/mainController.js';
 import { auth } from './admin-backend/middleware/auth.js';
+import {cmsGetPage,cmsSavePage,cmsGetSettings,cmsSaveSettings,cmsGetMedia,cmsUpdateMedia,cmsUploadMedia} from './cms-controller.js';
 
 const protectedRoute = (method, path, handler) => ({ method, path, handlers: [auth, handler] });
 const openRoute = (method, path, handler) => ({ method, path, handlers: [handler] });
 
 export const routes = [
+  protectedRoute('GET','/admin/seo/intelligence',listSeoIntelligence),
+  protectedRoute('GET','/admin/seo/history',getSeoAuditHistory),
+  protectedRoute('POST','/admin/seo/audit-snapshot',captureSeoAuditSnapshot),
+  protectedRoute('PUT','/admin/seo/intelligence',updateSeoEntity),
+  protectedRoute('GET','/admin/backend-logs',getBackendLogs),
+  protectedRoute('GET','/admin/backend-logs/export',exportBackendLogs),
+  protectedRoute('GET','/admin/redirects',listRedirects),
+  protectedRoute('POST','/admin/redirects',createRedirect),
+  protectedRoute('PUT','/admin/redirects/:id',updateRedirect),
+  protectedRoute('DELETE','/admin/redirects/:id',deleteRedirect),
+  protectedRoute('GET','/admin/cms/page',cmsGetPage),
+  protectedRoute('PUT','/admin/cms/page',cmsSavePage),
+  protectedRoute('GET','/admin/forms/inbox',listFormsInbox),
+  protectedRoute('PATCH','/admin/forms/inbox/state',updateFormInboxState),
+  protectedRoute('GET','/admin/forms/email-logs',listFormEmailLogs),
+  protectedRoute('GET','/admin/settings',cmsGetSettings),
+  protectedRoute('PUT','/admin/settings',cmsSaveSettings),
+  protectedRoute('GET','/admin/media',cmsGetMedia),
+  protectedRoute('PUT','/admin/media',cmsUpdateMedia),
+  protectedRoute('POST','/admin/media/upload',cmsUploadMedia),
   openRoute('POST', '/auth/login', login),
   openRoute('POST', '/authlogin', authlogin),
   protectedRoute('POST', '/auth/logout', logout),
@@ -134,6 +163,10 @@ export const routes = [
   protectedRoute('GET', '/api/profile', getProfile),
   protectedRoute('PUT', '/api/profile', updateProfile),
 
+  protectedRoute('POST', '/admin/analytics/event', receiveAdminAnalytics),
+  protectedRoute('GET', '/admin/reports/activity', getActivityLogs),
+  protectedRoute('GET', '/admin/reports/activity/download', downloadActivityLogs),
+  protectedRoute('GET', '/admin/reports/overview', getAdminOverview),
   protectedRoute('GET', '/organizations', getAllOrganizations),
   protectedRoute('POST', '/api/organizations', createOrganization),
   protectedRoute('GET', '/api/organizations/:id', getOrganizationById),
@@ -147,6 +180,13 @@ export const routes = [
   protectedRoute('PUT', '/api/blogs/:id', updateBlog),
   protectedRoute('DELETE', '/api/documents/:id', deleteBlog),
 
+  protectedRoute('GET', '/api/podcasts', listAdminPodcasts),
+  protectedRoute('GET', '/api/podcasts/youtube-metadata', getYoutubePodcastMetadata),
+  protectedRoute('PUT', '/api/podcasts/order', reorderPodcasts),
+  protectedRoute('GET', '/api/podcasts/:id', getAdminPodcast),
+  protectedRoute('POST', '/api/podcasts', createPodcast),
+  protectedRoute('PUT', '/api/podcasts/:id', updatePodcast),
+  protectedRoute('DELETE', '/api/podcasts/:id', deletePodcast),
   protectedRoute('GET', '/api/success-stories', getAllSuccessStories),
   protectedRoute('POST', '/api/success-stories', createSuccessStory),
   protectedRoute('PUT', '/api/success-stories/:id', updateSuccessStory),
@@ -190,6 +230,7 @@ export const routes = [
   protectedRoute('PUT', '/api/topbar/:id', updateTopbarContent),
   protectedRoute('DELETE', '/api/topbar/:id', deleteTopbarContent),
 
+  protectedRoute('PUT', '/admin/reorder/:collection', reorderAdminCollection),
   protectedRoute('GET', '/certifications', getAllCertifications),
   protectedRoute('GET', '/certifications/:id', getCertificationById),
   protectedRoute('POST', '/certifications', createCertification),

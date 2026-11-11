@@ -1,3 +1,7 @@
+import {publicResolveRedirect,recordPublic404} from './site-diagnostics.js';
+import { receivePublicAnalytics } from './admin-backend/controllers/analytics.js';
+import { getPublishedPodcasts } from './podcast-controller.js';
+import { cmsGetPublicPage, cmsGetPublicSettings } from './cms-controller.js';
 import {
   AddVolunteer,
   ApplyForJob,
@@ -40,6 +44,11 @@ import {
 const route = (method, path, handler) => ({ method, path, handlers: [handler] });
 
 export const routes = [
+  { method:'GET',path:'/api/traffic/resolve',handlers:[publicResolveRedirect] },
+  { method:'POST',path:'/api/traffic/404',handlers:[recordPublic404] },
+  route('GET', '/cms/page', cmsGetPublicPage),
+  route('POST', '/api/analytics/event', receivePublicAnalytics),
+  route('GET', '/cms/public-settings', cmsGetPublicSettings),
   route('GET', '/items', getAllorganization),
   route('GET', '/item/:slug', getSpecificItem),
   route('GET', '/icons/:id', getAllIcons),
@@ -53,6 +62,7 @@ export const routes = [
   route('POST', '/api/contribute-story', ContributeStory),
   route('POST', '/api/donations', Donation),
   route('GET', '/itemByCategory/:name', itemByCategory),
+  route('GET', '/api/podcasts', getPublishedPodcasts),
   route('GET', '/getsuccessstories', getsuccessstories),
   route('GET', '/getAllVedios', getAllVideos),
   route('POST', '/contact-inquiry', createContactInquiry),
