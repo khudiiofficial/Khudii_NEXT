@@ -1,6 +1,8 @@
 import React from 'react';
+import {GripVertical,ChevronUp,ChevronDown} from 'lucide-react';
+import AdminPublishSwitch from '@/components/AdminPublishSwitch';
 
-const SuccessStoryList = ({ stories, onEdit, onDelete }) => {
+const SuccessStoryList = ({ stories, onEdit, onDelete, onMove, onToggle, onDropRow, dragId, ordering }) => {
   if (stories.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-md p-8 text-center">
@@ -16,11 +18,12 @@ const SuccessStoryList = ({ stories, onEdit, onDelete }) => {
   }
 
   return (
-    <div className="bg-white shadow-md rounded-lg overflow-hidden">
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-[#cedcff]">
+          <thead className="bg-slate-50">
             <tr>
+              <th scope="col" className="px-3 py-3 text-left text-xs font-semibold">Order</th>
               <th scope="col" className="px-6 py-3 text-left text-sm font-medium text-[#222222] uppercase tracking-wider">
                 Video
               </th>
@@ -41,9 +44,10 @@ const SuccessStoryList = ({ stories, onEdit, onDelete }) => {
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-300">
-            {stories.map((story) => (
-              <tr key={story.id} className="hover:bg-[#f0f0f0]">
+          <tbody className="divide-y divide-slate-100 bg-white">
+            {stories.map((story,index) => (
+              <tr key={story.id} draggable={!ordering} onDragStart={e=>{dragId.current=story.id;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(story.id));}} onDragOver={e=>{e.preventDefault();e.dataTransfer.dropEffect='move';}} onDrop={e=>{e.preventDefault();onDropRow(dragId.current,index);dragId.current=null;}} onDragEnd={()=>{dragId.current=null;}} className="hover:bg-blue-50/40">
+                <td className="px-3 py-4"><div className="flex items-center gap-1"><GripVertical size={17} aria-label="Drag to reorder" className="cursor-grab text-slate-400"/><span className="text-xs text-slate-500">{index+1}</span><div className="flex flex-col gap-1"><button type="button" disabled={!index||ordering} aria-label={`Move ${story.title} up`} onClick={()=>onMove(index,index-1)} className="disabled:opacity-30"><ChevronUp size={14}/></button><button type="button" disabled={index===stories.length-1||ordering} aria-label={`Move ${story.title} down`} onClick={()=>onMove(index,index+1)} className="disabled:opacity-30"><ChevronDown size={14}/></button></div></div></td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="w-24 h-16 bg-gray-100 rounded overflow-hidden">
                     <img
@@ -74,10 +78,12 @@ const SuccessStoryList = ({ stories, onEdit, onDelete }) => {
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <AdminPublishSwitch checked={story.is_published!==0} disabled={ordering} onChange={value=>onToggle(story,value)} label={story.is_published!==0?'Published':'Draft'}/>
+
                   <div className="flex justify-end space-x-2">
                     <button
                       onClick={() => onEdit(story)}
-                      className="cursor-pointer text-[#02236e] hover:text-[#032f95] transition-colors duration-200"
+                      className="cursor-pointer text-[#2563eb] hover:text-[#1d4ed8] transition-colors duration-200"
                     >
                       Edit
                     </button>

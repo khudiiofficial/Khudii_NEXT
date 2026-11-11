@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import React from 'react';
 import styles from './Success.module.css'
 import PageHeader from '../PageHeader/PageHeader';
@@ -217,6 +218,7 @@ getStories();
         type="website"
       />
 
+    <CmsPageLayout slug="/success-stories">
     <PageHeader 
             title="Success Stories"
             breadcrumbs={[
@@ -264,6 +266,7 @@ getStories();
     }
 </>
 }
+    </CmsPageLayout>
     </>
   );
 };

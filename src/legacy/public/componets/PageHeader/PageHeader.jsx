@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect, useRef, useState } from 'react';
 import './pageHeader.css';
 import { cachedPublicGet } from '@/lib/public-api-cache';
@@ -6,29 +8,29 @@ import axios from 'axios';
 import { Link } from '@/lib/router-compat';
 const PageHeader = ({ title, breadcrumbs = [] }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [footer,setFooterData]=useState({})
+  const [footer, setFooterData] = useState({})
   const headerRef = useRef(null);
   const fetchFooterData = async () => {
     try {
-     
+
       const response = await cachedPublicGet(`${APIPath}/api/footer`, {
         withCredentials: true
       });
-      
+
       if (response.data.success) {
         setFooterData(response.data.data);
-          
+
       }
     } catch (error) {
       console.error('Error fetching footer data:', error);
     } finally {
-      
+
     }
   };
-  useEffect(()=>{
-fetchFooterData();    
+  useEffect(() => {
+    fetchFooterData();
 
-  },[])
+  }, [])
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {

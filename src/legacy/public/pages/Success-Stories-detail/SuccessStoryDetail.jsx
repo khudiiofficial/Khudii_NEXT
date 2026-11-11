@@ -19,7 +19,7 @@
 //     //   <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
 //     // </div>
 //      <div className="flex items-center justify-center h-90 ">
-     
+
 //       {/* <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"> */}
 //         <img src="/siteicon.png" alt="" width={200} height={200}/>
 //       {/* </div> */}
@@ -60,7 +60,7 @@
 // get();
 
 // },[])
-  
+
 
 // //   useEffect(() => {
 // //     if (!selectedVideo) {
@@ -72,9 +72,9 @@
 // //   const totalSlides = Math.ceil(videoData.length / slidesToShow);
 
 // //   // Update slides to show based on screen size
- 
 
- 
+
+
 
 // if(loader){
 //   return <Loader/>
@@ -102,7 +102,7 @@
 //         url={`${url}/videos`}
 //         type="website"
 //       /> */}
-      
+
 
 //   <SEO 
 //         title={seoTitle}
@@ -124,7 +124,7 @@
 //         </div>
 //       <div className="video-gallery-container">
 //         {/* Main Featured Video */}
-    
+
 //           <div className="featured-video-section">
 //             <div className="featured-video-container">
 //               <div className="video-wrapper">
@@ -143,7 +143,7 @@
 //               </div>
 //             </div>
 //           </div>
-    
+
 //       </div>
 //     </section>
 //     </>
@@ -173,10 +173,10 @@ const SuccessStoryDetail = ({ url }) => {
   function Loader() {
     return (
       <div className="flex items-center justify-center min-h-[360px]" role="status" aria-label="Loading">
-        <img 
-          src="/siteicon.png" 
-          alt="Loading spinner" 
-          width={200} 
+        <img
+          src="/siteicon.png"
+          alt="Loading spinner"
+          width={200}
           height={200}
           fetchPriority="high"
           decoding="sync"
@@ -187,15 +187,15 @@ const SuccessStoryDetail = ({ url }) => {
     );
   }
 
-  const seoTitle = videoData.title 
+  const seoTitle = videoData.title
     ? `${videoData.title} - Khudii Success Story | Pakistan Welfare Initiatives`
     : "Khudii Success Story | Inspiring Stories from Pakistan";
 
-  const seoDescription = videoData.description 
+  const seoDescription = videoData.description
     ? `${videoData.description.substring(0, 160)}... Watch this inspiring success story from Khudii's welfare initiatives across Pakistan.`
     : "Watch inspiring success stories from Khudii's welfare initiatives across Pakistan. Discover real impact stories of hope, compassion, and community transformation.";
 
-  const seoKeywords = videoData.title 
+  const seoKeywords = videoData.title
     ? `khudii success story, ${videoData.title}, pakistan welfare, community impact, humanitarian work, social welfare pakistan, khudii stories, inspirational videos`
     : "khudii success stories, pakistan welfare initiatives, community impact stories, humanitarian work pakistan, social welfare success";
 
@@ -226,7 +226,7 @@ const SuccessStoryDetail = ({ url }) => {
       <div className="text-6xl mb-4">⚠️</div>
       <h2 className="text-2xl font-bold text-gray-900 mb-2">Unable to Load Content</h2>
       <p className="text-gray-600 mb-6">{Error}</p>
-      <button 
+      <button
         className="bg-[#e7001e] text-white px-6 py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors cursor-pointer min-h-[44px] min-w-[44px]"
         onClick={() => nav("/")}
       >
@@ -237,7 +237,7 @@ const SuccessStoryDetail = ({ url }) => {
 
   return (
     <>
-      <SEO 
+      <SEO
         title={seoTitle}
         description={seoDescription}
         keywords={seoKeywords}
@@ -246,14 +246,14 @@ const SuccessStoryDetail = ({ url }) => {
       />
 
       <section className="py-8 px-4 bg-gray-50">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
               Khudii Success Stories
             </h1>
             <p className="text-lg sm:text-xl text-gray-700 max-w-3xl mx-auto">
-              Inspiring stories of hope, compassion, and community impact. 
+              Inspiring stories of hope, compassion, and community impact.
               Discover how Khudii and its partners are making a difference across Pakistan.
             </p>
           </div>
@@ -272,7 +272,7 @@ const SuccessStoryDetail = ({ url }) => {
                   loading="lazy"
                 />
               </div>
-              
+
               {/* Video Info */}
               <div className="p-6 bg-gray-100">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">

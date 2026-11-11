@@ -1,8 +1,10 @@
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
 import db1 from '../Database/oldDB.js';
+import { sessionVersion, validSessionVersion } from '../utils/sessionVersion.js';
 import { uploadToFTP, deleteFromFTP, uploadVideoToFTP, deleteVideoFromFTP } from "../utils/ftpUpload.js";
 import { DtoArr } from "../Dto/objectDto.js";
+import { youtubeVideoId, slugifyContent } from "../../shared/youtube.js";
 // // Utility Functions
 // function uniqueImageName(extension = "png") {
 //   return `${Date.now()}-${Math.floor(Math.random() * 1e6)}.${extension}`;
@@ -1036,7 +1038,7 @@ import { DtoArr } from "../Dto/objectDto.js";
 // // Success Story Controllers
 // export const getAllSuccessStories = (req, res) => {
 //   const query = "SELECT * FROM successstories WHERE deletestatus = 0 ORDER BY id DESC";
-  
+//   
 //   db1.query(query, (err, results) => {
 //     if (err) {
 //       console.error("Error fetching success stories:", err);
@@ -1048,19 +1050,19 @@ import { DtoArr } from "../Dto/objectDto.js";
 
 // export const createSuccessStory = (req, res) => {
 //   const { title, urdu_title, link, youtube_id, description } = req.body;
-  
+//   
 //   if (!title || !youtube_id) {
 //     return res.status(400).json({ error: "Title and YouTube ID are required" });
 //   }
-  
+//   
 //   const query = `INSERT INTO successstories (title, urdu_title, link, youtube_id, description, deletestatus) VALUES (?, ?, ?, ?, ?, 0)`;
-  
+//   
 //   db1.query(query, [title, urdu_title || null, link || null, youtube_id, description || null], (err, results) => {
 //     if (err) {
 //       console.error("Error creating success story:", err);
 //       return res.status(500).json({ error: "Failed to create success story" });
 //     }
-    
+//     
 //     res.status(201).json({
 //       id: results.insertId,
 //       message: "Success story created successfully"
@@ -1071,23 +1073,23 @@ import { DtoArr } from "../Dto/objectDto.js";
 // export const updateSuccessStory = (req, res) => {
 //   const { id } = req.params;
 //   const { title, urdu_title, link, youtube_id, description } = req.body;
-  
+//   
 //   if (!title || !youtube_id) {
 //     return res.status(400).json({ error: "Title and YouTube ID are required" });
 //   }
-  
+//   
 //   const query = `UPDATE successstories SET title = ?, urdu_title = ?, link = ?, youtube_id = ?, description = ? WHERE id = ? AND deletestatus = 0`;
-  
+//   
 //   db1.query(query, [title, urdu_title || null, link || null, youtube_id, description || null, id], (err, results) => {
 //     if (err) {
 //       console.error("Error updating success story:", err);
 //       return res.status(500).json({ error: "Failed to update success story" });
 //     }
-    
+//     
 //     if (results.affectedRows === 0) {
 //       return res.status(404).json({ error: "Success story not found" });
 //     }
-    
+//     
 //     res.json({ message: "Success story updated successfully" });
 //   });
 // };
@@ -1095,22 +1097,22 @@ import { DtoArr } from "../Dto/objectDto.js";
 // export const deleteSuccessStory = (req, res) => {
 //   const { id } = req.params;
 //   const query = "UPDATE successstories SET deletestatus = 1 WHERE id = ?";
-  
+//   
 //   db1.query(query, [id], (err, results) => {
 //     if (err) {
 //       console.error("Error deleting success story:", err);
 //       return res.status(500).json({ error: "Failed to delete success story" });
 //     }
-    
+//     
 //     if (results.affectedRows === 0) {
 //       return res.status(404).json({ error: "Success story not found" });
 //     }
-    
+//     
 //     res.json({ message: "Success story deleted successfully" });
 //   });
 // };
 
-// // Video Controllers
+// Video Controllers
 // const saveBase64Image = async (image_base64) => {
 //   let imagePath = null;
   
@@ -1379,12 +1381,18 @@ export const login = (req, res) => {
     }
 
     const user = results[0];
-    const match = await bcrypt.compare(password, user.password);
+    let match = false;
+    try {
+      match = await bcrypt.compare(password, user.password);
+    } catch (error) {
+      console.error('[Khudii login] Password hash validation error:', error?.message);
+      return res.status(500).json({ message: 'Unable to verify credentials' });
+    }
     if (!match) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    const token = jwt.sign({ id: user.id, email: user.email }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ id: user.id, email: user.email, sessionVersion: sessionVersion(user.password) }, process.env.JWT_SECRET, {
       expiresIn: "6d",
     });
     res.cookie("token", token, {
@@ -1392,7 +1400,7 @@ export const login = (req, res) => {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       path: "/",
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      maxAge: 6 * 24 * 60 * 60 * 1000,
     });
 
     delete user.password;
@@ -1439,7 +1447,7 @@ export const changePassword = async (req, res) => {
       "UPDATE users SET password = ? WHERE id = ?",
       [hashedPassword, userId],
     );
-    return res.status(200).json({ message: "Password changed successfully" });
+    return res.status(200).json({ message: "Password changed successfully. Other sessions have been revoked. Please log in again." });
   } catch (error) {
     console.error("Change password error:", error);
     return res.status(500).json({ error: "Failed to change password" });
@@ -2950,81 +2958,69 @@ export const deleteBlog = (req, res) => {
   });
 };
 
-// Success Story Controllers
-export const getAllSuccessStories = (req, res) => {
-  const query = "SELECT * FROM successstories WHERE deletestatus = 0 ORDER BY id DESC";
-  
-  db1.query(query, (err, results) => {
-    if (err) {
-      console.error("Error fetching success stories:", err);
-      return res.status(500).json({ error: "Failed to fetch success stories" });
-    }
-    res.status(200).json(DtoArr(results));
-  });
-};
-
-export const createSuccessStory = (req, res) => {
-  const { title, urdu_title, link, youtube_id, description,slug } = req.body;
-  
-  if (!title || !youtube_id) {
-    return res.status(400).json({ error: "Title and YouTube ID are required" });
+// Success story CRUD: enforce the same payload contract on server and client.
+function validateSuccessStory(body) {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return { error: 'Invalid story payload' };
+  const title = typeof body.title === 'string' ? body.title.trim() : '';
+  if (!title || title.length > 255) return { error: 'Title must contain 1 to 255 characters' };
+  const youtube_id = youtubeVideoId(body.youtube_id);
+  if (!youtube_id) return { error: 'Invalid YouTube video ID or URL' };
+  const urdu_title = typeof body.urdu_title === 'string' ? body.urdu_title.trim() : '';
+  const link = typeof body.link === 'string' ? body.link.trim() : '';
+  const description = typeof body.description === 'string' ? body.description.trim() : '';
+  if (urdu_title.length > 255 || link.length > 255 || description.length > 10000) {
+    return { error: 'A field exceeds the allowed length (Urdu title/link 255, description 10000)' };
   }
-  
-  const query = `INSERT INTO successstories (title, urdu_title, link, youtube_id, description, deletestatus,slug) VALUES (?, ?, ?, ?, ?, 0, ?)`;
-  
-  db1.query(query, [title, urdu_title || null, link || null, youtube_id, description || null,slug || null], (err, results) => {
-    if (err) {
-      console.error("Error creating success story:", err);
-      return res.status(500).json({ error: "Failed to create success story" });
-    }
-    
-    res.status(201).json({
-      id: results.insertId,
-      message: "Success story created successfully"
-    });
-  });
+  // The link is used as a same-site location; reject dangerous protocols.
+  if (link && (!link.startsWith('/') || link.startsWith('//'))) return { error: 'Link must be an internal path beginning with /' };
+  const slug = slugifyContent(body.slug || title);
+  if (!slug || slug.length > 200) return { error: 'Invalid slug; use lowercase letters, numbers and hyphens (up to 200)' };
+  return { data: { title, urdu_title: urdu_title || null, link: link || null, youtube_id, description: description || null, slug } };
+}
+function storySqlError(res, error, action) {
+  console.error(`[successstories ${action}]`, error);
+  return res.status(error?.code === 'ER_DUP_ENTRY' ? 409 : 500).json({ message: error?.code === 'ER_DUP_ENTRY' ? 'Story slug already exists' : 'Could not save or retrieve success stories' });
+}
+export const getAllSuccessStories = async (req, res) => {
+  try {
+    const [rows] = await db1.promise().query('SELECT * FROM successstories WHERE deletestatus=0 ORDER BY (display_order=0),display_order ASC,id DESC');
+    return res.json(DtoArr(rows));
+  } catch (error) { return storySqlError(res, error, 'list'); }
 };
-
-export const updateSuccessStory = (req, res) => {
-  const { id } = req.params;
-  const { title, urdu_title, link, youtube_id, description,slug } = req.body;
-  
-  if (!title || !youtube_id) {
-    return res.status(400).json({ error: "Title and YouTube ID are required" });
-  }
-  
-  const query = `UPDATE successstories SET title = ?, urdu_title = ?, link = ?, youtube_id = ?, description = ?, slug =? WHERE id = ? AND deletestatus = 0`;
-  
-  db1.query(query, [title, urdu_title || null, link || null, youtube_id, description || null,slug || null, id], (err, results) => {
-    if (err) {
-      console.error("Error updating success story:", err);
-      return res.status(500).json({ error: "Failed to update success story" });
-    }
-    
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ error: "Success story not found" });
-    }
-    
-    res.json({ message: "Success story updated successfully" });
-  });
+export const createSuccessStory = async (req, res) => {
+  const checked = validateSuccessStory(req.body);
+  if (checked.error) return res.status(422).json({ message: checked.error });
+  const { title, urdu_title, link, youtube_id, description, slug } = checked.data;
+  const metaTitle=String(req.body?.meta_title||'').trim().slice(0,120),metaDescription=String(req.body?.meta_description||'').trim().slice(0,320),metaKeywords=String(req.body?.meta_keywords||'').trim().slice(0,500);
+  try {
+    const [existing] = await db1.promise().query('SELECT id FROM successstories WHERE slug=? AND deletestatus=0 LIMIT 1', [slug]);
+    if (existing.length) return res.status(409).json({ message: 'Story slug already exists' });
+    const [[{max_order}]] = await db1.promise().query('SELECT COALESCE(MAX(display_order),0) AS max_order FROM successstories WHERE deletestatus=0');
+    const [result] = await db1.promise().query('INSERT INTO successstories (title,urdu_title,link,youtube_id,description,deletestatus,slug,display_order,is_published,meta_title,meta_description,meta_keywords) VALUES (?,?,?,?,?,0,?,?,?,?,?,?)', [title,urdu_title,link,youtube_id,description,slug,Number(max_order)+1,req.body?.is_published===false?0:1,metaTitle,metaDescription,metaKeywords]);
+    return res.status(201).json({ id: result.insertId, message: 'Success story created successfully' });
+  } catch (error) { return storySqlError(res, error, 'create'); }
 };
-
-export const deleteSuccessStory = (req, res) => {
-  const { id } = req.params;
-  const query = "UPDATE successstories SET deletestatus = 1 WHERE id = ?";
-  
-  db1.query(query, [id], (err, results) => {
-    if (err) {
-      console.error("Error deleting success story:", err);
-      return res.status(500).json({ error: "Failed to delete success story" });
-    }
-    
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ error: "Success story not found" });
-    }
-    
-    res.json({ message: "Success story deleted successfully" });
-  });
+export const updateSuccessStory = async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id <= 0) return res.status(400).json({ message: 'Invalid story ID' });
+  const checked = validateSuccessStory(req.body);
+  if (checked.error) return res.status(422).json({ message: checked.error });
+  const { title, urdu_title, link, youtube_id, description, slug } = checked.data;
+  const metaTitle=String(req.body?.meta_title||'').trim().slice(0,120),metaDescription=String(req.body?.meta_description||'').trim().slice(0,320),metaKeywords=String(req.body?.meta_keywords||'').trim().slice(0,500);
+  try {
+    const [existing] = await db1.promise().query('SELECT id FROM successstories WHERE slug=? AND id<>? AND deletestatus=0 LIMIT 1', [slug,id]);
+    if (existing.length) return res.status(409).json({ message: 'Story slug already exists' });
+    const [result] = await db1.promise().query('UPDATE successstories SET title=?,urdu_title=?,link=?,youtube_id=?,description=?,slug=?,is_published=?,meta_title=?,meta_description=?,meta_keywords=? WHERE id=? AND deletestatus=0', [title,urdu_title,link,youtube_id,description,slug,req.body?.is_published===false?0:1,metaTitle,metaDescription,metaKeywords,id]);
+    return result.affectedRows ? res.json({ message: 'Success story updated successfully' }) : res.status(404).json({ message: 'Success story not found' });
+  } catch (error) { return storySqlError(res, error, 'update'); }
+};
+export const deleteSuccessStory = async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id <= 0) return res.status(400).json({ message: 'Invalid story ID' });
+  try {
+    const [result] = await db1.promise().query('UPDATE successstories SET deletestatus=1 WHERE id=? AND deletestatus=0', [id]);
+    return result.affectedRows ? res.json({ message: 'Success story deleted successfully' }) : res.status(404).json({ message: 'Success story not found' });
+  } catch (error) { return storySqlError(res, error, 'delete'); }
 };
 
 // Video Controllers
@@ -4043,6 +4039,9 @@ export const authlogin = async (req, res) => {
   let decoded;
   try {
     decoded = jwt.verify(token, JWT_SECRET);
+    if (!decoded || typeof decoded !== 'object' || !decoded.id || !decoded.sessionVersion) {
+      return res.status(401).json({ message: 'Session expired. Please log in again.' });
+    }
   } catch (err) {
     return res.status(401).json({ message: 'Invalid token' });
   }
@@ -4050,23 +4049,16 @@ export const authlogin = async (req, res) => {
   // Fetch fresh user data from DB to ensure up-to-date profile info
   try {
     const [rows] = await db1.promise().query(
-      'SELECT id, email FROM users WHERE id = ? LIMIT 1',
+      'SELECT id, email, password FROM users WHERE id = ? LIMIT 1',
       [decoded.id],
     );
-    if (rows.length === 0) {
-      return res.status(401).json({ message: 'User not found' });
+    if (rows.length === 0 || !validSessionVersion(decoded.sessionVersion, rows[0].password) || decoded.email !== rows[0].email) {
+      return res.status(401).json({ message: 'Session expired. Please log in again.' });
     }
-    const user = { ...rows[0], auth: true };
+    const user = { id: rows[0].id, email: rows[0].email, auth: true };
     return res.status(200).json({ message: 'success', user });
   } catch (err) {
     console.error('authlogin DB error:', err.message);
-    if (decoded && decoded.id && decoded.email) {
-      return res.status(200).json({
-        message: 'success',
-        user: { id: decoded.id, email: decoded.email, auth: true },
-        warning: 'Served from valid verified token during temporary DB connection reset'
-      });
-    }
     return res.status(500).json({ message: 'Database error' });
   }
 };

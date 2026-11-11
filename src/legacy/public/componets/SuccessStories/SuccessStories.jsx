@@ -268,20 +268,46 @@ const SuccessStories = () => {
               <Link 
                 key={index} 
                 to={`/success-stories/${ele.slug}`} 
-                className="block group focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg"
-                aria-label={`Watch success story ${index + 1}`}
+                className="block group focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 bg-gray-100"
+                aria-label={`Watch success story: ${ele.title || index + 1}`}
               >
-                <div className="relative pb-[55.63%]"> 
+                <div className="relative pb-[56.25%] h-0 w-full overflow-hidden bg-gray-200"> 
                   <img
-                    src={`https://img.youtube.com/vi/${ele.youtube_id}/maxresdefault.jpg`}
-                    alt={`Success story video thumbnail ${index + 1}`}
-                    title="Success Story Video"
+                    src={`https://img.youtube.com/vi/${ele.youtube_id}/hqdefault.jpg`}
+                    alt={ele.title || `Success story video thumbnail ${index + 1}`}
+                    title={ele.title || "Success Story Video"}
                     loading="lazy"
-                    className="absolute top-0 left-0 w-full h-full object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+                    className="absolute top-0 left-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     width="380"
                     height="200"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.dataset.retried) {
+                        target.dataset.retried = 'true';
+                        target.src = `https://img.youtube.com/vi/${ele.youtube_id}/mqdefault.jpg`;
+                      } else {
+                        target.onerror = null;
+                        target.src = '/fallback-org.png';
+                      }
+                    }}
                   />
+                  {/* Subtle Play Overlay */}
+                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/25 transition-colors flex items-center justify-center">
+                    <div className="w-12 h-12 bg-red-600/90 text-white rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                      <svg className="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
+                {/* Title badge below thumbnail if title exists */}
+                {ele.title && (
+                  <div className="p-3 bg-white">
+                    <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
+                      {ele.title}
+                    </h3>
+                  </div>
+                )}
               </Link>
             ))}
           </div>
