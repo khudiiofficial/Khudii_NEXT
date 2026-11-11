@@ -163,7 +163,8 @@ getStories();
         <h3 className="text-xl font-semibold text-[#222222] mb-3 leading-tight line-clamp-2">
           {video.link ? (
             <a 
-              href={video.link} 
+              href={video.link}
+              onClick={(event) => event.stopPropagation()}
               className="hover:text-blue-600 transition-colors duration-200"
             >
               {video.title}

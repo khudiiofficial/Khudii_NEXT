@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import AdminPublishSwitch from '@/components/AdminPublishSwitch';
-import { youtubeVideoId } from '@/server/shared/youtube';
+import { youtubeVideoId, slugifyContent } from '@/server/shared/youtube';
+import { normalizeSuccessStoryLink } from '@/lib/success-story-link';
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app');
 const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -25,7 +26,7 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
         link: story.link || '',
         youtube_id: story.youtube_id || '',
         description: story.description || '',
-        slug: story.slug ?? '',
+        slug: slugifyContent(story.slug ?? ''),
         is_published: story.is_published!==0,
         meta_title: story.meta_title||'', meta_description: story.meta_description||'', meta_keywords: story.meta_keywords||''
       });
@@ -39,9 +40,7 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
         return {
           ...prev,
         title:value,
-        slug: (story && prev.slug) ? prev.slug : value.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')      
-
- 
+        slug: (story && prev.slug) ? prev.slug : slugifyContent(value)
 
         }
       }
@@ -71,7 +70,10 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
       newErrors.youtube_id = 'Enter a valid 11-character YouTube video ID or YouTube URL';
     }
     if (formData.title.trim().length > 255) newErrors.title = 'Title must be under 256 characters';
-    if (formData.slug.trim() && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(formData.slug)) newErrors.slug = 'Slug must be lowercase words separated by hyphens';
+    const normalizedSlug = slugifyContent(formData.slug || formData.title);
+    if (!normalizedSlug || normalizedSlug.length > 200) newErrors.slug = 'Enter a valid slug (up to 200 characters)';
+    const checkedLink = normalizeSuccessStoryLink(formData.link);
+    if (checkedLink.error) newErrors.link = checkedLink.error;
     
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -100,6 +102,12 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
       
       const method = story ? 'PUT' : 'POST';
 
+      const checkedLink = normalizeSuccessStoryLink(formData.link);
+      const payload = {
+        ...formData,
+        slug: slugifyContent(formData.slug || formData.title),
+        link: checkedLink.link,
+      };
       const response = await fetch(url, {
         method,
         headers: {
@@ -107,7 +115,7 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
           'x-khudii-surface': 'admin',
         },
         credentials: 'include',
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
@@ -183,10 +191,12 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
             name="slug"
             value={(formData.slug) ?? ''}
             onChange={handleChange}
-            rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent"
-            placeholder="Auto-generated from title if left blank"
+            onBlur={() => setFormData(prev => ({ ...prev, slug: slugifyContent(prev.slug || prev.title) }))}
+            className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent ${errors.slug ? 'border-red-500' : 'border-gray-300'}`}
+            placeholder="Auto-generated from title, e.g. demo"
           />
+          <p className="mt-1 text-xs text-slate-500">Enter demo or /demo. The story URL uses /success-stories/demo.</p>
+          {errors.slug && <p className="mt-1 text-sm text-red-600">{errors.slug}</p>}
         </div>
 
         {/* YouTube ID */}
@@ -225,9 +235,15 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
          
             value={(formData.link) ?? ''}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent"
-            placeholder="Enter Custom Link (Optional)"
+            onBlur={() => {
+              const checked = normalizeSuccessStoryLink(formData.link);
+              if (!checked.error) setFormData(prev => ({ ...prev, link: checked.link }));
+            }}
+            className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent ${errors.link ? 'border-red-500' : 'border-gray-300'}`}
+            placeholder="/internal-page or https://www.youtube.com/watch?v=..."
           />
+          <p className="mt-1 text-xs text-slate-500">Optional. Internal links get / automatically; YouTube and other https:// links are accepted.</p>
+          {errors.link && <p className="mt-1 text-sm text-red-600">{errors.link}</p>}
         </div>
 
         {/* Description */}
@@ -238,7 +254,6 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
           <textarea
             id="description"
             name="description"
-            required
             value={(formData.description) ?? ''}
             onChange={handleChange}
             rows={4}
@@ -249,14 +264,14 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
 
 
         {/* Preview */}
-        {formData.youtube_id && (
+        {youtubeVideoId(formData.youtube_id) && (
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Video Preview
             </label>
             <div className="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg overflow-hidden">
               <iframe
-                src={`https://www.youtube.com/embed/${formData.youtube_id}`}
+                src={`https://www.youtube.com/embed/${youtubeVideoId(formData.youtube_id)}`}
                 title="YouTube video preview"
                 className="w-full h-48"
                 frameBorder="0"
