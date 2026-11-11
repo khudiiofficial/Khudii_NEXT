@@ -5,6 +5,7 @@ import { sessionVersion, validSessionVersion } from '../utils/sessionVersion.js'
 import { uploadToFTP, deleteFromFTP, uploadVideoToFTP, deleteVideoFromFTP } from "../utils/ftpUpload.js";
 import { DtoArr } from "../Dto/objectDto.js";
 import { youtubeVideoId, slugifyContent } from "../../shared/youtube.js";
+import { normalizeSuccessStoryLink } from "../../../lib/success-story-link.js";
 // // Utility Functions
 // function uniqueImageName(extension = "png") {
 //   return `${Date.now()}-${Math.floor(Math.random() * 1e6)}.${extension}`;
@@ -1381,6 +1382,7 @@ export const login = (req, res) => {
     }
 
     const user = results[0];
+    if (!user.status || user.deleted_at) return res.status(401).json({ message: 'Account unavailable' });
     let match = false;
     try {
       match = await bcrypt.compare(password, user.password);
@@ -2966,13 +2968,13 @@ function validateSuccessStory(body) {
   const youtube_id = youtubeVideoId(body.youtube_id);
   if (!youtube_id) return { error: 'Invalid YouTube video ID or URL' };
   const urdu_title = typeof body.urdu_title === 'string' ? body.urdu_title.trim() : '';
-  const link = typeof body.link === 'string' ? body.link.trim() : '';
+  const linkResult = normalizeSuccessStoryLink(body.link);
+  if (linkResult.error) return { error: linkResult.error };
+  const link = linkResult.link;
   const description = typeof body.description === 'string' ? body.description.trim() : '';
-  if (urdu_title.length > 255 || link.length > 255 || description.length > 10000) {
-    return { error: 'A field exceeds the allowed length (Urdu title/link 255, description 10000)' };
+  if (urdu_title.length > 255 || description.length > 10000) {
+    return { error: 'A field exceeds the allowed length (Urdu title 255, description 10000)' };
   }
-  // The link is used as a same-site location; reject dangerous protocols.
-  if (link && (!link.startsWith('/') || link.startsWith('//'))) return { error: 'Link must be an internal path beginning with /' };
   const slug = slugifyContent(body.slug || title);
   if (!slug || slug.length > 200) return { error: 'Invalid slug; use lowercase letters, numbers and hyphens (up to 200)' };
   return { data: { title, urdu_title: urdu_title || null, link: link || null, youtube_id, description: description || null, slug } };
@@ -4049,10 +4051,10 @@ export const authlogin = async (req, res) => {
   // Fetch fresh user data from DB to ensure up-to-date profile info
   try {
     const [rows] = await db1.promise().query(
-      'SELECT id, email, password FROM users WHERE id = ? LIMIT 1',
+      'SELECT id, email, password, status, deleted_at FROM users WHERE id = ? LIMIT 1',
       [decoded.id],
     );
-    if (rows.length === 0 || !validSessionVersion(decoded.sessionVersion, rows[0].password) || decoded.email !== rows[0].email) {
+    if (rows.length === 0 || !rows[0].status || rows[0].deleted_at || !validSessionVersion(decoded.sessionVersion, rows[0].password) || decoded.email !== rows[0].email) {
       return res.status(401).json({ message: 'Session expired. Please log in again.' });
     }
     const user = { id: rows[0].id, email: rows[0].email, auth: true };
