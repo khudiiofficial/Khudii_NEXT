@@ -1,23 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
+  poweredByHeader: false,
+  compress: true,
   serverExternalPackages: ['basic-ftp', 'bcrypt', 'mysql2', 'nodemailer'],
   images: {
     unoptimized: true,
     remotePatterns: [
       { protocol: 'https', hostname: 'media.khudii.com' },
-      { protocol: 'https', hostname: '**' },
+      { protocol: 'https', hostname: 'img.youtube.com' },
+      { protocol: 'https', hostname: 'i.ytimg.com' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
     ],
   },
-  poweredByHeader: false,
-  compress: true,
   async redirects() {
     return [
-      {
-        source: '/khudii-about',
-        destination: '/about-khudii',
-        permanent: true,
-      },
+      { source: '/khudii-about', destination: '/about-khudii', permanent: true },
     ];
   },
 };
