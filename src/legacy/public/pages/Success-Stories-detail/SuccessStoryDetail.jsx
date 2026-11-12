@@ -247,16 +247,6 @@ const SuccessStoryDetail = ({ url }) => {
 
       <section className="py-8 px-4 bg-gray-50">
         <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <div className="text-center mb-12">
-            <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
-              Khudii Success Stories
-            </h1>
-            <p className="text-lg sm:text-xl text-gray-700 max-w-3xl mx-auto">
-              Inspiring stories of hope, compassion, and community impact.
-              Discover how Khudii and its partners are making a difference across Pakistan.
-            </p>
-          </div>
 
           {/* Video Container */}
           <div className="max-w-4xl mx-auto">
