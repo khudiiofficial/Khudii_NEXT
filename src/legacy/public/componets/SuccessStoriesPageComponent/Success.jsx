@@ -243,18 +243,8 @@ getStories();
 
 :
 
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-[#222222] mb-4">
-            Khudii Success Stories
-          </h1>
-          <p className="text-xl text-[#222222] max-w-3xl mx-auto">
-            Inspiring stories of hope, compassion, and community impact. 
-            Discover how Khudii and its partners are making a difference across Pakistan.
-          </p>
-        </div>
+        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+          <div className="max-w-7xl mx-auto">
 
         {/* Video Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">

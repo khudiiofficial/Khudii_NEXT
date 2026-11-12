@@ -247,7 +247,6 @@ const SuccessStoryDetail = ({ url }) => {
 
       <section className="py-8 px-4 bg-gray-50">
         <div className="max-w-7xl mx-auto">
-
           {/* Video Container */}
           <div className="max-w-4xl mx-auto">
             <div className="bg-white rounded-xl shadow-lg overflow-hidden">
