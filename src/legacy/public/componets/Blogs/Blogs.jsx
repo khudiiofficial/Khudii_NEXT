@@ -139,7 +139,17 @@ import { useNavigate } from '@/lib/router-compat';
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
 
 
-const Blog = ({ loader1 = false, limit, selectedIds, heading, description }) => {
+const Blog = ({
+  loader1 = false,
+  limit,
+  selectedIds,
+  heading,
+  description,
+  showTitle = true,
+  showButton = true,
+  buttonText,
+  buttonUrl,
+}) => {
   const [visiblePosts, setVisiblePosts] = useState([]);
   const [err, seterr] = useState(null)
   const [loader, setloader] = useState(false)
@@ -206,16 +216,46 @@ const Blog = ({ loader1 = false, limit, selectedIds, heading, description }) => 
     <div className="w-full">
       <div className="max-w-[1240px] w-full mx-auto">
 
-        <div className="text-center">
-          {heading ? (
-            <div className="p-4 md:p-8 lg:p-10">
-              <h2 className="text-2xl sm:text-3xl font-bold text-[#02236E] mb-2">{heading}</h2>
-              {description && <p className="text-sm text-slate-600 max-w-2xl mx-auto">{description}</p>}
+        {/* Header Section with optional Title and Action Button */}
+        {(showTitle !== false && (heading || (heading === undefined && location.pathname !== '/blogs'))) || (showButton !== false && Boolean(buttonText)) ? (
+          <div className="relative px-4 py-8">
+            <div className="flex items-center justify-between">
+              <div className="flex-shrink-0 invisible hidden sm:block w-36" aria-hidden="true">
+                <span>spacer</span>
+              </div>
+
+              <div className="flex-1 text-center">
+                {showTitle !== false && (heading || (heading === undefined && location.pathname !== '/blogs')) && (
+                  <h2 className="text-2xl sm:text-3xl font-bold text-[#02236E] text-center block m-0">
+                    {heading || 'Blogs'}
+                  </h2>
+                )}
+                {description && <p className="text-sm text-slate-600 mt-1 m-0">{description}</p>}
+              </div>
+
+              <div className="shrink-0">
+                {showButton !== false && Boolean(buttonText) && (
+                  <a
+                    href={buttonUrl || '/blogs'}
+                    className="inline-flex items-center font-medium group bg-[#02236E] px-4 py-2 rounded-xl text-white hover:bg-blue-900 transition-colors text-xs shrink-0 no-underline shadow-xs"
+                    aria-label={buttonText}
+                  >
+                    <span>{buttonText}</span>&nbsp;
+                    <svg
+                      className="w-4 h-4 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </a>
+                )}
+              </div>
             </div>
-          ) : location.pathname !== '/blogs' && (
-            <h2 className="text-2xl sm:text-3xl font-bold text-[#02236E] p-4 md:p-8 lg:p-10">Blogs</h2>
-          )}
-        </div>
+          </div>
+        ) : null}
 
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 md:px-4 sm:px-6 gap-6 pb-8">

@@ -13,7 +13,17 @@ const SuccessStories = dynamic(() => import('@/legacy/public/componets/SuccessSt
 
 const base = process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app';
 
-function CmsFaqSection({ heading, description, limit, selectedIds, manualItems }) {
+function CmsFaqSection({
+  heading,
+  description,
+  limit,
+  selectedIds,
+  manualItems,
+  showTitle = true,
+  showButton = true,
+  buttonText,
+  buttonUrl,
+}) {
   const [faqs, setFaqs] = useState(manualItems && manualItems.length > 0 ? manualItems : []);
   const [openIdx, setOpenIdx] = useState(null);
 
@@ -38,8 +48,45 @@ function CmsFaqSection({ heading, description, limit, selectedIds, manualItems }
   return (
     <section className="w-full py-12 md:py-16 bg-slate-50">
       <div className="max-w-4xl mx-auto px-5">
-        {heading && <h2 className="text-2xl sm:text-3xl font-bold text-[#02236E] text-center mb-3">{heading}</h2>}
-        {description && <p className="text-sm text-slate-600 text-center mb-8 max-w-2xl mx-auto">{description}</p>}
+        {(showTitle !== false && Boolean(heading)) || (showButton !== false && Boolean(buttonText)) ? (
+          <div className="relative mb-8">
+            <div className="flex items-center justify-between">
+              <div className="flex-shrink-0 invisible hidden sm:block w-36" aria-hidden="true">
+                <span>spacer</span>
+              </div>
+
+              <div className="flex-1 text-center">
+                {showTitle !== false && Boolean(heading) && (
+                  <h2 className="text-2xl sm:text-3xl font-bold text-[#02236E] text-center block m-0">
+                    {heading}
+                  </h2>
+                )}
+                {description && <p className="text-sm text-slate-600 mt-1 m-0">{description}</p>}
+              </div>
+
+              <div className="shrink-0">
+                {showButton !== false && Boolean(buttonText) && (
+                  <a
+                    href={buttonUrl || '/faqs'}
+                    className="inline-flex items-center font-medium group bg-[#02236E] px-4 py-2 rounded-xl text-white hover:bg-blue-900 transition-colors text-xs shrink-0 no-underline shadow-xs"
+                    aria-label={buttonText}
+                  >
+                    <span>{buttonText}</span>&nbsp;
+                    <svg
+                      className="w-4 h-4 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        ) : null}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-200 divide-y divide-slate-100 overflow-hidden">
           {faqs.map((faq, idx) => {
             const isOpen = openIdx === idx;
@@ -78,12 +125,12 @@ function CmsVideo({ url, title, sectionId }) {
 function CmsAddedSection({ item }) {
   const d = item.data || {}, items = Array.isArray(d.items) ? d.items : [];
   if (item.kind === 'divider') return <div data-khudii-section={item.id} aria-hidden="true" className="mx-auto my-10 max-w-7xl border-t border-slate-200" />;
-  if (item.kind === 'podcast-grid') return <div data-khudii-section={item.id}><PodcastCollection heading={d.heading || 'Podcast episodes'} description={d.body || ''} limit={d.limit} selectedIds={d.selectedIds} /></div>;
+  if (item.kind === 'podcast-grid') return <div data-khudii-section={item.id}><PodcastCollection heading={d.heading || 'Podcast episodes'} description={d.body || d.description || ''} limit={d.limit} selectedIds={d.selectedIds} showTitle={d.showTitle !== false && Boolean(d.heading)} showButton={d.showButton !== false && Boolean(d.buttonText)} buttonText={d.buttonText} buttonUrl={d.buttonUrl} /></div>;
   if (item.kind === 'carousel') return <div data-khudii-section={item.id}><Crousel /></div>;
-  if (item.kind === 'organizations') return <div data-khudii-section={item.id}><DifferentOrganizations heading={d.heading} description={d.body} limit={d.limit} selectedIds={d.selectedIds} /></div>;
-  if (item.kind === 'blogs') return <div data-khudii-section={item.id}><Blogs heading={d.heading} description={d.body} limit={d.limit} selectedIds={d.selectedIds} /></div>;
-  if (item.kind === 'stories') return <div data-khudii-section={item.id}><SuccessStories heading={d.heading} description={d.body} limit={d.limit} selectedIds={d.selectedIds} /></div>;
-  if (item.kind === 'faq') return <div data-khudii-section={item.id}><CmsFaqSection heading={d.heading || 'Frequently Asked Questions'} description={d.body || ''} limit={d.limit} selectedIds={d.selectedIds} manualItems={items} /></div>;
+  if (item.kind === 'organizations') return <div data-khudii-section={item.id}><DifferentOrganizations heading={d.heading} description={d.body || d.description || ''} limit={d.limit} selectedIds={d.selectedIds} showTitle={d.showTitle !== false && Boolean(d.heading)} showButton={d.showButton !== false && Boolean(d.buttonText)} buttonText={d.buttonText} buttonUrl={d.buttonUrl} /></div>;
+  if (item.kind === 'blogs') return <div data-khudii-section={item.id}><Blogs heading={d.heading} description={d.body || d.description || ''} limit={d.limit} selectedIds={d.selectedIds} showTitle={d.showTitle !== false && Boolean(d.heading)} showButton={d.showButton !== false && Boolean(d.buttonText)} buttonText={d.buttonText} buttonUrl={d.buttonUrl} /></div>;
+  if (item.kind === 'stories') return <div data-khudii-section={item.id}><SuccessStories heading={d.heading} description={d.body || d.description || ''} limit={d.limit} selectedIds={d.selectedIds} showTitle={d.showTitle !== false && Boolean(d.heading)} showButton={d.showButton !== false && Boolean(d.buttonText)} buttonText={d.buttonText} buttonUrl={d.buttonUrl} /></div>;
+  if (item.kind === 'faq') return <div data-khudii-section={item.id}><CmsFaqSection heading={d.heading || 'Frequently Asked Questions'} description={d.body || d.description || ''} limit={d.limit} selectedIds={d.selectedIds} manualItems={items} showTitle={d.showTitle !== false && Boolean(d.heading)} showButton={d.showButton !== false && Boolean(d.buttonText)} buttonText={d.buttonText} buttonUrl={d.buttonUrl} /></div>;
   const hero = item.kind === 'hero', cta = ['cta', 'form-link', 'notice'].includes(item.kind);
   const gridTypes = ['cards', 'gallery', 'logos', 'testimonials', 'people', 'stats', 'steps', 'timeline', 'social-links', 'downloads', 'video-grid', 'faq'];
   const background = hero ? 'bg-[#02236E] text-white' : cta ? 'bg-blue-50 text-[#02236E]' : 'bg-white text-[#02236E]';

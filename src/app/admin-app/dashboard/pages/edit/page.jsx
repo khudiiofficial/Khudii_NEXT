@@ -50,7 +50,9 @@ const SECTION_CATALOG = [
           eyebrow: 'VERIFIED WELFARE NETWORK',
           heading: 'Explore Registered Organizations',
           body: 'Browse all certified NGOs and social welfare foundations active across Pakistan.',
-          buttonText: 'View All Organizations →',
+          showTitle: true,
+          showButton: true,
+          buttonText: 'Explore More Organizations >',
           buttonUrl: '/organizations',
           source: 'all',
           limit: 'all',
@@ -65,7 +67,9 @@ const SECTION_CATALOG = [
           eyebrow: 'EDITORIAL & INSIGHTS',
           heading: 'Latest Articles & Updates',
           body: 'Read stories of resilience, social impact, and community development across Pakistan.',
-          buttonText: 'Read All Blogs →',
+          showTitle: true,
+          showButton: true,
+          buttonText: 'Explore More Blogs >',
           buttonUrl: '/blogs',
           source: 'all',
           limit: 'all',
@@ -78,9 +82,11 @@ const SECTION_CATALOG = [
         description: 'Calls verified impact and transformation stories directly from the Success Stories database.',
         defaultData: {
           eyebrow: 'LIVES TRANSFORMED',
-          heading: 'Real Stories of Impact',
+          heading: 'Success Stories',
           body: 'See how your donations and community support change lives across Pakistan.',
-          buttonText: 'See All Stories →',
+          showTitle: true,
+          showButton: true,
+          buttonText: 'Explore More Stories >',
           buttonUrl: '/success-stories',
           source: 'all',
           limit: 'all',
@@ -95,7 +101,9 @@ const SECTION_CATALOG = [
           eyebrow: 'KHUDII PODCAST',
           heading: 'Voices of Change',
           body: 'In-depth conversations with social reformers, philanthropists, and NGO leaders.',
-          buttonText: 'Watch All Episodes →',
+          showTitle: true,
+          showButton: true,
+          buttonText: 'Explore More Podcasts >',
           buttonUrl: '/podcast',
           source: 'all',
           limit: 'all',
@@ -110,6 +118,8 @@ const SECTION_CATALOG = [
           eyebrow: 'HAVE QUESTIONS?',
           heading: 'Frequently Asked Questions',
           body: 'Everything you need to know about donations, volunteer opportunities, and NGO verification.',
+          showTitle: true,
+          showButton: false,
           buttonText: '',
           buttonUrl: '',
           source: 'all',
@@ -360,7 +370,7 @@ function ConnectedModuleEditor({ section, connectedData, updateSectionData }) {
             DISPLAY COUNT (HOW MANY TO DISPLAY)
           </label>
           <div className="flex flex-wrap items-center gap-1.5">
-            {['all', '3', '4', '6', '8', '9', '12'].map((opt) => (
+            {['all', '3', '4', '6', '8'].map((opt) => (
               <button
                 key={opt}
                 type="button"
@@ -417,6 +427,88 @@ function ConnectedModuleEditor({ section, connectedData, updateSectionData }) {
             >
               ○ Hand-pick Items ({selectedIds.length})
             </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Optional Title & Action Button Controls */}
+      <div className="pt-3 border-t border-slate-100 space-y-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Section Title / Heading */}
+          <div className="bg-slate-50/80 rounded-xl p-3 border border-slate-200/80 space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">
+                SECTION TITLE / HEADING
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer text-[11px] font-bold text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={section.data?.showTitle !== false}
+                  onChange={(e) => updateSectionData(section.id, 'showTitle', e.target.checked)}
+                  className="rounded border-slate-300 text-[#02236E] focus:ring-[#02236E] h-3.5 w-3.5"
+                />
+                <span>Display Title</span>
+              </label>
+            </div>
+            <input
+              type="text"
+              disabled={section.data?.showTitle === false}
+              value={section.data?.heading ?? ''}
+              onChange={(e) => updateSectionData(section.id, 'heading', e.target.value)}
+              placeholder="e.g. Success Stories"
+              className="w-full px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-900 outline-none focus:border-[#02236E] disabled:bg-slate-100 disabled:opacity-50"
+            />
+            <span className="text-[10px] text-slate-400 block font-medium">
+              Optional: Uncheck &quot;Display Title&quot; or leave empty if you don&apos;t want to show a title on this page.
+            </span>
+          </div>
+
+          {/* Optional Action Button */}
+          <div className="bg-slate-50/80 rounded-xl p-3 border border-slate-200/80 space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">
+                OPTIONAL ACTION BUTTON
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer text-[11px] font-bold text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={section.data?.showButton !== false && Boolean(section.data?.buttonText)}
+                  onChange={(e) => updateSectionData(section.id, 'showButton', e.target.checked)}
+                  className="rounded border-slate-300 text-[#02236E] focus:ring-[#02236E] h-3.5 w-3.5"
+                />
+                <span>Display Button</span>
+              </label>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <input
+                  type="text"
+                  disabled={section.data?.showButton === false}
+                  value={section.data?.buttonText ?? ''}
+                  onChange={(e) => {
+                    updateSectionData(section.id, 'buttonText', e.target.value);
+                    if (e.target.value) updateSectionData(section.id, 'showButton', true);
+                  }}
+                  placeholder="e.g. Explore More Stories >"
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-900 outline-none focus:border-[#02236E] disabled:bg-slate-100 disabled:opacity-50"
+                />
+                <span className="text-[9px] text-slate-400 block mt-0.5 font-medium">Button Label</span>
+              </div>
+              <div>
+                <input
+                  type="text"
+                  disabled={section.data?.showButton === false}
+                  value={section.data?.buttonUrl ?? ''}
+                  onChange={(e) => updateSectionData(section.id, 'buttonUrl', e.target.value)}
+                  placeholder="e.g. /success-stories"
+                  className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-900 outline-none focus:border-[#02236E] disabled:bg-slate-100 disabled:opacity-50"
+                />
+                <span className="text-[9px] text-slate-400 block mt-0.5 font-medium">Target URL</span>
+              </div>
+            </div>
+            <span className="text-[10px] text-slate-400 block font-medium">
+              Optional: If disabled or empty, no button is shown on the live page (e.g. for inner pages).
+            </span>
           </div>
         </div>
       </div>
@@ -892,11 +984,13 @@ function PageEditorContent() {
       title: catItem.title,
       visible: true,
       data: {
-        heading: catItem.defaultData?.heading || catItem.title,
+        heading: catItem.defaultData?.heading ?? catItem.title,
+        showTitle: catItem.defaultData?.showTitle !== false,
         subheading: catItem.defaultData?.subheading || '',
         body: catItem.defaultData?.body || catItem.description,
         image: catItem.defaultData?.image || '',
         imageAlt: catItem.defaultData?.imageAlt || '',
+        showButton: catItem.defaultData?.showButton !== false && Boolean(catItem.defaultData?.buttonText),
         buttonText: catItem.defaultData?.buttonText || '',
         buttonUrl: catItem.defaultData?.buttonUrl || '',
         items: catItem.defaultData?.items || [],

@@ -9,6 +9,10 @@ export default function PodcastCollection({
   description = 'Conversations and stories from the people behind Khudii.',
   limit,
   selectedIds,
+  showTitle = true,
+  showButton = true,
+  buttonText,
+  buttonUrl,
 }) {
   const [episodes, setEpisodes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +52,47 @@ export default function PodcastCollection({
 
   return (
     <section className="mx-auto w-full max-w-[1440px] px-5 py-12 md:py-16" aria-label="Khudii podcast episodes">
+      {/* Header Section with optional Title and Action Button */}
+      {(showTitle !== false && Boolean(heading)) || (showButton !== false && Boolean(buttonText)) ? (
+        <div className="relative mb-8">
+          <div className="flex items-center justify-between">
+            <div className="flex-shrink-0 invisible hidden sm:block w-36" aria-hidden="true">
+              <span>spacer</span>
+            </div>
+
+            <div className="flex-1 text-center">
+              {showTitle !== false && Boolean(heading) && (
+                <h2 className="text-2xl sm:text-3xl font-bold text-[#02236E] text-center block m-0">
+                  {heading}
+                </h2>
+              )}
+              {description && <p className="text-sm text-slate-600 mt-1 m-0">{description}</p>}
+            </div>
+
+            <div className="shrink-0">
+              {showButton !== false && Boolean(buttonText) && (
+                <a
+                  href={buttonUrl || '/podcast'}
+                  className="inline-flex items-center font-medium group bg-[#02236E] px-4 py-2 rounded-xl text-white hover:bg-blue-900 transition-colors text-xs shrink-0 no-underline shadow-xs"
+                  aria-label={buttonText}
+                >
+                  <span>{buttonText}</span>&nbsp;
+                  <svg
+                    className="w-4 h-4 transition-transform"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {loading && (
         <div className="flex items-center justify-center py-16">
           <p role="status" className="text-slate-600 font-semibold animate-pulse">Loading Podcasts…</p>

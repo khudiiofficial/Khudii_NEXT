@@ -3,7 +3,16 @@ import axios from "axios";
 import "./DifferentOrganizations.css";
 import { useNavigate } from '@/lib/router-compat';
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
-const DifferentOrganizations = ({ limit, selectedIds, heading, description }) => {
+const DifferentOrganizations = ({
+  limit,
+  selectedIds,
+  heading,
+  description,
+  showTitle = true,
+  showButton = true,
+  buttonText,
+  buttonUrl,
+}) => {
   const [loading, setLoading] = useState(false);
   const [organizations, setOrganizations] = useState([]);
   const [error, setError] = useState(null)
@@ -83,12 +92,25 @@ const DifferentOrganizations = ({ limit, selectedIds, heading, description }) =>
             </div>
           ))}
         </div> */}
-        {(heading || description) && (
-          <div className="text-center mb-10">
-            {heading && <h2 className="text-3xl md:text-4xl font-bold text-[#02236E] mb-3">{heading}</h2>}
-            {description && <p className="text-base text-gray-600 max-w-2xl mx-auto">{description}</p>}
+        {(showTitle !== false && heading) || (showButton !== false && buttonText) ? (
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+            <div className="flex-1 text-center sm:text-left">
+              {showTitle !== false && heading && (
+                <h2 className="text-2xl sm:text-3xl font-bold text-[#02236E] m-0">{heading}</h2>
+              )}
+              {description && <p className="text-sm text-gray-600 mt-1 m-0">{description}</p>}
+            </div>
+            {showButton !== false && buttonText && (
+              <a
+                href={buttonUrl || '/organizations'}
+                className="inline-flex items-center gap-1.5 font-medium bg-[#02236E] px-4 py-2 rounded-xl text-white hover:bg-blue-900 transition-colors text-xs shrink-0 no-underline shadow-xs"
+              >
+                <span>{buttonText}</span>
+                <span>&gt;</span>
+              </a>
+            )}
           </div>
-        )}
+        ) : null}
         <div className="max-w-[1240px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           {organizations.length > 0 ? (
             organizations.map((org, idx) => (

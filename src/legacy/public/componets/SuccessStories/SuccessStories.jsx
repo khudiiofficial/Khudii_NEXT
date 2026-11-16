@@ -175,7 +175,16 @@ import { Link } from '@/lib/router-compat'
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
 import axios from 'axios';
 
-const SuccessStories = ({ limit, selectedIds, heading, description }) => {
+const SuccessStories = ({
+  limit,
+  selectedIds,
+  heading,
+  description,
+  showTitle = true,
+  showButton = true,
+  buttonText,
+  buttonUrl,
+}) => {
   const [arr, setarr] = useState([])
   const [width, setWidth] = useState(null)
   const [item, setitems] = useState({})
@@ -231,44 +240,49 @@ const SuccessStories = ({ limit, selectedIds, heading, description }) => {
   return (
     <>
       <div className={`${styles.class3}`}>
-        {/* Header Section with improved accessibility */}
-        <div className="max-w-[1240px] w-full mx-auto relative px-4">
-          <div className="flex items-center justify-between py-8">
-            <div className={`${styles.ssh_left} flex-shrink-0 invisible`}>
-              <span className="inline-block font-semibold" aria-hidden="true">
-                Explore Organizations
-              </span>
-            </div>
+        {/* Header Section with optional Title and Action Button */}
+        {(showTitle !== false && (heading || heading === undefined)) || (showButton !== false && (buttonText || buttonText === undefined)) ? (
+          <div className="max-w-[1240px] w-full mx-auto relative px-4">
+            <div className="flex items-center justify-between py-8">
+              <div className="flex-shrink-0 invisible hidden sm:block w-36" aria-hidden="true">
+                <span>spacer</span>
+              </div>
 
-            <div className="flex-1 text-center">
-              <h2
-                className={`${styles.ssh_center} w-full text-2xl sm:text-3xl font-bold text-[#02236E] text-center block`}
-                id="success-stories-heading"
-              >
-                Success Stories
-              </h2>
-            </div>
+              <div className="flex-1 text-center">
+                {showTitle !== false && (
+                  <h2
+                    className={`${styles.ssh_center} w-full text-2xl sm:text-3xl font-bold text-[#02236E] text-center block m-0`}
+                    id="success-stories-heading"
+                  >
+                    {heading || 'Success Stories'}
+                  </h2>
+                )}
+                {description && <p className="text-sm text-slate-600 mt-1 m-0">{description}</p>}
+              </div>
 
-            <div className={`${styles.ssh_right} hidden md:block`}>
-              <Link
-                to="/success-stories/"
-                className="inline-flex items-center font-medium group bg-[#02236E] px-3 py-1.5 rounded-xl text-white hover:text-[#02236E] hover:bg-blue-100"
-                aria-label="Explore more success stories"
-              >
-                Explore More Stories&nbsp;
-                <svg
-                  className="w-4 h-4 transition-transform"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </Link>
+              <div className="shrink-0">
+                {showButton !== false && (buttonText || buttonText === undefined) && (
+                  <Link
+                    to={buttonUrl || '/success-stories/'}
+                    className="inline-flex items-center font-medium group bg-[#02236E] px-4 py-2 rounded-xl text-white hover:bg-blue-900 transition-colors text-xs shrink-0 no-underline shadow-xs"
+                    aria-label={buttonText || 'Explore More Stories'}
+                  >
+                    <span>{buttonText || 'Explore More Stories'}</span>&nbsp;
+                    <svg
+                      className="w-4 h-4 transition-transform"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </Link>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        ) : null}
 
         {/* Stories Grid with improved accessibility */}
         <div className="max-w-[1240px] w-full mx-auto pb-6 px-4 sm:px-6">
