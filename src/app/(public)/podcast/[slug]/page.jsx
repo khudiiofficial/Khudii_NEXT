@@ -9,7 +9,7 @@ import PageHeader from '@/legacy/public/componets/PageHeader/PageHeader';
 export const dynamic='force-dynamic';
 async function getEpisode(params){
   const {slug}=await params;
-  if(!/^[a-z0-9-]{1,180}$/.test(slug||''))return null;
+  if(!/^[a-zA-Z0-9_-]{1,180}$/.test(slug||''))return null;
   try{return await getPublishedPodcastBySlug(slug);}catch(e){console.error('[podcast detail]',e.message);return null;}
 }
 export async function generateMetadata({params}){

@@ -125,21 +125,36 @@ export async function cmsGetSettings(req,res){
     const aiChatDefaults = {
       enabled: true,
       title: 'Ask Khudii',
-      subtitle: '24/7 Support',
-      headerTitle: 'AI Assistant',
-      headerSubtitle: 'Type a message below',
-      inputPlaceholder: 'How can I help you today?',
-      welcomeMessage: 'Hello! Welcome to Khudii. How can I help you today?',
-      fallbackMessage: "I'm sorry, I don't have enough information on that topic yet. You can contact our support team at info@khudii.com or explore our verified welfare organizations.",
-      systemPrompt: "Khudii is Pakistan's premier digital welfare platform uniting donors, volunteers, and welfare organizations across healthcare, education, special needs, orphan care, and community development. We facilitate direct welfare connections, verified NGO profiles, volunteer registration, and transparent community impact.",
+      subtitle: '24/7 Welfare Assistant',
+      headerTitle: 'Ask Khudii (AI)',
+      headerSubtitle: 'Explore NGOs, Blogs, Podcasts & FAQs',
+      inputPlaceholder: 'Ask anything about NGOs, blogs, podcasts, volunteering...',
+      welcomeMessage: 'Welcome to Khudii! I am your AI Welfare Assistant. Select a category below or ask anything about verified NGOs, blogs, podcasts, success stories, and donation workflows.',
+      fallbackMessage: "I couldn't find an exact match in our verified database. You can reach out directly to the Khudii team at info@khudii.com or explore our verified welfare directories.",
+      systemPrompt: "Khudii is Pakistan's premier digital welfare platform uniting donors, volunteers, and certified NGOs across healthcare, education, orphan care, special needs, and emergency relief.",
       quickPrompts: [
-        { id: '1', question: 'What is Khudii?', answer: "Khudii is Pakistan's largest digital welfare network connecting verified welfare organizations, donors, and volunteers to create sustainable social impact.", category: 'General', keywords: 'what, khudii, about, platform, mission' },
-        { id: '2', question: 'How can I donate?', answer: "You can donate directly to verified welfare organizations on Khudii. Visit our 'Donate Now' page or browse our Organizations directory to find causes that align with your heart.", category: 'Donations', keywords: 'donate, payment, money, contribution, bank, sadqah, zakat' },
-        { id: '3', question: 'How to volunteer?', answer: "Volunteering is easy! Go to our 'Volunteer' page, fill out your registration form with your skills and preferred sector, and our partner organizations will reach out to you.", category: 'Volunteers', keywords: 'volunteer, join, help, participate, signup, work' },
-        { id: '4', question: 'Are organizations verified?', answer: "Yes! Every NGO and welfare organization on Khudii undergoes strict administrative review, documentation checks, and background verification before being listed in our public directory.", category: 'Trust', keywords: 'verified, trust, authentic, safe, legal, check' },
-        { id: '5', question: 'Contact support', answer: "You can reach the Khudii team via our Contact page, email us at info@khudii.com, or message us on WhatsApp.", category: 'Support', keywords: 'contact, phone, email, whatsapp, support, help' },
+        { id: '1', question: 'What is Khudii?', answer: "Khudii is Pakistan's premier digital welfare platform connecting certified welfare organizations, philanthropists, and active volunteers. We ensure 100% transparency with zero commission cuts.", category: 'General', keywords: 'what, khudii, about, platform, mission, vision, pakistan' },
+        { id: '2', question: 'Which organizations are listed on Khudii?', answer: "Khudii features verified welfare organizations across Pakistan in healthcare, education, orphan care, clean water, disaster relief, and youth empowerment. Every organization is certified with audited financials.", category: 'Organizations', keywords: 'organizations, ngos, list, verified, charity, foundations, directory, partners' },
+        { id: '3', question: 'How can an NGO register on Khudii?', answer: "Welfare organizations can apply for listing by visiting the 'Register Organization' page or submitting their registration certificate, tax exemption certificates, and governance records for verification.", category: 'Organizations', keywords: 'register organization, ngo signup, join khudii, onboarding, apply organization' },
+        { id: '4', question: 'How are organizations verified?', answer: "Every organization undergoes a rigorous 3-tier verification process: (1) Official legal registration verification with government bodies, (2) Field audit & operational impact checks, and (3) Financial governance and transparency checks.", category: 'Organizations', keywords: 'verification, verified, authentic, check, trust, legal, safe' },
+        { id: '5', question: 'What is the Khudii Podcast series?', answer: "The Khudii Podcast features in-depth conversations with humanitarian leaders, grassroots changemakers, and social pioneers discussing high-impact community solutions across Pakistan.", category: 'Podcasts', keywords: 'podcast, podcasts, episodes, youtube, watch, series, video, interview' },
+        { id: '6', question: 'Where can I watch or listen to the Podcast?', answer: "You can watch full video episodes on our dedicated '/podcast' page or visit our official YouTube channel @khudiiofficial with complete timestamps and episode highlights.", category: 'Podcasts', keywords: 'watch podcast, where podcast, listen, youtube channel, episode link' },
+        { id: '7', question: 'What topics do Khudii Blogs cover?', answer: "Our blogs cover thought leadership on philanthropic impact, volunteer experiences, social sector insights, healthcare and education drives, and actionable guides for meaningful giving in Pakistan.", category: 'Blogs', keywords: 'blogs, articles, topics, read, stories, insights, social sector' },
+        { id: '8', question: 'How can I publish or submit a blog?', answer: "Welfare researchers, volunteers, and writers can submit guest articles and community field stories by contacting our editorial team at info@khudii.com.", category: 'Blogs', keywords: 'submit blog, write, contributor, author, publish article' },
+        { id: '9', question: 'Does Khudii charge commission on donations?', answer: "No! Khudii operates as a 100% free community platform. We do NOT take any cut or commission from donations. All donor contributions go directly to the verified organization's official bank account.", category: 'FAQs', keywords: 'commission, fees, charge, deduction, free, percentage, cut' },
+        { id: '10', question: 'How do I donate directly to welfare causes?', answer: "Browse our verified Organizations directory, select a cause close to your heart, and use the direct bank transfer, IBAN, or online payment details provided on the organization's verified profile.", category: 'FAQs', keywords: 'donate, payment, money, contribution, bank, sadqah, zakat, iban' },
+        { id: '11', question: 'How do I become a volunteer?', answer: "Head over to our 'Volunteer Registration' section, choose your areas of interest (medical, teaching, field aid, digital/media), and partner organizations in your city will connect with you.", category: 'FAQs', keywords: 'volunteer, join, help, participate, signup, work, skills' },
+        { id: '12', question: 'How can I contact Khudii support?', answer: "You can reach us anytime via our Contact page, email us directly at info@khudii.com, or message our official WhatsApp helpline for prompt assistance.", category: 'FAQs', keywords: 'contact, phone, email, whatsapp, support, help, address' }
       ],
-      quickChips: ['What is Khudii?', 'How can I donate?', 'How to volunteer?', 'Verified NGOs', 'Contact Support'],
+      quickChips: [
+        'What is Khudii?',
+        'Which organizations are listed?',
+        'How to register an NGO?',
+        'Khudii Podcast series',
+        'Topics in Khudii Blogs',
+        'Does Khudii charge commission?',
+        'How do I volunteer?'
+      ],
     };
     const aiChatData = data.ai_chat ? { ...aiChatDefaults, ...data.ai_chat } : aiChatDefaults;
     res.json({
@@ -462,19 +477,35 @@ export async function cmsGetPublicAiChat(req,res){
       title: 'Ask Khudii',
       subtitle: '24/7 Support',
       headerTitle: 'AI Assistant',
-      headerSubtitle: 'Type a message below',
-      inputPlaceholder: 'How can I help you today?',
-      welcomeMessage: 'Hello! Welcome to Khudii. How can I help you today?',
-      fallbackMessage: "I'm sorry, I don't have enough information on that topic yet. You can contact our support team at info@khudii.com or explore our verified welfare organizations.",
-      systemPrompt: "Khudii is Pakistan's premier digital welfare platform uniting donors, volunteers, and welfare organizations across healthcare, education, special needs, orphan care, and community development.",
+      headerTitle: 'Ask Khudii (AI)',
+      headerSubtitle: 'Explore NGOs, Blogs, Podcasts & FAQs',
+      inputPlaceholder: 'Ask anything about NGOs, blogs, podcasts, volunteering...',
+      welcomeMessage: 'Welcome to Khudii! I am your AI Welfare Assistant. Select a category below or ask anything about verified NGOs, blogs, podcasts, success stories, and donation workflows.',
+      fallbackMessage: "I couldn't find an exact match in our verified database. You can reach out directly to the Khudii team at info@khudii.com or explore our verified welfare directories.",
+      systemPrompt: "Khudii is Pakistan's premier digital welfare platform uniting donors, volunteers, and certified NGOs across healthcare, education, orphan care, special needs, and emergency relief.",
       quickPrompts: [
-        { id: '1', question: 'What is Khudii?', answer: "Khudii is Pakistan's largest digital welfare network connecting verified welfare organizations, donors, and volunteers to create sustainable social impact.", category: 'General', keywords: 'what, khudii, about, platform, mission' },
-        { id: '2', question: 'How can I donate?', answer: "You can donate directly to verified welfare organizations on Khudii. Visit our 'Donate Now' page or browse our Organizations directory to find causes that align with your heart.", category: 'Donations', keywords: 'donate, payment, money, contribution, bank, sadqah, zakat' },
-        { id: '3', question: 'How to volunteer?', answer: "Volunteering is easy! Go to our 'Volunteer' page, fill out your registration form with your skills and preferred sector, and our partner organizations will reach out to you.", category: 'Volunteers', keywords: 'volunteer, join, help, participate, signup, work' },
-        { id: '4', question: 'Are organizations verified?', answer: "Yes! Every NGO and welfare organization on Khudii undergoes strict administrative review, documentation checks, and background verification before being listed in our public directory.", category: 'Trust', keywords: 'verified, trust, authentic, safe, legal, check' },
-        { id: '5', question: 'Contact support', answer: "You can reach the Khudii team via our Contact page, email us at info@khudii.com, or message us on WhatsApp.", category: 'Support', keywords: 'contact, phone, email, whatsapp, support, help' },
+        { id: '1', question: 'What is Khudii?', answer: "Khudii is Pakistan's premier digital welfare platform connecting certified welfare organizations, philanthropists, and active volunteers. We ensure 100% transparency with zero commission cuts.", category: 'General', keywords: 'what, khudii, about, platform, mission, vision, pakistan' },
+        { id: '2', question: 'Which organizations are listed on Khudii?', answer: "Khudii features verified welfare organizations across Pakistan in healthcare, education, orphan care, clean water, disaster relief, and youth empowerment. Every organization is certified with audited financials.", category: 'Organizations', keywords: 'organizations, ngos, list, verified, charity, foundations, directory, partners' },
+        { id: '3', question: 'How can an NGO register on Khudii?', answer: "Welfare organizations can apply for listing by visiting the 'Register Organization' page or submitting their registration certificate, tax exemption certificates, and governance records for verification.", category: 'Organizations', keywords: 'register organization, ngo signup, join khudii, onboarding, apply organization' },
+        { id: '4', question: 'How are organizations verified?', answer: "Every organization undergoes a rigorous 3-tier verification process: (1) Official legal registration verification with government bodies, (2) Field audit & operational impact checks, and (3) Financial governance and transparency checks.", category: 'Organizations', keywords: 'verification, verified, authentic, check, trust, legal, safe' },
+        { id: '5', question: 'What is the Khudii Podcast series?', answer: "The Khudii Podcast features in-depth conversations with humanitarian leaders, grassroots changemakers, and social pioneers discussing high-impact community solutions across Pakistan.", category: 'Podcasts', keywords: 'podcast, podcasts, episodes, youtube, watch, series, video, interview' },
+        { id: '6', question: 'Where can I watch or listen to the Podcast?', answer: "You can watch full video episodes on our dedicated '/podcast' page or visit our official YouTube channel @khudiiofficial with complete timestamps and episode highlights.", category: 'Podcasts', keywords: 'watch podcast, where podcast, listen, youtube channel, episode link' },
+        { id: '7', question: 'What topics do Khudii Blogs cover?', answer: "Our blogs cover thought leadership on philanthropic impact, volunteer experiences, social sector insights, healthcare and education drives, and actionable guides for meaningful giving in Pakistan.", category: 'Blogs', keywords: 'blogs, articles, topics, read, stories, insights, social sector' },
+        { id: '8', question: 'How can I publish or submit a blog?', answer: "Welfare researchers, volunteers, and writers can submit guest articles and community field stories by contacting our editorial team at info@khudii.com.", category: 'Blogs', keywords: 'submit blog, write, contributor, author, publish article' },
+        { id: '9', question: 'Does Khudii charge commission on donations?', answer: "No! Khudii operates as a 100% free community platform. We do NOT take any cut or commission from donations. All donor contributions go directly to the verified organization's official bank account.", category: 'FAQs', keywords: 'commission, fees, charge, deduction, free, percentage, cut' },
+        { id: '10', question: 'How do I donate directly to welfare causes?', answer: "Browse our verified Organizations directory, select a cause close to your heart, and use the direct bank transfer, IBAN, or online payment details provided on the organization's verified profile.", category: 'FAQs', keywords: 'donate, payment, money, contribution, bank, sadqah, zakat, iban' },
+        { id: '11', question: 'How do I become a volunteer?', answer: "Head over to our 'Volunteer Registration' section, choose your areas of interest (medical, teaching, field aid, digital/media), and partner organizations in your city will connect with you.", category: 'FAQs', keywords: 'volunteer, join, help, participate, signup, work, skills' },
+        { id: '12', question: 'How can I contact Khudii support?', answer: "You can reach us anytime via our Contact page, email us directly at info@khudii.com, or message our official WhatsApp helpline for prompt assistance.", category: 'FAQs', keywords: 'contact, phone, email, whatsapp, support, help, address' }
       ],
-      quickChips: ['What is Khudii?', 'How can I donate?', 'How to volunteer?', 'Verified NGOs', 'Contact Support'],
+      quickChips: [
+        'What is Khudii?',
+        'Which organizations are listed?',
+        'How to register an NGO?',
+        'Khudii Podcast series',
+        'Topics in Khudii Blogs',
+        'Does Khudii charge commission?',
+        'How do I volunteer?'
+      ],
     };
     const data = rows.length ? { ...defaults, ...parse(rows[0].content, {}) } : defaults;
     return res.json({ success: true, data });
@@ -491,18 +522,36 @@ export async function cmsQueryAiChat(req,res){
     const defaults = {
       enabled: true,
       title: 'Ask Khudii',
-      subtitle: '24/7 Support',
-      welcomeMessage: 'Hello! Welcome to Khudii. How can I help you today?',
-      fallbackMessage: "I'm sorry, I don't have enough information on that topic yet. You can contact our support team at info@khudii.com or explore our verified welfare organizations.",
-      systemPrompt: "Khudii is Pakistan's premier digital welfare platform uniting donors, volunteers, and welfare organizations.",
+      subtitle: '24/7 Welfare Assistant',
+      headerTitle: 'Ask Khudii (AI)',
+      headerSubtitle: 'Explore NGOs, Blogs, Podcasts & FAQs',
+      inputPlaceholder: 'Ask anything about NGOs, blogs, podcasts, volunteering...',
+      welcomeMessage: 'Welcome to Khudii! I am your AI Welfare Assistant. Select a category below or ask anything about verified NGOs, blogs, podcasts, success stories, and donation workflows.',
+      fallbackMessage: "I couldn't find an exact match in our verified database. You can reach out directly to the Khudii team at info@khudii.com or explore our verified welfare directories.",
+      systemPrompt: "Khudii is Pakistan's premier digital welfare platform uniting donors, volunteers, and certified NGOs.",
       quickPrompts: [
-        { id: '1', question: 'What is Khudii?', answer: "Khudii is Pakistan's largest digital welfare network connecting verified welfare organizations, donors, and volunteers to create sustainable social impact.", category: 'General', keywords: 'what, khudii, about, platform, mission' },
-        { id: '2', question: 'How can I donate?', answer: "You can donate directly to verified welfare organizations on Khudii. Visit our 'Donate Now' page or browse our Organizations directory to find causes that align with your heart.", category: 'Donations', keywords: 'donate, payment, money, contribution, bank, sadqah, zakat' },
-        { id: '3', question: 'How to volunteer?', answer: "Volunteering is easy! Go to our 'Volunteer' page, fill out your registration form with your skills and preferred sector, and our partner organizations will reach out to you.", category: 'Volunteers', keywords: 'volunteer, join, help, participate, signup, work' },
-        { id: '4', question: 'Are organizations verified?', answer: "Yes! Every NGO and welfare organization on Khudii undergoes strict administrative review, documentation checks, and background verification before being listed in our public directory.", category: 'Trust', keywords: 'verified, trust, authentic, safe, legal, check' },
-        { id: '5', question: 'Contact support', answer: "You can reach the Khudii team via our Contact page, email us at info@khudii.com, or message us on WhatsApp.", category: 'Support', keywords: 'contact, phone, email, whatsapp, support, help' },
+        { id: '1', question: 'What is Khudii?', answer: "Khudii is Pakistan's premier digital welfare platform connecting certified welfare organizations, philanthropists, and active volunteers. We ensure 100% transparency with zero commission cuts.", category: 'General', keywords: 'what, khudii, about, platform, mission, vision, pakistan' },
+        { id: '2', question: 'Which organizations are listed on Khudii?', answer: "Khudii features verified welfare organizations across Pakistan in healthcare, education, orphan care, clean water, disaster relief, and youth empowerment. Every organization is certified with audited financials.", category: 'Organizations', keywords: 'organizations, ngos, list, verified, charity, foundations, directory, partners' },
+        { id: '3', question: 'How can an NGO register on Khudii?', answer: "Welfare organizations can apply for listing by visiting the 'Register Organization' page or submitting their registration certificate, tax exemption certificates, and governance records for verification.", category: 'Organizations', keywords: 'register organization, ngo signup, join khudii, onboarding, apply organization' },
+        { id: '4', question: 'How are organizations verified?', answer: "Every organization undergoes a rigorous 3-tier verification process: (1) Official legal registration verification with government bodies, (2) Field audit & operational impact checks, and (3) Financial governance and transparency checks.", category: 'Organizations', keywords: 'verification, verified, authentic, check, trust, legal, safe' },
+        { id: '5', question: 'What is the Khudii Podcast series?', answer: "The Khudii Podcast features in-depth conversations with humanitarian leaders, grassroots changemakers, and social pioneers discussing high-impact community solutions across Pakistan.", category: 'Podcasts', keywords: 'podcast, podcasts, episodes, youtube, watch, series, video, interview' },
+        { id: '6', question: 'Where can I watch or listen to the Podcast?', answer: "You can watch full video episodes on our dedicated '/podcast' page or visit our official YouTube channel @khudiiofficial with complete timestamps and episode highlights.", category: 'Podcasts', keywords: 'watch podcast, where podcast, listen, youtube channel, episode link' },
+        { id: '7', question: 'What topics do Khudii Blogs cover?', answer: "Our blogs cover thought leadership on philanthropic impact, volunteer experiences, social sector insights, healthcare and education drives, and actionable guides for meaningful giving in Pakistan.", category: 'Blogs', keywords: 'blogs, articles, topics, read, stories, insights, social sector' },
+        { id: '8', question: 'How can I publish or submit a blog?', answer: "Welfare researchers, volunteers, and writers can submit guest articles and community field stories by contacting our editorial team at info@khudii.com.", category: 'Blogs', keywords: 'submit blog, write, contributor, author, publish article' },
+        { id: '9', question: 'Does Khudii charge commission on donations?', answer: "No! Khudii operates as a 100% free community platform. We do NOT take any cut or commission from donations. All donor contributions go directly to the verified organization's official bank account.", category: 'FAQs', keywords: 'commission, fees, charge, deduction, free, percentage, cut' },
+        { id: '10', question: 'How do I donate directly to welfare causes?', answer: "Browse our verified Organizations directory, select a cause close to your heart, and use the direct bank transfer, IBAN, or online payment details provided on the organization's verified profile.", category: 'FAQs', keywords: 'donate, payment, money, contribution, bank, sadqah, zakat, iban' },
+        { id: '11', question: 'How do I become a volunteer?', answer: "Head over to our 'Volunteer Registration' section, choose your areas of interest (medical, teaching, field aid, digital/media), and partner organizations in your city will connect with you.", category: 'FAQs', keywords: 'volunteer, join, help, participate, signup, work, skills' },
+        { id: '12', question: 'How can I contact Khudii support?', answer: "You can reach us anytime via our Contact page, email us directly at info@khudii.com, or message our official WhatsApp helpline for prompt assistance.", category: 'FAQs', keywords: 'contact, phone, email, whatsapp, support, help, address' }
       ],
-      quickChips: ['What is Khudii?', 'How can I donate?', 'How to volunteer?', 'Verified NGOs', 'Contact Support'],
+      quickChips: [
+        'What is Khudii?',
+        'Which organizations are listed?',
+        'How to register an NGO?',
+        'Khudii Podcast series',
+        'Topics in Khudii Blogs',
+        'Does Khudii charge commission?',
+        'How do I volunteer?'
+      ],
     };
     const config = rows.length ? { ...defaults, ...parse(rows[0].content, {}) } : defaults;
 
@@ -545,6 +594,47 @@ export async function cmsQueryAiChat(req,res){
         source: 'knowledge_base',
         suggestedChips: config.quickChips || [],
       });
+    }
+
+    // Dynamic search against podcasts
+    if (queryTokens.some(t => ['podcast', 'podcasts', 'episode', 'episodes', 'interview', 'youtube'].includes(t))) {
+      const searchTerms = queryTokens.filter(t => !['what', 'where', 'how', 'who', 'the', 'and', 'are', 'for', 'about'].includes(t)).slice(0, 3);
+      const params = searchTerms.length > 0 ? searchTerms.map(t => `%${t}%`) : ['%%'];
+      const likeClause = searchTerms.length > 0 ? searchTerms.map(() => '(title LIKE ? OR description LIKE ?)').join(' OR ') : '1=1';
+      const fullParams = [];
+      if (searchTerms.length > 0) {
+        for (const t of searchTerms) fullParams.push(`%${t}%`, `%${t}%`);
+      }
+      const [matchedPodcasts] = await sql.query(`SELECT title, description, slug, youtube_id FROM podcasts WHERE is_published = 1 ${searchTerms.length > 0 ? `AND (${likeClause})` : ''} ORDER BY id DESC LIMIT 2`, fullParams);
+      if (matchedPodcasts && matchedPodcasts.length > 0) {
+        const podList = matchedPodcasts.map(p => `• **${p.title}**: ${cleanString(p.description, 110)}... (Watch on /podcast/${p.slug})`).join('\n\n');
+        return res.json({
+          success: true,
+          answer: `Here are Khudii podcast episodes:\n\n${podList}\n\nYou can watch all episodes on our /podcast page or on YouTube!`,
+          source: 'database_podcasts',
+          suggestedChips: config.quickChips || [],
+        });
+      }
+    }
+
+    // Dynamic search against blogs
+    if (queryTokens.some(t => ['blog', 'blogs', 'article', 'articles', 'story', 'post', 'posts'].includes(t))) {
+      const searchTerms = queryTokens.filter(t => !['what', 'where', 'how', 'who', 'the', 'and', 'are', 'for', 'about'].includes(t)).slice(0, 3);
+      if (searchTerms.length > 0) {
+        const likeClause = searchTerms.map(() => '(title LIKE ? OR excerpt LIKE ?)').join(' OR ');
+        const params = [];
+        for (const t of searchTerms) params.push(`%${t}%`, `%${t}%`);
+        const [matchedBlogs] = await sql.query(`SELECT title, excerpt, slug FROM blogs WHERE status = 'published' AND (${likeClause}) LIMIT 2`, params);
+        if (matchedBlogs && matchedBlogs.length > 0) {
+          const blogList = matchedBlogs.map(b => `• **${b.title}**: ${cleanString(b.excerpt, 100)}... (Read at /blogs/${b.slug})`).join('\n\n');
+          return res.json({
+            success: true,
+            answer: `Here are relevant articles from Khudii Blogs:\n\n${blogList}\n\nExplore more insightful pieces on our /blogs page.`,
+            source: 'database_blogs',
+            suggestedChips: config.quickChips || [],
+          });
+        }
+      }
     }
 
     // Dynamic search against database if query relates to organizations/charity/NGOs

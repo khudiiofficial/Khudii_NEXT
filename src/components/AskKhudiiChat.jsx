@@ -30,7 +30,51 @@ export default function AskKhudiiChat() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [activeCategory, setActiveCategory] = useState('All');
   const messagesEndRef = useRef(null);
+
+  const categories = ['All', 'Organizations', 'Blogs', 'Podcasts', 'FAQs', 'Donations'];
+
+  const categoryQuestions = {
+    All: [
+      'What is Khudii?',
+      'Which organizations are listed?',
+      'How to register an NGO?',
+      'Khudii Podcast series',
+      'Topics in Khudii Blogs',
+      'Does Khudii charge commission?',
+      'How do I volunteer?'
+    ],
+    Organizations: [
+      'Which organizations are listed on Khudii?',
+      'How can an NGO register on Khudii?',
+      'How are organizations verified?',
+      'Can I search organizations by city or cause?'
+    ],
+    Blogs: [
+      'What topics do Khudii Blogs cover?',
+      'How can I publish or submit a blog?',
+      'What are the latest articles on Khudii?'
+    ],
+    Podcasts: [
+      'What is the Khudii Podcast series?',
+      'Where can I watch or listen to the Podcast?',
+      'Can I be a guest on the Khudii Podcast?'
+    ],
+    FAQs: [
+      'Does Khudii charge commission on donations?',
+      'How do I donate directly to welfare causes?',
+      'How do I become a volunteer?',
+      'How can I contact Khudii support?'
+    ],
+    Donations: [
+      'How do I donate directly to welfare causes?',
+      'Does Khudii charge commission on donations?',
+      'Are donations tax deductible?'
+    ]
+  };
+
+  const displayedQueries = categoryQuestions[activeCategory] || categoryQuestions.All;
 
   // Load public AI Chat settings
   useEffect(() => {
@@ -276,11 +320,34 @@ export default function AskKhudiiChat() {
           {/* Body */}
           <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white">
             {messages.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center text-center p-6 space-y-2">
-                <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-                  <MessageCircle size={22} />
+              <div className="h-full flex flex-col justify-between p-2">
+                <div className="flex flex-col items-center justify-center text-center my-auto space-y-2">
+                  <div className="w-12 h-12 rounded-full bg-sky-50 flex items-center justify-center text-[#00a2d3]">
+                    <Sparkles size={24} />
+                  </div>
+                  <h4 className="text-sm font-extrabold text-slate-800 m-0">Ask Khudii Anything</h4>
+                  <p className="text-xs text-slate-500 max-w-[260px]">
+                    Tap a suggested query tab below or type your question about NGOs, blogs, podcasts, or donations.
+                  </p>
                 </div>
-                <p className="text-xs text-slate-500 font-medium">Type a message to start chatting</p>
+
+                <div className="space-y-2 pt-2">
+                  <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    Suggested Queries ({activeCategory})
+                  </div>
+                  <div className="flex flex-col gap-1.5 max-h-[160px] overflow-y-auto pr-1">
+                    {displayedQueries.map((q, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleSendMessage(q)}
+                        className="text-left px-3 py-2 rounded-xl bg-slate-50 hover:bg-sky-50 hover:border-sky-300 border border-slate-200/80 text-xs font-semibold text-slate-700 hover:text-sky-900 transition-colors shadow-2xs cursor-pointer"
+                      >
+                        • {q}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
             ) : (
               messages.map((m) => (
@@ -291,8 +358,8 @@ export default function AskKhudiiChat() {
                   <div
                     className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed shadow-xs ${
                       m.sender === 'user'
-                        ? 'bg-[#00a2d3] text-white rounded-tr-xs'
-                        : 'bg-slate-50 text-slate-800 border border-slate-200/80 rounded-tl-xs whitespace-pre-wrap'
+                        ? 'bg-[#00a2d3] text-white rounded-tr-xs font-medium'
+                        : 'bg-slate-50 text-slate-800 border border-slate-200/80 rounded-tl-xs whitespace-pre-wrap font-normal'
                     }`}
                   >
                     {m.text}
@@ -313,21 +380,37 @@ export default function AskKhudiiChat() {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Suggested Chips */}
-          {(config.quickChips || []).length > 0 && (
-            <div className="px-3 py-2 bg-slate-50 border-t border-slate-100 flex gap-1.5 overflow-x-auto no-scrollbar shrink-0">
-              {(config.quickChips || []).map((chip, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => handleSendMessage(chip)}
-                  className="shrink-0 px-2.5 py-1 rounded-full bg-white text-sky-800 hover:bg-sky-50 text-[10px] font-bold border border-sky-200 shadow-2xs transition"
-                >
-                  {chip}
-                </button>
-              ))}
-            </div>
-          )}
+          {/* Suggested Query Category Tabs Bar */}
+          <div className="px-3 pt-2 pb-1 bg-slate-50 border-t border-slate-200/80 flex items-center gap-1 overflow-x-auto no-scrollbar shrink-0">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => setActiveCategory(cat)}
+                className={`shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
+                  activeCategory === cat
+                    ? 'bg-[#02236E] text-white shadow-xs'
+                    : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200/70 hover:bg-slate-100'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          {/* Quick Suggested Query Chips for Active Category */}
+          <div className="px-3 py-1.5 bg-slate-50 border-b border-slate-100 flex gap-1.5 overflow-x-auto no-scrollbar shrink-0">
+            {displayedQueries.map((queryText, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => handleSendMessage(queryText)}
+                className="shrink-0 px-2.5 py-1 rounded-full bg-white text-sky-800 hover:bg-sky-50 text-[10px] font-bold border border-sky-200 shadow-2xs transition cursor-pointer"
+              >
+                {queryText}
+              </button>
+            ))}
+          </div>
 
           {/* Footer Input */}
           <div className="p-3 bg-white border-t border-slate-100 flex items-center gap-2 shrink-0">

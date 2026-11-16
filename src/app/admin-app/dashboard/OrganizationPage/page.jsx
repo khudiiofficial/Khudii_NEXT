@@ -15,6 +15,7 @@ import {
   Search,
   Trash2,
   Copy,
+  Pencil,
   ExternalLink,
   Check,
   Sliders
@@ -372,6 +373,7 @@ export default function OrganizationManagement() {
 
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-2">
+                      {/* Preview on live site */}
                       <a
                         href={`/${org.slug || org.id}`}
                         target="_blank"
@@ -379,33 +381,50 @@ export default function OrganizationManagement() {
                         className="grid h-9 w-9 place-items-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-[#02236E]"
                         title="View live organization"
                       >
-                        <ExternalLink size={14} />
+                        <ExternalLink size={15} />
                       </a>
-                      <AdminIconAction
-                        action="edit"
-                        href={`/admin-app/dashboard/edit-organization/${org.id}`}
-                        label={`Edit ${org.name}`}
-                      />
+
+                      {/* SEO Center */}
                       <button
                         type="button"
                         onClick={() => setSelectedSeoOrg({ id: org.id, slug: org.slug, title: org.name, entityType: 'organization' })}
                         title={`Open SEO Center for ${org.name}`}
-                        className="grid h-9 w-9 place-items-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition-colors"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-colors"
                       >
-                        <Sliders size={14} />
+                        <Sliders size={13} />
+                        SEO Center
                       </button>
-                      <AdminIconAction
-                        action="duplicate"
+
+                      {/* Duplicate */}
+                      <button
+                        type="button"
                         onClick={() => duplicate(org)}
                         disabled={saving}
-                        label={`Duplicate ${org.name}`}
-                      />
-                      <AdminIconAction
-                        action="delete"
+                        title={`Duplicate ${org.name}`}
+                        className="grid h-9 w-9 place-items-center rounded-xl border border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100 hover:text-amber-700 disabled:opacity-40"
+                      >
+                        <Copy size={14} />
+                      </button>
+
+                      {/* Edit */}
+                      <Link
+                        href={`/admin-app/dashboard/edit-organization/${org.id}`}
+                        title={`Edit ${org.name}`}
+                        className="grid h-9 w-9 place-items-center rounded-xl border border-blue-200 bg-blue-50 text-xs font-bold text-[#02236E] hover:bg-blue-100 transition-colors"
+                      >
+                        <Pencil size={13} />
+                      </Link>
+
+                      {/* Delete */}
+                      <button
+                        type="button"
                         onClick={() => remove(org)}
                         disabled={saving}
-                        label={`Archive ${org.name}`}
-                      />
+                        title={`Delete ${org.name}`}
+                        className="grid h-9 w-9 place-items-center rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 disabled:opacity-40"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   </td>
                 </tr>

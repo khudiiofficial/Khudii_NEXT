@@ -1,5 +1,5 @@
 import React from 'react';
-import {GripVertical,ChevronUp,ChevronDown,Sliders} from 'lucide-react';
+import { GripVertical, ChevronUp, ChevronDown, Sliders, ExternalLink, Copy, Pencil, Trash2 } from 'lucide-react';
 import AdminPublishSwitch from '@/components/AdminPublishSwitch';
 import AdminIconAction from '@/components/AdminIconAction';
 
@@ -81,17 +81,60 @@ const SuccessStoryList = ({ stories, onEdit, onDuplicate, onDelete, onMove, onTo
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <div className="flex justify-end gap-2 items-center"><AdminIconAction action={Boolean(story.is_published)?'hide':'show'} disabled={ordering} onClick={()=>onToggle(story,!Boolean(story.is_published))} label={`${Boolean(story.is_published)?'Hide':'Publish'} ${story.title}`}/><span className={`kh-status-chip ${Boolean(story.is_published)?'is-live':'is-draft'}`}>{Boolean(story.is_published)?'Published':'Draft'}</span></div>
 
-                  <div className="flex justify-end gap-2 mt-2">
+                  <div className="flex items-center justify-end gap-2 mt-2">
+                    {/* Preview on live site */}
+                    <a
+                      href={`/success-stories/${story.slug || story.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      title="View live story"
+                      className="grid h-9 w-9 place-items-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-[#02236E]"
+                    >
+                      <ExternalLink size={15} />
+                    </a>
+
+                    {/* SEO Center */}
                     <button
                       type="button"
                       onClick={() => onSeo && onSeo(story)}
                       title={`Open SEO Center for ${story.title}`}
-                      className="grid h-8 w-8 place-items-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-colors"
                     >
                       <Sliders size={13} />
+                      SEO Center
                     </button>
-                    <AdminIconAction action="edit" label={`Edit ${story.title}`} onClick={()=>onEdit(story)} /><AdminIconAction action="duplicate" label={`Duplicate ${story.title}`} onClick={()=>onDuplicate(story)} />
-                    <AdminIconAction action="delete" label={`Delete ${story.title}`} onClick={()=>onDelete(story.id)} />
+
+                    {/* Duplicate */}
+                    <button
+                      type="button"
+                      onClick={() => onDuplicate(story)}
+                      disabled={ordering}
+                      title={`Duplicate ${story.title}`}
+                      className="grid h-9 w-9 place-items-center rounded-xl border border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100 hover:text-amber-700 disabled:opacity-40"
+                    >
+                      <Copy size={14} />
+                    </button>
+
+                    {/* Edit */}
+                    <button
+                      type="button"
+                      onClick={() => onEdit(story)}
+                      title={`Edit ${story.title}`}
+                      className="grid h-9 w-9 place-items-center rounded-xl border border-blue-200 bg-blue-50 text-xs font-bold text-[#02236E] hover:bg-blue-100 transition-colors"
+                    >
+                      <Pencil size={13} />
+                    </button>
+
+                    {/* Delete */}
+                    <button
+                      type="button"
+                      onClick={() => onDelete(story.id)}
+                      disabled={ordering}
+                      title={`Delete ${story.title}`}
+                      className="grid h-9 w-9 place-items-center rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 disabled:opacity-40"
+                    >
+                      <Trash2 size={14} />
+                    </button>
                   </div>
                 </td>
               </tr>

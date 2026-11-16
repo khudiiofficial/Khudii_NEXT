@@ -816,9 +816,16 @@
    transition: all 0.15s ease-in-out;
 }
 
-.kh-video-settings .kh-settings-tabs>button:hover {
+.kh-video-settings .kh-settings-tabs>button:not([data-active="true"]):hover {
    border-color: #cbd5e1;
    color: #0f172a;
+}
+
+.kh-video-settings .kh-settings-tabs>button[data-active="true"],
+.kh-video-settings .kh-settings-tabs>button[data-active="true"]:hover {
+   background-color: #02236E !important;
+   color: #ffffff !important;
+   border-color: #02236E !important;
 }
 
 .kh-video-settings .kh-settings-tabs+div {

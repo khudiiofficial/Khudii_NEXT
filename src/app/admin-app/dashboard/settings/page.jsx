@@ -1019,10 +1019,11 @@ function SettingsPageInner() {
               u.searchParams.delete('sub');
               window.history.replaceState(window.history.state, '', u.pathname + u.search);
             }}
+            data-active={tab === id ? 'true' : 'false'}
             className={`px-3.5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 border cursor-pointer ${
               tab === id
                 ? 'bg-[#02236E] text-white hover:text-white border-[#02236E] shadow-sm'
-                : 'bg-white text-slate-500 border-slate-200'
+                : 'bg-white text-slate-500 border-slate-200 hover:text-slate-900'
             }`}
           >
             <Icon size={14} />

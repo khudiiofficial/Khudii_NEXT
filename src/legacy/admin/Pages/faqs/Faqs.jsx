@@ -12,7 +12,11 @@ import {
   X,
   CheckCircle2,
   AlertCircle,
-  Sliders
+  Sliders,
+  ExternalLink,
+  Copy,
+  Pencil,
+  Trash2
 } from 'lucide-react';
 import AdminPublishSwitch from '@/components/AdminPublishSwitch';
 import AdminIconAction from '@/components/AdminIconAction';
@@ -441,15 +445,58 @@ export default function FAQManager() {
 
                   {/* Actions */}
                   <td className="p-4 text-right">
-                    <div className="flex items-center justify-end gap-1.5">
-                      <AdminIconAction
-                        action={faq.is_active ? 'hide' : 'show'}
-                        label={`${faq.is_active ? 'Hide' : 'Show'} ${faq.question}`}
-                        onClick={() => handleToggleStatus(faq, !faq.is_active)}
-                      />
-                      <EditButton onClick={() => openEditModal(faq)} label={faq.question} size="sm" />
-                      <DuplicateButton onClick={() => handleDuplicate(faq)} label={faq.question} size="sm" />
-                      <DeleteButton onClick={() => handleDelete(faq)} label={faq.question} size="sm" />
+                    <div className="flex items-center justify-end gap-2">
+                      {/* Preview on live site */}
+                      <a
+                        href="/faqs"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="grid h-9 w-9 place-items-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-[#02236E]"
+                        title="View live FAQs"
+                      >
+                        <ExternalLink size={15} />
+                      </a>
+
+                      {/* SEO Center */}
+                      <button
+                        type="button"
+                        onClick={() => setSeoModalOpen(true)}
+                        title="Open FAQs SEO Center"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-colors"
+                      >
+                        <Sliders size={13} />
+                        SEO Center
+                      </button>
+
+                      {/* Duplicate */}
+                      <button
+                        type="button"
+                        onClick={() => handleDuplicate(faq)}
+                        title={`Duplicate ${faq.question}`}
+                        className="grid h-9 w-9 place-items-center rounded-xl border border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100 hover:text-amber-700"
+                      >
+                        <Copy size={14} />
+                      </button>
+
+                      {/* Edit */}
+                      <button
+                        type="button"
+                        onClick={() => openEditModal(faq)}
+                        title={`Edit ${faq.question}`}
+                        className="grid h-9 w-9 place-items-center rounded-xl border border-blue-200 bg-blue-50 text-xs font-bold text-[#02236E] hover:bg-blue-100 transition-colors"
+                      >
+                        <Pencil size={13} />
+                      </button>
+
+                      {/* Delete */}
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(faq)}
+                        title={`Delete ${faq.question}`}
+                        className="grid h-9 w-9 place-items-center rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   </td>
                 </tr>

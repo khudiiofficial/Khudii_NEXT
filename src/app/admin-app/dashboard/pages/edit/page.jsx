@@ -22,38 +22,87 @@ import {
   Trash2,
   X,
   ExternalLink,
-  ImagePlus,
-  AlertCircle,
-  FileText,
   Sliders,
   Sparkles,
   Share2,
-  CheckCircle2
+  CheckCircle2,
+  AlertCircle
 } from 'lucide-react';
 import AdminPublishSwitch from '@/components/AdminPublishSwitch';
 import ConfirmModal from '@/components/ui/ConfirmModal';
 import Toast from '@/components/ui/Toast';
 import SeoCenterModal from '@/components/admin/SeoCenterModal';
-import { CMS_PAGES, CMS_SECTION_TYPES, defaultSections } from '@/lib/cms-registry';
+import ImageUploadWidget from '@/components/admin/ImageUploadWidget';
+import { CMS_PAGES, defaultSections } from '@/lib/cms-registry';
 
 const API = process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app';
 
 const SECTION_CATALOG = [
-  { kind: 'hero', title: 'Hero Banner', group: 'Banner', description: 'Headline, lead text, background image and action CTA' },
-  { kind: 'article', title: 'Rich Article', group: 'Content', description: 'Heading, subheadings, and formatted body content' },
-  { kind: 'image-text', title: 'Image + Text', group: 'Content', description: 'Split 2-column layout with photo and storytelling text' },
-  { kind: 'cards', title: 'Cards Grid', group: 'Cards & Grids', description: 'Repeatable cards with title, description, image and link' },
-  { kind: 'cta', title: 'Call To Action', group: 'Interactive', description: 'High-impact donation, volunteer or registration banner' },
-  { kind: 'faq', title: 'FAQ Accordion', group: 'Interactive', description: 'Questions and answers accordion knowledge base' },
-  { kind: 'gallery', title: 'Photo Gallery', group: 'Media', description: 'Responsive image showcase with captions' },
-  { kind: 'logos', title: 'Partner Logos', group: 'Trust & Proof', description: 'Supporting organizations, partners, and accredited sponsors' },
-  { kind: 'people', title: 'Team / Leaders', group: 'Trust & Proof', description: 'Profiles with photo, name, title and bio description' },
-  { kind: 'stats', title: 'Impact Statistics', group: 'Trust & Proof', description: 'High-impact metric counters (e.g. 50K+ Helped, 100% Free)' },
-  { kind: 'steps', title: 'Process Steps', group: 'Interactive', description: 'Numbered sequence of steps or workflow instructions' },
-  { kind: 'video-grid', title: 'Video Collection', group: 'Media', description: 'Embedded YouTube video cards with titles and descriptions' },
-  { kind: 'timeline', title: 'Milestone Timeline', group: 'Content', description: 'Chronological timeline of achievements and history' },
-  { kind: 'downloads', title: 'Document Downloads', group: 'Content', description: 'Downloadable PDF reports, audit forms and documents' },
-  { kind: 'divider', title: 'Visual Divider', group: 'Layout', description: 'Clean horizontal separator with optional subtle spacing' },
+  {
+    category: 'Homepage',
+    icon: '🏠',
+    items: [
+      { kind: 'hero', title: 'Hero Carousel', description: 'Displays active hero banner slides with live query, drag-and-drop ordering and CTA buttons.' },
+      { kind: 'cards', title: 'Sector Cards', description: 'Interactive cards grid highlighting key welfare sectors (Health, Education, Relief, etc).' },
+      { kind: 'image-text', title: 'Welcome & Introduction', description: 'Split 2-column introductory story with trust badge and mission preview.' },
+      { kind: 'article', title: 'Vision & Mission', description: 'Organizational philosophy, core values, and community commitment manifesto.' },
+      { kind: 'cards', title: 'Success Stories', description: 'Impact stories carousel showcasing verified beneficiaries and transformation milestones.' },
+      { kind: 'logos', title: 'Featured Organizations', description: 'Verified partner NGOs and welfare foundation cards.' },
+      { kind: 'cards', title: 'News & Events', description: 'Upcoming welfare drives, community events, and social sector news.' },
+      { kind: 'logos', title: 'Partners & Certifications', description: 'Accreditation seals, verified partners, and governance certifications.' },
+      { kind: 'cards', title: 'Latest Blogs', description: 'Editorial thought leadership articles with reading time and author tag.' },
+      { kind: 'article', title: 'Facebook Feed', description: 'Social community updates and interactive public notices.' },
+    ],
+  },
+  {
+    category: 'Organizations & Welfare',
+    icon: '🤝',
+    items: [
+      { kind: 'cards', title: 'Verified NGO Directory', description: 'Directory grid of verified welfare organizations with cause tags and locations.' },
+      { kind: 'cta', title: 'Organization Registration CTA', description: 'Action banner inviting registered NGOs to join the verified network.' },
+      { kind: 'cards', title: 'Cause Filter Grid', description: 'Visual cause tiles allowing users to explore healthcare, education, orphan care, etc.' },
+    ],
+  },
+  {
+    category: 'Blog & Stories',
+    icon: '📝',
+    items: [
+      { kind: 'cards', title: 'Latest Blogs Grid', description: 'Curated blog cards with thumbnails, excerpts, and category badges.' },
+      { kind: 'image-text', title: 'Featured Story Spotlight', description: 'In-depth transformation story highlighting beneficiary impact.' },
+      { kind: 'article', title: 'Rich Article', description: 'Long-form rich article with headings, paragraphs, and quote blocks.' },
+    ],
+  },
+  {
+    category: 'Podcast & Media',
+    icon: '🎙',
+    items: [
+      { kind: 'video-grid', title: 'Podcast Episode Grid', description: 'Click-to-play video cards linking to YouTube podcasts.' },
+      { kind: 'video-grid', title: 'Video Collection', description: 'Curated video gallery with responsive video player.' },
+      { kind: 'gallery', title: 'Photo Gallery', description: 'Responsive photography grid with captions and lightbox view.' },
+    ],
+  },
+  {
+    category: 'Trust & Impact',
+    icon: '💬',
+    items: [
+      { kind: 'cta', title: 'Call To Action (Donations)', description: 'High-impact donation or volunteer appeal with direct action buttons.' },
+      { kind: 'faq', title: 'FAQ Accordion', description: 'Expandable questions and answers knowledge base for donors and NGOs.' },
+      { kind: 'stats', title: 'Impact Statistics', description: 'High-impact metric counters (e.g. 50K+ Helped, 100% Free, Zero Cut).' },
+      { kind: 'people', title: 'Team / Leaders', description: 'Leadership and advisory board profiles with photos and bios.' },
+      { kind: 'steps', title: 'Process Steps', description: 'Numbered step-by-step guide explaining how donations and verification work.' },
+    ],
+  },
+  {
+    category: 'Content & Layout',
+    icon: '📄',
+    items: [
+      { kind: 'image-text', title: 'Image + Text', description: 'Split 2-column layout with photo and storytelling text.' },
+      { kind: 'cards', title: 'Cards Grid', description: 'Versatile multi-column card grid with titles, descriptions, and links.' },
+      { kind: 'timeline', title: 'Milestone Timeline', description: 'Chronological timeline of achievements and community milestones.' },
+      { kind: 'downloads', title: 'Document Downloads', description: 'Downloadable PDF reports, registration forms, and financial audits.' },
+      { kind: 'divider', title: 'Visual Divider', description: 'Clean horizontal separator with subtle spacing.' },
+    ],
+  },
 ];
 
 const newSectionId = () => `sec_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
@@ -68,7 +117,31 @@ const newSectionData = () => ({
   items: [],
 });
 
-function PageEditor() {
+const getAcronym = (title) => {
+  if (!title) return 'SE';
+  const words = title.trim().split(/\s+/);
+  if (words.length >= 2) {
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }
+  return title.slice(0, 2).toUpperCase();
+};
+
+const getBadgeColor = (acronym) => {
+  const colors = [
+    'bg-blue-100 text-blue-800 border-blue-200',
+    'bg-emerald-100 text-emerald-800 border-emerald-200',
+    'bg-purple-100 text-purple-800 border-purple-200',
+    'bg-amber-100 text-amber-800 border-amber-200',
+    'bg-rose-100 text-rose-800 border-rose-200',
+    'bg-indigo-100 text-indigo-800 border-indigo-200',
+    'bg-cyan-100 text-cyan-800 border-cyan-200',
+  ];
+  let hash = 0;
+  for (let i = 0; i < acronym.length; i++) hash += acronym.charCodeAt(i);
+  return colors[hash % colors.length];
+};
+
+function PageEditorContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -76,8 +149,8 @@ function PageEditor() {
   const slugParam = searchParams.get('slug');
   const isNewPage = !idParam && !slugParam;
 
-  // Active Tab
-  const [activeTab, setActiveTab] = useState('sections'); // 'settings' | 'sections' | 'seo'
+  // Active sub-tab inside section area
+  const [activeTab, setActiveTab] = useState('sections'); // 'sections' | 'richtext' | 'seo'
 
   // Page Basic Info
   const [pageInfo, setPageInfo] = useState({
@@ -88,18 +161,36 @@ function PageEditor() {
     category_id: null,
     parent_page_id: null,
     page_kind: 'standard',
-    status: 'draft',
-    show_in_menu: false,
+    status: 'published',
+    show_in_menu: true,
     sort_order: 0,
     revision: 1,
   });
 
+  // Homepage Hero Banner Data
+  const [heroData, setHeroData] = useState({
+    bgImage: '',
+    position: 'center center',
+    size: 'cover',
+    eyebrow: 'Empowering Communities, Transforming Lives',
+    title: 'Pakistan\'s Premier Digital <span>Welfare Network</span>',
+    description: 'Uniting donors, volunteers, and certified NGOs across healthcare, education, orphan care, and emergency relief with 100% transparency.',
+    primaryBtnLabel: 'Donate Now →',
+    primaryBtnLink: '/donate-now',
+    secondaryBtnLabel: 'Explore Organizations',
+    secondaryBtnLink: '/organizations',
+    badge1Top: '10k+',
+    badge1Sub: 'Lives Impacted',
+    badge2Top: '100% Free',
+    badge2Sub: 'Direct Donations, Zero Cut',
+  });
+
   // Dynamic Sections
   const [sections, setSections] = useState([]);
-  const [activeSectionId, setActiveSectionId] = useState('');
+  const [editingSectionId, setEditingSectionId] = useState(null);
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState('');
-  const [catalogGroup, setCatalogGroup] = useState('All');
+  const dropdownRef = useRef(null);
 
   // SEO Settings
   const [seo, setSeo] = useState({
@@ -118,10 +209,6 @@ function PageEditor() {
     sitemap_changefreq: 'weekly',
   });
 
-  // Categories & Pages for parent dropdowns
-  const [categories, setCategories] = useState([]);
-  const [allPages, setAllPages] = useState([]);
-
   // UI state
   const [loading, setLoading] = useState(!isNewPage);
   const [saving, setSaving] = useState(false);
@@ -130,11 +217,24 @@ function PageEditor() {
   const [confirmConfig, setConfirmConfig] = useState(null);
   const [seoCenterOpen, setSeoCenterOpen] = useState(false);
 
-  const dragItem = useRef(null);
-
   const showToast = (message, type = 'success') => setToast({ message, type });
 
-  // Unsaved changes listener
+  // Close catalog dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setCatalogOpen(false);
+      }
+    }
+    if (catalogOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [catalogOpen]);
+
+  // Unsaved changes warning
   useEffect(() => {
     const handleBeforeUnload = (e) => {
       if (dirty) {
@@ -146,30 +246,19 @@ function PageEditor() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [dirty]);
 
-  // Load Parent References
-  useEffect(() => {
-    Promise.all([
-      fetch(`${API}/admin/v2/categories?limit=500`, { headers: { 'x-khudii-surface': 'admin' }, credentials: 'include' }).then(r => r.ok ? r.json() : null),
-      fetch(`${API}/admin/v2/pages?limit=500`, { headers: { 'x-khudii-surface': 'admin' }, credentials: 'include' }).then(r => r.ok ? r.json() : null),
-    ]).then(([cats, pgs]) => {
-      if (cats?.success) setCategories(cats.data || []);
-      if (pgs?.success) setAllPages(pgs.data || []);
-    }).catch(() => {});
-  }, []);
-
   // Load Page Data
   useEffect(() => {
     if (isNewPage) {
       setPageInfo({
-        title: '',
-        slug: '',
-        path: '/',
+        title: 'New Page',
+        slug: 'new-page',
+        path: '/new-page',
         page_key: `page-${Date.now().toString(36)}`,
         category_id: null,
         parent_page_id: null,
         page_kind: 'standard',
-        status: 'draft',
-        show_in_menu: false,
+        status: 'published',
+        show_in_menu: true,
         sort_order: 0,
         revision: 1,
       });
@@ -177,14 +266,13 @@ function PageEditor() {
         {
           id: newSectionId(),
           kind: 'hero',
-          title: 'Hero Banner',
+          title: 'Hero Carousel',
           visible: true,
           data: {
             heading: 'Empowering Communities, Transforming Lives',
             subheading: 'Welcome to Khudii',
             body: 'Pakistan\'s premier platform uniting donors, volunteers and welfare organizations.',
             image: '/Khudii.webp',
-            imageAlt: 'Khudii Hero',
             buttonText: 'Donate Now',
             buttonUrl: '/donate-now',
             items: [],
@@ -199,7 +287,6 @@ function PageEditor() {
       setLoading(true);
       try {
         if (idParam) {
-          // Load Database Page by ID
           const res = await fetch(`${API}/admin/v2/pages/${idParam}`, {
             headers: { 'x-khudii-surface': 'admin' },
             credentials: 'include',
@@ -218,13 +305,13 @@ function PageEditor() {
             category_id: p.category_id || null,
             parent_page_id: p.parent_page_id || null,
             page_kind: p.page_kind || 'standard',
-            status: p.status || 'draft',
+            status: p.status || 'published',
             show_in_menu: Boolean(p.show_in_menu),
             sort_order: p.sort_order || 0,
             revision: Number(p.revision || 1),
           });
 
-          // Fetch Sections for this page
+          // Fetch Sections
           const secRes = await fetch(`${API}/admin/v2/sections?page_id=${idParam}`, {
             headers: { 'x-khudii-surface': 'admin' },
             credentials: 'include',
@@ -232,27 +319,41 @@ function PageEditor() {
           });
           const secJson = await secRes.json();
           if (secJson.success && Array.isArray(secJson.data) && secJson.data.length > 0) {
-            setSections(
-              secJson.data.map((s) => ({
-                id: s.id,
-                dbId: s.id,
-                kind: s.section_type || 'article',
-                title: s.title || 'Section',
-                visible: Boolean(s.is_published),
-                data: s.payload?.data || (typeof s.payload === 'object' ? s.payload : newData()),
-              }))
-            );
+            const mapped = secJson.data.map((s) => ({
+              id: String(s.id),
+              dbId: s.id,
+              kind: s.section_type || 'article',
+              title: s.title || 'Section',
+              visible: Boolean(s.is_published),
+              data: s.payload?.data || (typeof s.payload === 'object' ? s.payload : newSectionData()),
+            }));
+            setSections(mapped);
+
+            // Sync hero data if hero section exists
+            const heroSec = mapped.find((s) => s.kind === 'hero' || s.title?.toLowerCase().includes('hero'));
+            if (heroSec?.data) {
+              setHeroData((prev) => ({
+                ...prev,
+                bgImage: heroSec.data.image || prev.bgImage,
+                title: heroSec.data.heading || prev.title,
+                eyebrow: heroSec.data.subheading || prev.eyebrow,
+                description: heroSec.data.body || prev.description,
+                primaryBtnLabel: heroSec.data.buttonText || prev.primaryBtnLabel,
+                primaryBtnLink: heroSec.data.buttonUrl || prev.primaryBtnLink,
+                badge1Top: heroSec.data.badge1Top || prev.badge1Top,
+                badge1Sub: heroSec.data.badge1Sub || prev.badge1Sub,
+                badge2Top: heroSec.data.badge2Top || prev.badge2Top,
+                badge2Sub: heroSec.data.badge2Sub || prev.badge2Sub,
+              }));
+            }
           } else {
-            // Also check if template layout exists for this path
             const tpl = CMS_PAGES.find((t) => t.slug === p.path || t.slug === `/${p.slug}`);
             if (tpl) {
               setSections(defaultSections(tpl.slug));
-            } else {
-              setSections([]);
             }
           }
 
-          // Fetch SEO for this page path
+          // Fetch SEO
           try {
             const seoRes = await fetch(`${API}/admin/v2/seo?path=${encodeURIComponent(p.path || `/${p.slug}`)}`, {
               headers: { 'x-khudii-surface': 'admin' },
@@ -280,7 +381,6 @@ function PageEditor() {
             }
           } catch {}
         } else if (slugParam) {
-          // Load Template Layout by Slug
           const def = CMS_PAGES.find((p) => p.slug === slugParam);
           if (def) {
             setPageInfo({
@@ -290,7 +390,7 @@ function PageEditor() {
               page_key: `tpl-${def.slug.replace(/[^a-z0-9]/gi, '-')}`,
               page_kind: def.slug.includes('[') ? 'template' : 'standard',
               status: 'published',
-              show_in_menu: false,
+              show_in_menu: true,
               sort_order: 0,
               revision: 1,
             });
@@ -298,13 +398,10 @@ function PageEditor() {
             const res = await fetch(`${API}/admin/cms/page?slug=${encodeURIComponent(slugParam)}`, {
               headers: { 'x-khudii-surface': 'admin' },
               credentials: 'include',
-              cache: 'no-store',
             });
             const json = await res.json();
-            if (json.sections) {
-              setSections(json.sections);
-            } else {
-              setSections(defaultSections(slugParam));
+            if (json.success && Array.isArray(json.data?.sections)) {
+              setSections(json.data.sections);
             }
           }
         }
@@ -318,51 +415,35 @@ function PageEditor() {
     loadData();
   }, [idParam, slugParam, isNewPage]);
 
-  // Section Operations
-  const handleMoveSection = (fromIdx, toIdx) => {
-    if (toIdx < 0 || toIdx >= sections.length) return;
+  // Section Ordering
+  const handleMoveSection = (index, targetIndex) => {
+    if (targetIndex < 0 || targetIndex >= sections.length) return;
     setDirty(true);
     setSections((prev) => {
-      const copy = [...prev];
-      const [moved] = copy.splice(fromIdx, 1);
-      copy.splice(toIdx, 0, moved);
-      return copy;
+      const next = [...prev];
+      const [moved] = next.splice(index, 1);
+      next.splice(targetIndex, 0, moved);
+      return next;
     });
   };
 
-  const handleToggleSection = (secId, nextVisible) => {
+  const handleToggleSection = (secId, checked) => {
     setDirty(true);
     setSections((prev) =>
-      prev.map((s) => (s.id === secId ? { ...s, visible: nextVisible } : s))
+      prev.map((s) => (s.id === secId ? { ...s, visible: checked } : s))
     );
   };
 
-  const handleDuplicateSection = (section) => {
-    setDirty(true);
-    const copy = JSON.parse(JSON.stringify(section));
-    copy.id = newSectionId();
-    delete copy.dbId;
-    copy.title = `${section.title} (Copy)`;
-    const idx = sections.findIndex((s) => s.id === section.id);
-    const updated = [...sections];
-    updated.splice(idx + 1, 0, copy);
-    setSections(updated);
-    setActiveSectionId(copy.id);
-    showToast('Section duplicated');
-  };
-
-  const handleDeleteSection = (section) => {
+  const handleDeleteSection = (secId) => {
+    const sec = sections.find((s) => s.id === secId);
     setConfirmConfig({
-      icon: <Trash2 className="w-8 h-8 text-[#ed0026]" />,
-      title: 'Remove Section',
-      message: `Remove "${section.title}" from this page? Changes take effect when you save.`,
-      confirmText: 'Remove',
-      cancelText: 'Cancel',
-      variant: 'danger',
+      title: 'Delete Section?',
+      message: `Are you sure you want to remove "${sec?.title || 'this section'}"?`,
+      confirmLabel: 'Delete Section',
       onConfirm: () => {
         setDirty(true);
-        setSections((prev) => prev.filter((s) => s.id !== section.id));
-        if (activeSectionId === section.id) setActiveSectionId('');
+        setSections((prev) => prev.filter((s) => s.id !== secId));
+        if (editingSectionId === secId) setEditingSectionId(null);
         showToast('Section removed');
       },
     });
@@ -375,19 +456,21 @@ function PageEditor() {
       kind: catItem.kind,
       title: catItem.title,
       visible: true,
-      data: newSectionData(),
+      data: {
+        heading: catItem.title,
+        subheading: '',
+        body: catItem.description,
+        image: '',
+        imageAlt: '',
+        buttonText: '',
+        buttonUrl: '',
+        items: [],
+      },
     };
     setSections((prev) => [...prev, newSec]);
-    setActiveSectionId(newSec.id);
+    setEditingSectionId(newSec.id);
     setCatalogOpen(false);
     showToast(`Added ${catItem.title}`);
-  };
-
-  const updateSectionField = (secId, field, value) => {
-    setDirty(true);
-    setSections((prev) =>
-      prev.map((s) => (s.id === secId ? { ...s, [field]: value } : s))
-    );
   };
 
   const updateSectionData = (secId, key, value) => {
@@ -397,7 +480,6 @@ function PageEditor() {
     );
   };
 
-  // Section Items Repeater Operations
   const handleAddItemToSection = (secId) => {
     setDirty(true);
     setSections((prev) =>
@@ -447,7 +529,6 @@ function PageEditor() {
     );
   };
 
-  // Slug generator
   const handleTitleChange = (val) => {
     setDirty(true);
     setPageInfo((prev) => {
@@ -468,15 +549,15 @@ function PageEditor() {
     });
   };
 
-  // Save Complete Page
-  const handleSave = async () => {
+  // Save Complete Page (Published or Draft)
+  const handleSave = async (isDraft = false) => {
     if (!pageInfo.title.trim()) {
       showToast('Page title is required.', 'error');
-      setActiveTab('settings');
       return;
     }
 
     setSaving(true);
+    const saveStatus = isDraft ? 'draft' : 'published';
     try {
       if (slugParam) {
         // Save Frontend Template Layout
@@ -506,7 +587,7 @@ function PageEditor() {
           category_id: pageInfo.category_id ? Number(pageInfo.category_id) : null,
           parent_page_id: pageInfo.parent_page_id ? Number(pageInfo.parent_page_id) : null,
           page_kind: pageInfo.page_kind,
-          status: pageInfo.status,
+          status: saveStatus,
           show_in_menu: Boolean(pageInfo.show_in_menu),
           sort_order: Number(pageInfo.sort_order || 0),
         };
@@ -514,7 +595,6 @@ function PageEditor() {
         let savedPageId = pageInfo.id;
 
         if (pageInfo.id) {
-          // Update Page
           pagePayload.revision = pageInfo.revision;
           const res = await fetch(`${API}/admin/v2/pages/${pageInfo.id}`, {
             method: 'PUT',
@@ -525,7 +605,6 @@ function PageEditor() {
           const json = await res.json();
           if (!res.ok || !json.success) throw new Error(json.error?.message || json.message || 'Page save failed');
         } else {
-          // Create New Page
           const res = await fetch(`${API}/admin/v2/pages`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'x-khudii-surface': 'admin' },
@@ -535,10 +614,10 @@ function PageEditor() {
           const json = await res.json();
           if (!res.ok || !json.success) throw new Error(json.error?.message || json.message || 'Page creation failed');
           savedPageId = json.data?.id;
-          setPageInfo((p) => ({ ...p, id: savedPageId }));
+          setPageInfo((p) => ({ ...p, id: savedPageId, status: saveStatus }));
         }
 
-        // Save Sections for this database page
+        // Save Sections
         if (savedPageId) {
           for (let i = 0; i < sections.length; i++) {
             const sec = sections[i];
@@ -612,7 +691,7 @@ function PageEditor() {
         }
 
         setDirty(false);
-        showToast('Page and sections saved successfully');
+        showToast(isDraft ? 'Draft saved successfully' : 'Page updated successfully');
         if (isNewPage && savedPageId) {
           router.replace(`/admin-app/dashboard/pages/edit?id=${savedPageId}`);
         }
@@ -624,16 +703,18 @@ function PageEditor() {
     }
   };
 
-  const activeSection = sections.find((s) => s.id === activeSectionId);
+  const isHomepage = pageInfo.path === '/' || pageInfo.slug === '/' || pageInfo.slug === 'home' || pageInfo.title?.toLowerCase() === 'home' || idParam === '1';
 
   const filteredCatalog = useMemo(() => {
-    return SECTION_CATALOG.filter(
-      (item) =>
-        (catalogGroup === 'All' || item.group === catalogGroup) &&
-        (item.title.toLowerCase().includes(catalogSearch.toLowerCase()) ||
-          item.description.toLowerCase().includes(catalogSearch.toLowerCase()))
-    );
-  }, [catalogSearch, catalogGroup]);
+    if (!catalogSearch.trim()) return SECTION_CATALOG;
+    const q = catalogSearch.toLowerCase();
+    return SECTION_CATALOG.map((cat) => ({
+      ...cat,
+      items: cat.items.filter(
+        (it) => it.title.toLowerCase().includes(q) || it.description.toLowerCase().includes(q)
+      ),
+    })).filter((cat) => cat.items.length > 0);
+  }, [catalogSearch]);
 
   if (loading) {
     return (
@@ -645,1103 +726,962 @@ function PageEditor() {
   }
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="flex flex-col gap-6 font-sans text-slate-800 pb-20">
       <Toast toast={toast} onClose={() => setToast(null)} />
       <ConfirmModal config={confirmConfig} onClose={() => setConfirmConfig(null)} />
 
-      {/* Top Navigation & Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/admin-app/dashboard/pages"
-            className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-[#02236E] transition"
-            title="Back to Pages"
-          >
-            <ArrowLeft size={18} />
-          </Link>
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-black text-[#02236E] m-0">
-                {pageInfo.title || 'Untitled Page'}
-              </h1>
-              <span
-                className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
-                  pageInfo.status === 'published'
-                    ? 'bg-emerald-100 text-emerald-800'
-                    : 'bg-amber-100 text-amber-800'
-                }`}
-              >
-                {pageInfo.status === 'published' ? 'Published' : 'Draft'}
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 mt-0.5 mb-0">
-              Path: <span className="font-mono">{pageInfo.path || `/${pageInfo.slug}`}</span> · {sections.length} sections
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {/* SEO Center */}
-          <button
-            type="button"
-            onClick={() => setSeoCenterOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-2.5 text-xs font-bold text-emerald-800 hover:bg-emerald-100 shadow-xs transition active:scale-95"
-            title="Open Advanced SEO Center"
-          >
-            <Sliders size={14} />
-            SEO Center
-          </button>
-
-          {/* View Live Page */}
-          <a
-            href={pageInfo.path || `/${pageInfo.slug}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
-          >
-            <ExternalLink size={14} />
-            View Live
-          </a>
-
-          {/* Save Button */}
-          <button
-            type="button"
-            onClick={handleSave}
-            disabled={saving}
-            className="inline-flex items-center gap-2 rounded-xl bg-[#02236E] px-6 py-2.5 text-xs font-bold text-white shadow-lg shadow-blue-950/20 hover:bg-blue-900 disabled:opacity-50 active:scale-95 transition"
-          >
-            {saving ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-            Save Changes
-          </button>
-        </div>
-      </div>
-
-      {/* Editor Sub-Tabs (Settings, Visual Sections, SEO) */}
-      <div className="flex border-b border-slate-200 gap-8 text-sm font-bold">
-        <button
-          type="button"
-          onClick={() => setActiveTab('sections')}
-          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors ${
-            activeTab === 'sections'
-              ? 'border-[#02236E] text-[#02236E]'
-              : 'border-transparent text-slate-500 hover:text-[#02236E]'
-          }`}
-        >
-          <Layers size={17} />
-          Visual Section Builder ({sections.length})
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('settings')}
-          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors ${
-            activeTab === 'settings'
-              ? 'border-[#02236E] text-[#02236E]'
-              : 'border-transparent text-slate-500 hover:text-[#02236E]'
-          }`}
-        >
-          <Sliders size={17} />
-          Page Settings &amp; Hierarchy
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('seo')}
-          className={`pb-3 flex items-center gap-2 border-b-2 transition-colors ${
-            activeTab === 'seo'
-              ? 'border-[#02236E] text-[#02236E]'
-              : 'border-transparent text-slate-500 hover:text-[#02236E]'
-          }`}
-        >
-          <Share2 size={17} />
-          SEO &amp; Social Meta
-        </button>
-      </div>
-
-      {/* ================= TAB 1: VISUAL SECTION BUILDER ================= */}
-      {activeTab === 'sections' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Left Column: Sections List */}
-          <div className="lg:col-span-7 space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-base font-bold text-[#02236E] m-0">Page Sections</h3>
-                <p className="text-xs text-slate-500 mt-0.5">Drag to reorder or edit contents in the panel.</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setCatalogOpen((v) => !v)}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#02236E] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-blue-900 transition"
-              >
-                <Plus size={15} /> Add Section
-              </button>
-            </div>
-
-            {/* Section Catalog Dropdown Modal */}
-            {catalogOpen && (
-              <div className="rounded-2xl border border-blue-200 bg-white p-5 shadow-2xl animate-in fade-in-50 zoom-in-95 duration-150">
-                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-                  <div className="font-bold text-[#02236E] text-sm">Choose Section From Catalog</div>
-                  <button type="button" onClick={() => setCatalogOpen(false)} className="text-slate-400 hover:text-slate-600">
-                    <X size={16} />
-                  </button>
-                </div>
-
-                <div className="flex gap-2 my-3">
-                  <div className="relative flex-1">
-                    <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
-                    <input
-                      type="search"
-                      placeholder="Search section types..."
-                      value={catalogSearch}
-                      onChange={(e) => setCatalogSearch(e.target.value)}
-                      className="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 outline-none"
-                    />
-                  </div>
-                  <select
-                    value={catalogGroup}
-                    onChange={(e) => setCatalogGroup(e.target.value)}
-                    className="text-xs rounded-lg border border-slate-200 px-2 py-1.5 outline-none"
-                  >
-                    <option value="All">All Categories</option>
-                    <option value="Banner">Banner</option>
-                    <option value="Content">Content</option>
-                    <option value="Cards & Grids">Cards & Grids</option>
-                    <option value="Interactive">Interactive</option>
-                    <option value="Media">Media</option>
-                    <option value="Trust & Proof">Trust & Proof</option>
-                  </select>
-                </div>
-
-                <div className="max-h-64 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                  {filteredCatalog.map((item) => (
-                    <button
-                      type="button"
-                      key={item.kind}
-                      onClick={() => handleAddSectionFromCatalog(item)}
-                      className="text-left p-3 rounded-xl border border-slate-200 hover:border-[#02236E] hover:bg-blue-50/50 transition-all"
-                    >
-                      <div className="text-xs font-bold text-[#02236E]">{item.title}</div>
-                      <div className="text-[11px] text-slate-500 mt-1 line-clamp-2">{item.description}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* List of active sections */}
-            <div className="space-y-3">
-              {sections.length > 0 ? (
-                sections.map((sec, index) => (
-                  <div
-                    key={sec.id}
-                    className={`rounded-2xl border bg-white p-4 shadow-xs transition-all ${
-                      activeSectionId === sec.id
-                        ? 'border-[#02236E] ring-2 ring-[#02236E]/10'
-                        : 'border-slate-200 hover:border-slate-300'
-                    } ${sec.visible === false ? 'opacity-60 bg-slate-50' : ''}`}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3">
-                        <GripVertical size={16} className="text-slate-400 cursor-grab" />
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-black text-slate-400">#{index + 1}</span>
-                            <span className="text-sm font-bold text-[#02236E]">{sec.title}</span>
-                            <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md">
-                              {sec.kind}
-                            </span>
-                          </div>
-                          <div className="text-xs text-slate-500 mt-0.5 line-clamp-1">
-                            {sec.data?.heading || sec.data?.body || 'No content heading set'}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Controls */}
-                      <div className="flex items-center gap-1.5">
-                        {/* Move Up */}
-                        <button
-                          type="button"
-                          disabled={index === 0}
-                          onClick={() => handleMoveSection(index, index - 1)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30"
-                          title="Move Up"
-                        >
-                          <ArrowUp size={14} />
-                        </button>
-
-                        {/* Move Down */}
-                        <button
-                          type="button"
-                          disabled={index === sections.length - 1}
-                          onClick={() => handleMoveSection(index, index + 1)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30"
-                          title="Move Down"
-                        >
-                          <ArrowDown size={14} />
-                        </button>
-
-                        {/* Visibility Switch */}
-                        <AdminPublishSwitch
-                          checked={sec.visible !== false}
-                          onChange={(checked) => handleToggleSection(sec.id, checked)}
-                          label={sec.visible !== false ? 'Visible' : 'Hidden'}
-                        />
-
-                        {/* Duplicate */}
-                        <button
-                          type="button"
-                          onClick={() => handleDuplicateSection(sec)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-[#02236E]"
-                          title="Duplicate Section"
-                        >
-                          <Copy size={14} />
-                        </button>
-
-                        {/* Edit Section Content */}
-                        <button
-                          type="button"
-                          onClick={() => setActiveSectionId(activeSectionId === sec.id ? '' : sec.id)}
-                          className={`p-1.5 rounded-lg transition-colors ${
-                            activeSectionId === sec.id
-                              ? 'bg-[#02236E] text-white'
-                              : 'text-slate-400 hover:bg-blue-50 hover:text-[#02236E]'
-                          }`}
-                          title="Edit Section Content"
-                        >
-                          <Pencil size={14} />
-                        </button>
-
-                        {/* Delete Section */}
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteSection(sec)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:bg-red-50 hover:text-[#ed0026]"
-                          title="Delete Section"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="rounded-2xl border border-dashed border-slate-300 p-12 text-center text-slate-400">
-                  <Layers size={32} className="mx-auto mb-2 text-slate-300" />
-                  <div className="font-bold text-slate-700 text-sm">No sections on this page yet</div>
-                  <p className="text-xs text-slate-500 mt-1">Click "+ Add Section" to add content blocks from the catalog.</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Right Column: In-Place Section Content Editor */}
-          <div className="lg:col-span-5 sticky top-24">
-            {activeSection ? (
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div>
-                    <h4 className="text-sm font-bold text-[#02236E] m-0">Edit Section Content</h4>
-                    <p className="text-[11px] text-slate-400 mt-0.5 uppercase tracking-wider">{activeSection.kind}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveSectionId('')}
-                    className="text-slate-400 hover:text-slate-600"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-
-                {/* Connected Content Database Feed Banner (KingTravel Architecture) */}
-                {(['organizations', 'orgs', 'organization'].includes(activeSection.kind) || activeSection.source === 'organizations' || activeSection.source === 'directory') && (
-                  <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-black text-emerald-800 uppercase tracking-wider">
-                            🏢 Organizations Database Feed
-                          </span>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                            Live DB Query
-                          </span>
-                        </div>
-                        <p className="text-xs text-emerald-900 mt-1 leading-relaxed">
-                          This section automatically queries active verified NGOs and charity organizations from the database table. When organizations are added, updated, or toggled (show/hide) in the Organizations module, they appear in this section automatically.
-                        </p>
-                      </div>
-                      <Link
-                        href="/admin-app/dashboard/OrganizationPage"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shrink-0 transition-colors"
-                      >
-                        <ExternalLink size={12} /> Manage Organizations in Sidebar ↗
-                      </Link>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-emerald-200/80">
-                      <div>
-                        <label className="block text-[11px] font-bold text-emerald-900 mb-1">Max Display Limit</label>
-                        <select
-                          value={activeSection.data?.limit || '8'}
-                          onChange={(e) => updateSectionData(activeSection.id, 'limit', e.target.value)}
-                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-emerald-300 bg-white"
-                        >
-                          <option value="4">4 Organizations</option>
-                          <option value="6">6 Organizations</option>
-                          <option value="8">8 Organizations</option>
-                          <option value="12">12 Organizations</option>
-                          <option value="all">All Verified</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-emerald-900 mb-1">Layout Presentation</label>
-                        <select
-                          value={activeSection.data?.layout || 'grid'}
-                          onChange={(e) => updateSectionData(activeSection.id, 'layout', e.target.value)}
-                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-emerald-300 bg-white"
-                        >
-                          <option value="grid">Responsive Grid Cards</option>
-                          <option value="carousel">Horizontal Carousel</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {(['blogs', 'blog', 'blog-grid'].includes(activeSection.kind) || activeSection.source === 'blogs' || activeSection.source === 'listing') && (
-                  <div className="rounded-xl border border-blue-200 bg-blue-50/70 p-4 space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-black text-blue-800 uppercase tracking-wider">
-                            📰 Blogs Database Feed
-                          </span>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300">
-                            Live DB Query
-                          </span>
-                        </div>
-                        <p className="text-xs text-blue-900 mt-1 leading-relaxed">
-                          This section automatically queries published blogs from the database. When a blog is published, updated, or toggled in the Blogs module, it appears in this section automatically.
-                        </p>
-                      </div>
-                      <Link
-                        href="/admin-app/dashboard/BlogPage"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold shrink-0 transition-colors"
-                      >
-                        <ExternalLink size={12} /> Manage Blogs in Sidebar ↗
-                      </Link>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-blue-200/80">
-                      <div>
-                        <label className="block text-[11px] font-bold text-blue-900 mb-1">Max Display Limit</label>
-                        <select
-                          value={activeSection.data?.limit || '6'}
-                          onChange={(e) => updateSectionData(activeSection.id, 'limit', e.target.value)}
-                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-blue-300 bg-white"
-                        >
-                          <option value="3">3 Recent Posts</option>
-                          <option value="6">6 Recent Posts</option>
-                          <option value="9">9 Recent Posts</option>
-                          <option value="12">12 Recent Posts</option>
-                          <option value="all">All Published</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-blue-900 mb-1">Layout Presentation</label>
-                        <select
-                          value={activeSection.data?.layout || 'grid'}
-                          onChange={(e) => updateSectionData(activeSection.id, 'layout', e.target.value)}
-                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-blue-300 bg-white"
-                        >
-                          <option value="grid">Responsive Grid Cards</option>
-                          <option value="carousel">Horizontal Carousel</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {(['stories', 'story', 'stories-grid'].includes(activeSection.kind) || activeSection.source === 'stories') && (
-                  <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4 space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-black text-amber-800 uppercase tracking-wider">
-                            🌟 Success Stories Database Feed
-                          </span>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
-                            Live DB Query
-                          </span>
-                        </div>
-                        <p className="text-xs text-amber-900 mt-1 leading-relaxed">
-                          This section automatically queries published community success stories from the database. When an impact story is published or updated in the Success Stories module, it displays automatically here.
-                        </p>
-                      </div>
-                      <Link
-                        href="/admin-app/dashboard/SuccessStories"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold shrink-0 transition-colors"
-                      >
-                        <ExternalLink size={12} /> Manage Stories in Sidebar ↗
-                      </Link>
-                    </div>
-                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-amber-200/80">
-                      <div>
-                        <label className="block text-[11px] font-bold text-amber-900 mb-1">Max Display Limit</label>
-                        <select
-                          value={activeSection.data?.limit || '4'}
-                          onChange={(e) => updateSectionData(activeSection.id, 'limit', e.target.value)}
-                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-amber-300 bg-white"
-                        >
-                          <option value="2">2 Stories</option>
-                          <option value="3">3 Stories</option>
-                          <option value="4">4 Stories</option>
-                          <option value="6">6 Stories</option>
-                          <option value="all">All Stories</option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-[11px] font-bold text-amber-900 mb-1">Layout Presentation</label>
-                        <select
-                          value={activeSection.data?.layout || 'grid'}
-                          onChange={(e) => updateSectionData(activeSection.id, 'layout', e.target.value)}
-                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-amber-300 bg-white"
-                        >
-                          <option value="grid">Responsive Grid Cards</option>
-                          <option value="featured">Featured Lead Card + Grid</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {(['podcast-grid', 'podcasts', 'podcast'].includes(activeSection.kind) || activeSection.source === 'episodes' || activeSection.source === 'podcast') && (
-                  <div className="rounded-xl border border-purple-200 bg-purple-50/70 p-4 space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-black text-purple-800 uppercase tracking-wider">
-                            🎙️ Podcast Episodes Database Feed
-                          </span>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-300">
-                            Live DB Query
-                          </span>
-                        </div>
-                        <p className="text-xs text-purple-900 mt-1 leading-relaxed">
-                          This section automatically displays published YouTube podcast episodes from the database with click-to-play video modals and SEO detail routes.
-                        </p>
-                      </div>
-                      <Link
-                        href="/admin-app/dashboard/Podcast"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold shrink-0 transition-colors"
-                      >
-                        <ExternalLink size={12} /> Manage Podcasts in Sidebar ↗
-                      </Link>
-                    </div>
-                  </div>
-                )}
-
-                {(['faq', 'faqs'].includes(activeSection.kind) || activeSection.source === 'faq-list' || activeSection.source === 'faqs') && (
-                  <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4 space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-black text-teal-800 uppercase tracking-wider">
-                            ❓ FAQs Accordion Database Feed
-                          </span>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 border border-teal-300">
-                            Live DB Query
-                          </span>
-                        </div>
-                        <p className="text-xs text-teal-900 mt-1 leading-relaxed">
-                          This section queries active FAQs from the database table. When questions and answers are added, edited, or reordered in the FAQs module, they reflect here automatically.
-                        </p>
-                      </div>
-                      <Link
-                        href="/admin-app/dashboard/faqs"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold shrink-0 transition-colors"
-                      >
-                        <ExternalLink size={12} /> Manage FAQs in Sidebar ↗
-                      </Link>
-                    </div>
-                  </div>
-                )}
-
-                {(['carousel', 'sliders', 'slider'].includes(activeSection.kind) || activeSection.source === 'carousel') && (
-                  <div className="rounded-xl border border-sky-200 bg-sky-50/70 p-4 space-y-3">
-                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-black text-sky-800 uppercase tracking-wider">
-                            🖼️ Homepage Sliders / Hero Carousel Feed
-                          </span>
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-300">
-                            Live DB Query
-                          </span>
-                        </div>
-                        <p className="text-xs text-sky-900 mt-1 leading-relaxed">
-                          This section displays active hero banner slides from the database. Manage image banners, drag-and-drop ordering, fixed vs slider styles, and links centrally in Homepage Sliders.
-                        </p>
-                      </div>
-                      <Link
-                        href="/admin-app/dashboard/crousel-images"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold shrink-0 transition-colors"
-                      >
-                        <ExternalLink size={12} /> Manage Sliders in Sidebar ↗
-                      </Link>
-                    </div>
-                  </div>
-                )}
-
-                {/* Section Title */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Section Admin Label</label>
-                  <input
-                    type="text"
-                    value={activeSection.title}
-                    onChange={(e) => updateSectionField(activeSection.id, 'title', e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-[#02236E]"
-                  />
-                </div>
-
-                {/* Heading */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Main Heading</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Empowering Local Communities"
-                    value={activeSection.data?.heading || ''}
-                    onChange={(e) => updateSectionData(activeSection.id, 'heading', e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-[#02236E]"
-                  />
-                </div>
-
-                {/* Subheading / Eyebrow */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Subheading / Eyebrow</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Who We Are"
-                    value={activeSection.data?.subheading || ''}
-                    onChange={(e) => updateSectionData(activeSection.id, 'subheading', e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-[#02236E]"
-                  />
-                </div>
-
-                {/* Body / Description */}
-                <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Body Text / Description</label>
-                  <textarea
-                    rows={4}
-                    placeholder="Enter descriptive content..."
-                    value={activeSection.data?.body || ''}
-                    onChange={(e) => updateSectionData(activeSection.id, 'body', e.target.value)}
-                    className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-[#02236E]"
-                  />
-                </div>
-
-                {/* Image URL & Alt Text */}
-                {activeSection.kind !== 'divider' && (
-                  <div className="space-y-3 pt-2 border-t border-slate-100">
-                    <div>
-                      <div className="flex items-center justify-between mb-1">
-                        <label className="text-xs font-bold text-slate-700">Image URL</label>
-                        <Link
-                          href="/admin-app/dashboard/media"
-                          target="_blank"
-                          className="text-[11px] font-bold text-[#02236E] hover:underline flex items-center gap-1"
-                        >
-                          <ImagePlus size={12} /> Media Library
-                        </Link>
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="/Khudii.webp or media image URL"
-                        value={activeSection.data?.image || ''}
-                        onChange={(e) => updateSectionData(activeSection.id, 'image', e.target.value)}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-[#02236E]"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-slate-700 mb-1">Image Alt Text</label>
-                      <input
-                        type="text"
-                        placeholder="Accessible description of the image"
-                        value={activeSection.data?.imageAlt || ''}
-                        onChange={(e) => updateSectionData(activeSection.id, 'imageAlt', e.target.value)}
-                        className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none focus:border-[#02236E]"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Primary Button */}
-                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-100">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Button Label</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Learn More"
-                      value={activeSection.data?.buttonText || ''}
-                      onChange={(e) => updateSectionData(activeSection.id, 'buttonText', e.target.value)}
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 mb-1">Button Link URL</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. /about-khudii"
-                      value={activeSection.data?.buttonUrl || ''}
-                      onChange={(e) => updateSectionData(activeSection.id, 'buttonUrl', e.target.value)}
-                      className="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 outline-none"
-                    />
-                  </div>
-                </div>
-
-                {/* Repeatable Items List (Cards, FAQs, Stats, Logos, Videos) */}
-                {['cards', 'faq', 'video-grid', 'gallery', 'logos', 'testimonials', 'people', 'stats', 'steps', 'timeline', 'downloads'].includes(
-                  activeSection.kind
-                ) && (
-                  <div className="space-y-3 pt-3 border-t border-slate-100">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#02236E]">
-                        Section Items ({activeSection.data?.items?.length || 0})
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => handleAddItemToSection(activeSection.id)}
-                        className="text-xs font-bold text-[#02236E] hover:underline"
-                      >
-                        + Add Item
-                      </button>
-                    </div>
-
-                    <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
-                      {(activeSection.data?.items || []).map((item, i) => (
-                        <div key={i} className="rounded-xl border border-slate-200 bg-slate-50 p-3 space-y-2 relative">
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveItem(activeSection.id, i)}
-                            className="absolute top-2.5 right-2.5 text-slate-400 hover:text-[#ed0026]"
-                            title="Remove item"
-                          >
-                            <Trash2 size={13} />
-                          </button>
-
-                          <input
-                            type="text"
-                            placeholder={activeSection.kind === 'faq' ? 'Question' : 'Item Title / Metric'}
-                            value={item.title || ''}
-                            onChange={(e) => handleUpdateItem(activeSection.id, i, 'title', e.target.value)}
-                            className="w-full pr-6 px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white"
-                          />
-                          <textarea
-                            rows={2}
-                            placeholder={activeSection.kind === 'faq' ? 'Answer' : 'Item Description'}
-                            value={item.description || ''}
-                            onChange={(e) => handleUpdateItem(activeSection.id, i, 'description', e.target.value)}
-                            className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white"
-                          />
-                          {activeSection.kind !== 'faq' && (
-                            <input
-                              type="text"
-                              placeholder="Link URL or YouTube Video URL"
-                              value={item.url || ''}
-                              onChange={(e) => handleUpdateItem(activeSection.id, i, 'url', e.target.value)}
-                              className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white"
-                            />
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-slate-400">
-                <Pencil size={24} className="mx-auto mb-2 text-slate-300" />
-                <div className="font-bold text-slate-700 text-xs">No Section Selected</div>
-                <p className="text-[11px] text-slate-500 mt-1">
-                  Click the pencil icon on any section to configure its titles, description, images and repeaters.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ================= TAB 2: PAGE SETTINGS & HIERARCHY ================= */}
-      {activeTab === 'settings' && (
-        <div className="max-w-3xl bg-white rounded-2xl border border-slate-200 p-6 md:p-8 space-y-6 shadow-xs">
-          <h3 className="text-base font-bold text-[#02236E] border-b border-slate-100 pb-3 m-0">
-            Page Configuration &amp; URL Routing
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Title */}
-            <div className="md:col-span-2">
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Page Title <span className="text-[#ed0026]">*</span>
-              </label>
-              <input
-                type="text"
-                value={pageInfo.title}
-                onChange={(e) => handleTitleChange(e.target.value)}
-                placeholder="e.g. About Khudii"
-                className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 outline-none focus:border-[#02236E] focus:ring-2 focus:ring-blue-100"
-              />
-            </div>
-
-            {/* Slug */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                URL Slug <span className="text-[#ed0026]">*</span>
-              </label>
-              <input
-                type="text"
-                value={pageInfo.slug}
-                onChange={(e) => {
-                  setDirty(true);
-                  setPageInfo((p) => ({
-                    ...p,
-                    slug: e.target.value.toLowerCase().replace(/[^a-z0-9_-]+/g, '-'),
-                  }));
-                }}
-                placeholder="e.g. about-khudii"
-                className="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl border border-slate-200 outline-none focus:border-[#02236E]"
-              />
-            </div>
-
-            {/* Public Path */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">
-                Public URL Path <span className="text-[#ed0026]">*</span>
-              </label>
-              <input
-                type="text"
-                value={pageInfo.path}
-                onChange={(e) => {
-                  setDirty(true);
-                  setPageInfo((p) => ({ ...p, path: e.target.value }));
-                }}
-                placeholder="e.g. /about-khudii"
-                className="w-full px-3.5 py-2.5 text-sm font-mono rounded-xl border border-slate-200 outline-none focus:border-[#02236E]"
-              />
-            </div>
-
-            {/* Category Dropdown */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Content Category</label>
-              <select
-                value={pageInfo.category_id || ''}
-                onChange={(e) => {
-                  setDirty(true);
-                  setPageInfo((p) => ({
-                    ...p,
-                    category_id: e.target.value ? Number(e.target.value) : null,
-                  }));
-                }}
-                className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white outline-none focus:border-[#02236E]"
-              >
-                <option value="">None / Top Level Category</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Parent Page Dropdown */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Parent Page (Hierarchy)</label>
-              <select
-                value={pageInfo.parent_page_id || ''}
-                onChange={(e) => {
-                  setDirty(true);
-                  setPageInfo((p) => ({
-                    ...p,
-                    parent_page_id: e.target.value ? Number(e.target.value) : null,
-                  }));
-                }}
-                className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white outline-none focus:border-[#02236E]"
-              >
-                <option value="">None / Top Level Page</option>
-                {allPages
-                  .filter((p) => p.id !== pageInfo.id)
-                  .map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.title} ({p.path || p.slug})
-                    </option>
-                  ))}
-              </select>
-            </div>
-
-            {/* Page Kind */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Page Kind</label>
-              <select
-                value={pageInfo.page_kind}
-                onChange={(e) => {
-                  setDirty(true);
-                  setPageInfo((p) => ({ ...p, page_kind: e.target.value }));
-                }}
-                className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-white outline-none focus:border-[#02236E]"
-              >
-                <option value="standard">Standard Content Page</option>
-                <option value="landing">Marketing Landing Page</option>
-                <option value="template">Dynamic Layout Template</option>
-              </select>
-            </div>
-
-            {/* Sort Order */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Display Sort Order</label>
-              <input
-                type="number"
-                value={pageInfo.sort_order}
-                onChange={(e) => {
-                  setDirty(true);
-                  setPageInfo((p) => ({ ...p, sort_order: Number(e.target.value) }));
-                }}
-                className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 outline-none focus:border-[#02236E]"
-              />
-            </div>
-
-            {/* Show in menu toggle */}
-            <div className="flex items-center gap-3 pt-2">
-              <input
-                type="checkbox"
-                id="show_in_menu"
-                checked={pageInfo.show_in_menu}
-                onChange={(e) => {
-                  setDirty(true);
-                  setPageInfo((p) => ({ ...p, show_in_menu: e.target.checked }));
-                }}
-                className="h-4 w-4 accent-[#02236E] rounded"
-              />
-              <label htmlFor="show_in_menu" className="text-sm font-semibold text-slate-700 cursor-pointer">
-                Include in Main Header / Footer Menus
-              </label>
-            </div>
-
-            {/* Publishing Status Toggle */}
-            <div className="flex items-center gap-3 pt-2">
-              <input
-                type="checkbox"
-                id="status_published"
-                checked={pageInfo.status === 'published'}
-                onChange={(e) => {
-                  setDirty(true);
-                  setPageInfo((p) => ({ ...p, status: e.target.checked ? 'published' : 'draft' }));
-                }}
-                className="h-4 w-4 accent-[#02236E] rounded"
-              />
-              <label htmlFor="status_published" className="text-sm font-semibold text-slate-700 cursor-pointer">
-                Publish Page on Live Website
-              </label>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ================= TAB 3: SEO & SOCIAL METADATA ================= */}
-      {activeTab === 'seo' && (
-        <div className="max-w-3xl bg-white rounded-2xl border border-slate-200 p-6 md:p-8 space-y-6 shadow-xs">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
-            <div>
-              <h3 className="text-base font-bold text-[#02236E] m-0">
-                Search Engine Optimization (SEO) &amp; Social Previews
-              </h3>
-              <p className="text-xs text-slate-500 mt-0.5 m-0">
-                Standard metadata and Next-Gen AI engine optimization.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setSeoCenterOpen(true)}
-              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 px-4 py-2 text-xs font-bold text-white shadow-md hover:from-emerald-700 hover:to-teal-800 transition active:scale-95"
-            >
-              <Sliders size={14} />
-              Open Full SEO Center
-            </button>
-          </div>
-
-          {/* Google Search Snippet Simulation */}
-          <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 space-y-1">
-            <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-              Google Search Snippet Preview
-            </div>
-            <div className="text-xs text-emerald-800 font-mono truncate">
-              https://www.khudii.com{pageInfo.path || `/${pageInfo.slug}`}
-            </div>
-            <div className="text-base font-bold text-blue-800 hover:underline cursor-pointer truncate">
-              {seo.meta_title || pageInfo.title || 'Page Title'} | Khudii
-            </div>
-            <div className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-              {seo.meta_description || 'Pakistan\'s first digital welfare and charity discovery network.'}
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            {/* Meta Title */}
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-bold text-slate-700">Meta Title</label>
-                <span className="text-[11px] text-slate-400">
-                  {seo.meta_title.length}/60 chars recommended
-                </span>
-              </div>
-              <input
-                type="text"
-                placeholder={pageInfo.title || 'Enter SEO title'}
-                value={seo.meta_title}
-                onChange={(e) => {
-                  setDirty(true);
-                  setSeo((s) => ({ ...s, meta_title: e.target.value }));
-                }}
-                className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 outline-none focus:border-[#02236E]"
-              />
-            </div>
-
-            {/* Meta Description */}
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <label className="text-xs font-bold text-slate-700">Meta Description</label>
-                <span className="text-[11px] text-slate-400">
-                  {seo.meta_description.length}/160 chars recommended
-                </span>
-              </div>
-              <textarea
-                rows={3}
-                placeholder="Enter rich meta description for search engines..."
-                value={seo.meta_description}
-                onChange={(e) => {
-                  setDirty(true);
-                  setSeo((s) => ({ ...s, meta_description: e.target.value }));
-                }}
-                className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 outline-none focus:border-[#02236E]"
-              />
-            </div>
-
-            {/* Keywords */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Meta Keywords</label>
-              <input
-                type="text"
-                placeholder="charity, pakistan, welfare, donate, volunteer"
-                value={seo.meta_keywords}
-                onChange={(e) => {
-                  setDirty(true);
-                  setSeo((s) => ({ ...s, meta_keywords: e.target.value }));
-                }}
-                className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 outline-none focus:border-[#02236E]"
-              />
-            </div>
-
-            {/* OpenGraph Image URL */}
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Social Sharing Image (OG Image)</label>
-              <input
-                type="text"
-                placeholder="/Khudii.webp or external image URL"
-                value={seo.og_image}
-                onChange={(e) => {
-                  setDirty(true);
-                  setSeo((s) => ({ ...s, og_image: e.target.value }));
-                }}
-                className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 outline-none focus:border-[#02236E]"
-              />
-            </div>
-
-            {/* Robots Indexing Checkboxes */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={seo.robots_noindex}
-                  onChange={(e) => {
-                    setDirty(true);
-                    setSeo((s) => ({ ...s, robots_noindex: e.target.checked }));
-                  }}
-                  className="h-4 w-4 accent-[#ed0026] rounded"
-                />
-                <span className="text-xs font-semibold text-slate-700">No Index (Hide from search)</span>
-              </label>
-
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={seo.include_in_sitemap}
-                  onChange={(e) => {
-                    setDirty(true);
-                    setSeo((s) => ({ ...s, include_in_sitemap: e.target.checked }));
-                  }}
-                  className="h-4 w-4 accent-[#02236E] rounded"
-                />
-                <span className="text-xs font-semibold text-slate-700">Include in XML Sitemap</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      )}
-
+      {/* SEO Center Modal */}
       {seoCenterOpen && (
         <SeoCenterModal
           isOpen={seoCenterOpen}
           onClose={() => setSeoCenterOpen(false)}
           pageData={{
-            id: pageInfo.id || slugParam || pageInfo.slug,
+            ...pageInfo,
+            id: pageInfo.id,
+            title: pageInfo.title,
             slug: pageInfo.slug,
             path: pageInfo.path,
-            title: pageInfo.title,
             meta_title: seo.meta_title,
             meta_description: seo.meta_description,
             meta_keywords: seo.meta_keywords,
-            canonical_url: seo.canonical_url,
+            og_image: seo.og_image,
             entityType: 'page',
           }}
-          onSaveSuccess={(updated) => {
-            if (updated) {
-              setSeo((prev) => ({
-                ...prev,
-                meta_title: updated.meta_title || prev.meta_title,
-                meta_description: updated.meta_description || prev.meta_description,
-                meta_keywords: updated.meta_keywords || prev.meta_keywords,
-                canonical_url: updated.canonical_url || prev.canonical_url,
-              }));
-            }
-            showToast('SEO Center data synchronized!');
+          onSaveSuccess={() => {
+            showToast('SEO Settings saved successfully');
           }}
         />
       )}
+
+      {/* ── Top Bar Breadcrumb & Header (Cloned from KingTravel) ── */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-white p-4 lg:px-6 rounded-3xl border border-slate-200/80 shadow-2xs">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/admin-app/dashboard/pages"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-slate-200/90 text-slate-700 hover:border-[#02236E] hover:bg-[#02236E] hover:text-white text-xs font-bold transition-all shadow-2xs no-underline"
+          >
+            <ArrowLeft size={13} /> Back to Pages
+          </Link>
+          <span className="text-slate-300">|</span>
+          <h1 className="text-lg font-black text-slate-900 m-0 tracking-tight">
+            {pageInfo.title || 'Page Editor'}
+          </h1>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* SEO Center Button */}
+          <button
+            type="button"
+            onClick={() => setSeoCenterOpen(true)}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-50 text-[#02236E] border border-emerald-300 text-xs font-extrabold hover:bg-[#02236E] hover:text-white transition-all cursor-pointer shadow-2xs"
+          >
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span>Page SEO</span>
+          </button>
+
+          {/* View Live Page */}
+          <a
+            href={pageInfo.path || `/${pageInfo.slug || ''}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold border border-slate-200 transition-all shadow-2xs no-underline"
+          >
+            <ExternalLink size={13} /> View Page
+          </a>
+
+          {/* Save Draft Button */}
+          <button
+            type="button"
+            onClick={() => handleSave(true)}
+            disabled={saving}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold border border-slate-200 transition-all cursor-pointer shadow-2xs disabled:opacity-50"
+          >
+            📄 Save Draft
+          </button>
+
+          {/* Update / Publish Button */}
+          <button
+            type="button"
+            onClick={() => handleSave(false)}
+            disabled={saving}
+            className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-[#02236E] hover:bg-blue-900 text-white text-xs font-black transition-all cursor-pointer shadow-md border-none disabled:opacity-50"
+          >
+            {saving ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
+            <span>{saving ? 'Saving...' : '✓ Update'}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ── HOMEPAGE HERO BANNER CARD (1920px x 640px) ── */}
+      {isHomepage && (
+        <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs flex flex-col gap-6">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div className="flex items-center gap-2">
+              <h3 className="text-xs font-extrabold text-[#02236E] tracking-wider uppercase m-0 flex items-center gap-1.5">
+                👑 HOMEPAGE HERO BANNER BACKGROUND IMAGE & CONTENT (1920PX X 640PX)
+              </h3>
+              <span className="text-[11px] text-slate-400 font-medium">Recommended 1920px x 640px (min-height: 640px)</span>
+            </div>
+            {heroData.bgImage && (
+              <button
+                type="button"
+                onClick={() => setHeroData((prev) => ({ ...prev, bgImage: '' }))}
+                className="bg-red-50 text-red-500 hover:bg-red-100 border border-red-200 px-3 py-1 rounded-full text-xs font-bold cursor-pointer transition-colors flex items-center gap-1"
+              >
+                ⊗ Remove Image
+              </button>
+            )}
+          </div>
+
+          {/* Split Desktop Grid: Image Upload & Dropzone (Left) + Live 640px Hero Preview Card (Right) */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+            {/* Left 5-Col Upload & Main Banner Settings */}
+            <div className="lg:col-span-5 flex flex-col gap-4">
+              <div className="bg-slate-50/80 rounded-2xl p-4 border border-slate-200">
+                <label className="block text-xs font-bold text-slate-700 mb-2">Homepage Hero Background Image</label>
+                <ImageUploadWidget
+                  value={heroData.bgImage || ''}
+                  onChange={(url) => {
+                    setHeroData((prev) => ({ ...prev, bgImage: url }));
+                    setDirty(true);
+                  }}
+                  subfolder="banners"
+                  label="Hero Banner Image"
+                />
+                <span className="text-[10px] text-slate-400 mt-1.5 block font-medium">
+                  Recommended: 1920px x 640px (aspect ratio ~ 3:1, min-height 640px)
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                    POSITION
+                  </label>
+                  <select
+                    value={heroData.position}
+                    onChange={(e) => {
+                      setHeroData((prev) => ({ ...prev, position: e.target.value }));
+                      setDirty(true);
+                    }}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-slate-50 text-xs font-semibold outline-none focus:border-[#02236E]"
+                  >
+                    <option value="center center">Center Center</option>
+                    <option value="top center">Top Center</option>
+                    <option value="bottom center">Bottom Center</option>
+                    <option value="left center">Left Center</option>
+                    <option value="right center">Right Center</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                    SIZE
+                  </label>
+                  <select
+                    value={heroData.size}
+                    onChange={(e) => {
+                      setHeroData((prev) => ({ ...prev, size: e.target.value }));
+                      setDirty(true);
+                    }}
+                    className="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-slate-50 text-xs font-semibold outline-none focus:border-[#02236E]"
+                  >
+                    <option value="cover">Cover (Default)</option>
+                    <option value="contain">Contain</option>
+                    <option value="auto">Auto / Original</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Right 7-Col Real-Time Live 640px Hero Preview Box */}
+            <div className="lg:col-span-7 relative rounded-3xl overflow-hidden shadow-xl border border-slate-900/20 p-6 md:p-8 flex flex-col justify-between text-white min-h-[320px] bg-slate-900">
+              <div
+                className="absolute inset-0 z-0 transition-all duration-300"
+                style={{
+                  backgroundImage: `linear-gradient(100deg, rgba(2, 35, 110, .92) 0%, rgba(2, 35, 110, .75) 45%, rgba(2, 35, 110, .3) 80%), url("${heroData.bgImage || '/Khudii.webp'}")`,
+                  backgroundPosition: heroData.position || 'center center',
+                  backgroundSize: heroData.size || 'cover',
+                  backgroundRepeat: 'no-repeat',
+                }}
+              />
+
+              {/* Floating Top Right Badge 1 Card */}
+              <div className="absolute right-5 top-5 z-10 bg-white/95 text-slate-900 rounded-2xl p-2.5 px-3.5 shadow-lg border border-white flex items-center gap-2.5 backdrop-blur-xs">
+                <div className="w-8 h-8 rounded-full bg-blue-100 border border-blue-300 flex items-center justify-center text-[#02236E] text-xs font-bold">
+                  ★
+                </div>
+                <div>
+                  <div className="text-xs font-black text-slate-900 leading-none">{heroData.badge1Top}</div>
+                  <div className="text-[10px] text-slate-500 font-semibold mt-0.5">{heroData.badge1Sub}</div>
+                </div>
+              </div>
+
+              {/* Floating Bottom Right Badge 2 Card */}
+              <div className="absolute right-5 bottom-5 z-10 bg-white/95 text-slate-900 rounded-2xl p-2.5 px-3.5 shadow-lg border border-white flex items-center gap-2.5 backdrop-blur-xs">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-300 flex items-center justify-center text-emerald-700 text-xs font-bold">
+                  ✓
+                </div>
+                <div>
+                  <div className="text-xs font-black text-slate-900 leading-none">{heroData.badge2Top}</div>
+                  <div className="text-[10px] text-slate-500 font-semibold mt-0.5">{heroData.badge2Sub}</div>
+                </div>
+              </div>
+
+              {/* Main Content Area */}
+              <div className="relative z-10 max-w-md space-y-3 my-auto">
+                <div className="text-[11px] font-extrabold uppercase tracking-widest text-amber-300">
+                  {heroData.eyebrow}
+                </div>
+                <h2
+                  className="text-2xl md:text-3xl font-extrabold text-white m-0 tracking-tight leading-tight [&>span]:text-amber-300"
+                  dangerouslySetInnerHTML={{ __html: heroData.title || 'Pakistan\'s Premier Digital <span>Welfare Network</span>' }}
+                />
+                <p className="text-xs text-white/90 leading-relaxed font-light">
+                  {heroData.description}
+                </p>
+
+                {/* Primary & Secondary Buttons */}
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <span className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs px-5 py-2.5 rounded-full shadow-md transition-all cursor-pointer">
+                    {heroData.primaryBtnLabel}
+                  </span>
+                  <span className="bg-white/20 text-white hover:bg-white/30 font-bold text-xs px-5 py-2.5 rounded-full backdrop-blur-xs transition-all cursor-pointer border border-white/40">
+                    {heroData.secondaryBtnLabel}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Form Fields Grid for Banner Content Editing */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-100">
+            <div>
+              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                EYEBROW TAGLINE
+              </label>
+              <input
+                type="text"
+                value={heroData.eyebrow}
+                onChange={(e) => {
+                  setHeroData((prev) => ({ ...prev, eyebrow: e.target.value }));
+                  setDirty(true);
+                }}
+                placeholder="e.g. Empowering Communities"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-medium outline-none focus:border-[#02236E]"
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+                  TITLE (H1)
+                </label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const full = heroData.title || '';
+                    if (!full.includes('<span>')) {
+                      setHeroData((prev) => ({ ...prev, title: full.replace(/([A-Z][a-z0-9\s&]+)$/i, '<span>$1</span>') }));
+                    } else {
+                      setHeroData((prev) => ({ ...prev, title: full.replace(/<\/?span>/g, '') }));
+                    }
+                    setDirty(true);
+                  }}
+                  className="text-[10px] font-bold text-amber-700 hover:bg-amber-100 bg-amber-50 px-2 py-0.5 rounded cursor-pointer border border-amber-300 transition-colors"
+                  title="Highlight words in gold/accent"
+                >
+                  ✨ Gold Words
+                </button>
+              </div>
+              <input
+                type="text"
+                value={heroData.title}
+                onChange={(e) => {
+                  setHeroData((prev) => ({ ...prev, title: e.target.value }));
+                  setDirty(true);
+                }}
+                placeholder="Headline Title..."
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-medium outline-none focus:border-[#02236E]"
+              />
+            </div>
+
+            <div className="lg:col-span-2">
+              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                SUBTEXT / DESCRIPTION
+              </label>
+              <input
+                type="text"
+                value={heroData.description}
+                onChange={(e) => {
+                  setHeroData((prev) => ({ ...prev, description: e.target.value }));
+                  setDirty(true);
+                }}
+                placeholder="Description paragraph..."
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-medium outline-none focus:border-[#02236E]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                PRIMARY CTA BUTTON LABEL
+              </label>
+              <input
+                type="text"
+                value={heroData.primaryBtnLabel}
+                onChange={(e) => {
+                  setHeroData((prev) => ({ ...prev, primaryBtnLabel: e.target.value }));
+                  setDirty(true);
+                }}
+                placeholder="Donate Now →"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-medium outline-none focus:border-[#02236E]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                PRIMARY CTA LINK
+              </label>
+              <input
+                type="text"
+                value={heroData.primaryBtnLink}
+                onChange={(e) => {
+                  setHeroData((prev) => ({ ...prev, primaryBtnLink: e.target.value }));
+                  setDirty(true);
+                }}
+                placeholder="/donate-now"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-medium outline-none focus:border-[#02236E]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                SECONDARY CTA BUTTON LABEL
+              </label>
+              <input
+                type="text"
+                value={heroData.secondaryBtnLabel}
+                onChange={(e) => {
+                  setHeroData((prev) => ({ ...prev, secondaryBtnLabel: e.target.value }));
+                  setDirty(true);
+                }}
+                placeholder="Explore Organizations"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-medium outline-none focus:border-[#02236E]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                SECONDARY CTA LINK
+              </label>
+              <input
+                type="text"
+                value={heroData.secondaryBtnLink}
+                onChange={(e) => {
+                  setHeroData((prev) => ({ ...prev, secondaryBtnLink: e.target.value }));
+                  setDirty(true);
+                }}
+                placeholder="/organizations"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-medium outline-none focus:border-[#02236E]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                BADGE 1 TOP TEXT
+              </label>
+              <input
+                type="text"
+                value={heroData.badge1Top}
+                onChange={(e) => {
+                  setHeroData((prev) => ({ ...prev, badge1Top: e.target.value }));
+                  setDirty(true);
+                }}
+                placeholder="10k+"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-medium outline-none focus:border-[#02236E]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                BADGE 1 SUBTEXT
+              </label>
+              <input
+                type="text"
+                value={heroData.badge1Sub}
+                onChange={(e) => {
+                  setHeroData((prev) => ({ ...prev, badge1Sub: e.target.value }));
+                  setDirty(true);
+                }}
+                placeholder="Lives Impacted"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-medium outline-none focus:border-[#02236E]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                BADGE 2 TOP TEXT
+              </label>
+              <input
+                type="text"
+                value={heroData.badge2Top}
+                onChange={(e) => {
+                  setHeroData((prev) => ({ ...prev, badge2Top: e.target.value }));
+                  setDirty(true);
+                }}
+                placeholder="100% Free"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-medium outline-none focus:border-[#02236E]"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                BADGE 2 SUBTEXT
+              </label>
+              <input
+                type="text"
+                value={heroData.badge2Sub}
+                onChange={(e) => {
+                  setHeroData((prev) => ({ ...prev, badge2Sub: e.target.value }));
+                  setDirty(true);
+                }}
+                placeholder="Direct Donations, Zero Cut"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-slate-50 text-xs font-medium outline-none focus:border-[#02236E]"
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── DETAILS ROW (TITLE/SLUG & PAGE STATUS) ── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
+        {/* Left Card: Title & Slug */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">
+                TITLE *
+              </label>
+              <input
+                type="text"
+                value={pageInfo.title || ''}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                placeholder="Page Title..."
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm font-bold text-slate-900 outline-none focus:border-[#02236E] transition-colors"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">
+                SLUG *
+              </label>
+              <input
+                type="text"
+                value={pageInfo.slug || ''}
+                onChange={(e) => {
+                  setPageInfo((p) => ({ ...p, slug: e.target.value, path: `/${e.target.value}` }));
+                  setDirty(true);
+                }}
+                placeholder="page-slug"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm font-semibold text-slate-900 outline-none focus:border-[#02236E] transition-colors"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Right Card: Page Status & Navigation */}
+        <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">
+                PAGE STATUS
+              </label>
+              <select
+                value={pageInfo.status || 'published'}
+                onChange={(e) => {
+                  setPageInfo((p) => ({ ...p, status: e.target.value }));
+                  setDirty(true);
+                }}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 bg-slate-50 text-sm font-bold text-slate-900 outline-none focus:border-[#02236E]"
+              >
+                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+              </select>
+            </div>
+
+            <div className="flex items-center justify-between pt-1">
+              <div>
+                <span className="text-xs font-bold text-slate-800 block">Show in menu</span>
+                <span className="text-[11px] text-slate-400">Include link in site header navigation</span>
+              </div>
+              <AdminPublishSwitch
+                checked={pageInfo.show_in_menu}
+                onChange={(val) => {
+                  setPageInfo((p) => ({ ...p, show_in_menu: val }));
+                  setDirty(true);
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100 flex items-center gap-1.5 text-[11px] text-slate-400">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+            <span>Auto-saves draft state dynamically</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── PAGE BUILDER WORKSPACE (DYNAMIC SECTIONS) ── */}
+      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+        {/* Dynamic Builder Tabs */}
+        <div className="flex border-b border-slate-100 bg-slate-50 px-6">
+          {[
+            { key: 'sections', label: `🧱 Page Sections (${sections.length})` },
+            { key: 'richtext', label: '📝 Rich Text' },
+            { key: 'seo', label: '🔍 SEO Center' },
+          ].map((t) => (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => {
+                if (t.key === 'seo') {
+                  setSeoCenterOpen(true);
+                } else {
+                  setActiveTab(t.key);
+                }
+              }}
+              className={`px-5 py-3.5 text-xs font-sans font-bold border-b-2 transition-colors cursor-pointer ${
+                activeTab === t.key && t.key !== 'seo'
+                  ? 'border-b-[#02236E] text-[#02236E]'
+                  : 'border-b-transparent text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Tab Content Panel */}
+        <div className="p-6">
+          {activeTab === 'sections' && (
+            <div className="space-y-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-extrabold text-slate-900 m-0">Page Sections</h3>
+                  <p className="text-xs text-slate-400 mt-0.5 m-0">Build page layout with reorderable sections</p>
+                </div>
+
+                {/* Add Section Dropdown Button (Cloned from KingTravel) */}
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCatalogOpen(!catalogOpen);
+                      setCatalogSearch('');
+                    }}
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#02236E] hover:bg-blue-900 text-white text-xs font-extrabold transition-all cursor-pointer shadow-sm border-none"
+                  >
+                    <span>+ Add Section</span>
+                    <span className="text-[10px]">{catalogOpen ? '▲' : '▼'}</span>
+                  </button>
+
+                  {catalogOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 flex flex-col bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 overflow-hidden">
+                      {/* Search */}
+                      <div className="p-3 border-b border-slate-100 bg-slate-50">
+                        <div className="relative">
+                          <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
+                          <input
+                            type="text"
+                            autoFocus
+                            placeholder="Search sections..."
+                            value={catalogSearch}
+                            onChange={(e) => setCatalogSearch(e.target.value)}
+                            className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-800 outline-none focus:border-[#02236E]"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Grouped Category Items */}
+                      <div className="overflow-y-auto max-h-[380px] p-2 space-y-3">
+                        {filteredCatalog.map((catGroup) => (
+                          <div key={catGroup.category} className="space-y-1">
+                            <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                              <span>{catGroup.icon}</span>
+                              <span>{catGroup.category}</span>
+                            </div>
+                            <div className="space-y-1">
+                              {catGroup.items.map((item) => (
+                                <button
+                                  key={item.title}
+                                  type="button"
+                                  onClick={() => handleAddSectionFromCatalog(item)}
+                                  className="w-full text-left p-2.5 rounded-xl hover:bg-blue-50/70 border border-transparent hover:border-blue-200 transition-colors group cursor-pointer"
+                                >
+                                  <div className="text-xs font-bold text-[#02236E] group-hover:text-blue-900">
+                                    {item.title}
+                                  </div>
+                                  <div className="text-[11px] text-slate-500 line-clamp-1 mt-0.5">
+                                    {item.description}
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Sections Stack (Full Width, Cloned from KingTravel) */}
+              <div className="space-y-3">
+                {sections.length > 0 ? (
+                  sections.map((sec, index) => {
+                    const acronym = getAcronym(sec.title);
+                    const badgeClass = getBadgeColor(acronym);
+                    const isExpanded = editingSectionId === sec.id;
+
+                    return (
+                      <div
+                        key={sec.id}
+                        className={`rounded-2xl border bg-white shadow-xs transition-all overflow-hidden ${
+                          isExpanded
+                            ? 'border-[#02236E] ring-2 ring-[#02236E]/10'
+                            : 'border-slate-200 hover:border-slate-300'
+                        } ${sec.visible === false ? 'opacity-65 bg-slate-50/80' : ''}`}
+                      >
+                        {/* Section Header Row */}
+                        <div className="p-3.5 px-4 flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            {/* Reorder Buttons */}
+                            <div className="flex flex-col gap-0.5 shrink-0">
+                              <button
+                                type="button"
+                                disabled={index === 0}
+                                onClick={() => handleMoveSection(index, index - 1)}
+                                className="p-1 rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 cursor-pointer"
+                                title="Move Up"
+                              >
+                                <ArrowUp size={12} />
+                              </button>
+                              <button
+                                type="button"
+                                disabled={index === sections.length - 1}
+                                onClick={() => handleMoveSection(index, index + 1)}
+                                className="p-1 rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 cursor-pointer"
+                                title="Move Down"
+                              >
+                                <ArrowDown size={12} />
+                              </button>
+                            </div>
+
+                            {/* Acronym Badge */}
+                            <div
+                              className={`w-9 h-9 rounded-xl border flex items-center justify-center text-xs font-black shrink-0 ${badgeClass}`}
+                            >
+                              {acronym}
+                            </div>
+
+                            {/* Section Title & Description */}
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <h4 className="text-xs font-extrabold text-slate-900 m-0 truncate">
+                                  {sec.title}
+                                </h4>
+                                <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md shrink-0">
+                                  {sec.kind}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-slate-400 m-0 truncate mt-0.5">
+                                {sec.data?.heading || sec.data?.body || 'No heading set'}
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Section Action Controls */}
+                          <div className="flex items-center gap-2 shrink-0">
+                            <AdminPublishSwitch
+                              checked={sec.visible !== false}
+                              onChange={(checked) => handleToggleSection(sec.id, checked)}
+                              label={sec.visible !== false ? 'Visible' : 'Hidden'}
+                            />
+
+                            {/* Edit Section Button */}
+                            <button
+                              type="button"
+                              onClick={() => setEditingSectionId(isExpanded ? null : sec.id)}
+                              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors cursor-pointer border ${
+                                isExpanded
+                                  ? 'bg-[#02236E] text-white border-[#02236E]'
+                                  : 'bg-blue-50 text-[#02236E] border-blue-200 hover:bg-blue-100'
+                              }`}
+                            >
+                              {isExpanded ? 'Close Editor' : '✎ Edit Section'}
+                            </button>
+
+                            {/* Delete Button */}
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteSection(sec.id)}
+                              className="p-1.5 rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 transition-colors cursor-pointer"
+                              title="Delete Section"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Inline Section Editor Panel (Expands when clicked) */}
+                        {isExpanded && (
+                          <div className="p-5 border-t border-slate-100 bg-slate-50/60 space-y-4 animate-in fade-in-50 duration-150">
+                            <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-2xs space-y-4">
+                              <span className="text-[11px] font-extrabold text-[#02236E] uppercase tracking-wider flex items-center gap-1.5">
+                                ✏️ SECTION HEADING & CONTENT
+                              </span>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                    SECTION HEADING
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={sec.data?.heading || ''}
+                                    onChange={(e) => updateSectionData(sec.id, 'heading', e.target.value)}
+                                    placeholder="e.g. Empowering Communities"
+                                    className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-slate-900 outline-none focus:border-[#02236E]"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                    SECTION SUBHEADING / EYEBROW
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={sec.data?.subheading || ''}
+                                    onChange={(e) => updateSectionData(sec.id, 'subheading', e.target.value)}
+                                    placeholder="e.g. Our Mission"
+                                    className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs font-semibold text-slate-900 outline-none focus:border-[#02236E]"
+                                  />
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                  DESCRIPTION / BODY TEXT
+                                </label>
+                                <textarea
+                                  rows={3}
+                                  value={sec.data?.body || ''}
+                                  onChange={(e) => updateSectionData(sec.id, 'body', e.target.value)}
+                                  placeholder="Section details or body content..."
+                                  className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 outline-none focus:border-[#02236E]"
+                                />
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                    IMAGE URL
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={sec.data?.image || ''}
+                                    onChange={(e) => updateSectionData(sec.id, 'image', e.target.value)}
+                                    placeholder="https://... or /image.png"
+                                    className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 outline-none focus:border-[#02236E]"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                    IMAGE ALT TEXT
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={sec.data?.imageAlt || ''}
+                                    onChange={(e) => updateSectionData(sec.id, 'imageAlt', e.target.value)}
+                                    placeholder="Image description for accessibility"
+                                    className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 outline-none focus:border-[#02236E]"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                    BUTTON LABEL
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={sec.data?.buttonText || ''}
+                                    onChange={(e) => updateSectionData(sec.id, 'buttonText', e.target.value)}
+                                    placeholder="e.g. Learn More"
+                                    className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 outline-none focus:border-[#02236E]"
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                                    BUTTON URL
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={sec.data?.buttonUrl || ''}
+                                    onChange={(e) => updateSectionData(sec.id, 'buttonUrl', e.target.value)}
+                                    placeholder="/contact-us"
+                                    className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 outline-none focus:border-[#02236E]"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Repeatable Items (Cards, FAQ, Logos, Stats, Steps) */}
+                            {['cards', 'faq', 'gallery', 'logos', 'people', 'stats', 'steps', 'timeline', 'downloads'].includes(sec.kind) && (
+                              <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-2xs space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-[11px] font-extrabold text-[#02236E] uppercase tracking-wider">
+                                    REPEATABLE ITEMS ({Array.isArray(sec.data?.items) ? sec.data.items.length : 0})
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleAddItemToSection(sec.id)}
+                                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#02236E] text-white text-xs font-bold hover:bg-blue-900 transition cursor-pointer"
+                                  >
+                                    <Plus size={13} /> Add Item
+                                  </button>
+                                </div>
+
+                                <div className="space-y-2">
+                                  {(Array.isArray(sec.data?.items) ? sec.data.items : []).map((item, itIdx) => (
+                                    <div
+                                      key={itIdx}
+                                      className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 grid grid-cols-1 sm:grid-cols-2 gap-2 relative group"
+                                    >
+                                      <div>
+                                        <label className="block text-[9px] font-bold text-slate-500 uppercase mb-0.5">
+                                          {sec.kind === 'faq' ? 'Question' : 'Title'}
+                                        </label>
+                                        <input
+                                          type="text"
+                                          value={item.title || ''}
+                                          onChange={(e) => handleUpdateItem(sec.id, itIdx, 'title', e.target.value)}
+                                          placeholder="Title..."
+                                          className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium"
+                                        />
+                                      </div>
+
+                                      <div>
+                                        <label className="block text-[9px] font-bold text-slate-500 uppercase mb-0.5">
+                                          {sec.kind === 'faq' ? 'Answer' : 'Description'}
+                                        </label>
+                                        <input
+                                          type="text"
+                                          value={item.description || ''}
+                                          onChange={(e) => handleUpdateItem(sec.id, itIdx, 'description', e.target.value)}
+                                          placeholder="Description..."
+                                          className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium"
+                                        />
+                                      </div>
+
+                                      {sec.kind !== 'faq' && (
+                                        <>
+                                          <div>
+                                            <label className="block text-[9px] font-bold text-slate-500 uppercase mb-0.5">
+                                              Image URL
+                                            </label>
+                                            <input
+                                              type="text"
+                                              value={item.image || ''}
+                                              onChange={(e) => handleUpdateItem(sec.id, itIdx, 'image', e.target.value)}
+                                              placeholder="Image link..."
+                                              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium"
+                                            />
+                                          </div>
+                                          <div>
+                                            <label className="block text-[9px] font-bold text-slate-500 uppercase mb-0.5">
+                                              Link URL
+                                            </label>
+                                            <input
+                                              type="text"
+                                              value={item.url || ''}
+                                              onChange={(e) => handleUpdateItem(sec.id, itIdx, 'url', e.target.value)}
+                                              placeholder="/page-link"
+                                              className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium"
+                                            />
+                                          </div>
+                                        </>
+                                      )}
+
+                                      <div className="sm:col-span-2 flex justify-end">
+                                        <button
+                                          type="button"
+                                          onClick={() => handleRemoveItem(sec.id, itIdx)}
+                                          className="inline-flex items-center gap-1 text-[11px] font-bold text-red-600 hover:text-red-800 transition cursor-pointer"
+                                        >
+                                          <Trash2 size={12} /> Remove
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-3xl p-6 text-slate-400">
+                    <p className="text-sm font-semibold m-0">No sections added yet.</p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      Click "+ Add Section" above to add hero, cards, stories, or FAQ blocks.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'richtext' && (
+            <div className="space-y-4">
+              <label className="block text-xs font-bold text-slate-700">
+                Page Article Body (Markdown / HTML Supported)
+              </label>
+              <textarea
+                rows={14}
+                value={sections[0]?.data?.body || ''}
+                onChange={(e) => {
+                  if (sections.length > 0) {
+                    updateSectionData(sections[0].id, 'body', e.target.value);
+                  }
+                }}
+                placeholder="Enter rich text article content..."
+                className="w-full p-4 rounded-2xl border border-slate-200 text-xs font-mono leading-relaxed outline-none focus:border-[#02236E]"
+              />
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
 
-export default function Page() {
+export default function PageBuilderWrapper() {
   return (
     <Suspense
       fallback={
         <div className="flex h-96 items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-[#02236E]" />
+          <span className="ml-3 text-sm font-bold text-slate-600">Loading Page Editor...</span>
         </div>
       }
     >
-      <PageEditor />
+      <PageEditorContent />
     </Suspense>
   );
 }

@@ -1,13 +1,14 @@
 'use client';
 import axios from 'axios';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ChevronDown, ChevronUp, GripVertical, Loader2, WandSparkles } from 'lucide-react';
+import { ChevronDown, ChevronUp, GripVertical, Loader2, WandSparkles, ExternalLink, Sliders, Copy, Pencil, Trash2 } from 'lucide-react';
 import { adminConfirm } from '@/lib/admin-dialogs';
 import { SaveButton, CancelButton, ReloadButton } from '@/components/ui/AppButton';
 import { youtubeVideoId, slugifyContent } from '@/server/shared/youtube.js';
 import AdminPublishSwitch from '@/components/AdminPublishSwitch';
 import AdminSeoShortcut from '@/components/AdminSeoShortcut';
 import AdminIconAction from '@/components/AdminIconAction';
+import SeoCenterModal from '@/components/admin/SeoCenterModal';
 
 const API = `${process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app'}/api/podcasts`;
 const adminRequest = { withCredentials: true, headers: { 'x-khudii-surface': 'admin' } };
@@ -20,6 +21,7 @@ export default function PodcastAdminPage() {
   const [episodes, setEpisodes] = useState([]), [form, setForm] = useState(empty), [editing, setEditing] = useState(null), [loading, setLoading] = useState(true), [saving, setSaving] = useState(false), [reordering, setReordering] = useState(false);
   const [error, setError] = useState(''), [message, setMessage] = useState(''), [youtubeState, setYoutubeState] = useState(''), [youtubeMeta, setYoutubeMeta] = useState(null);
   const [touched, setTouched] = useState({}), [seoOpen, setSeoOpen] = useState(true);
+  const [selectedSeoPodcast, setSelectedSeoPodcast] = useState(null);
   const dragId = useRef(null), currentVideo = useRef('');
   const load = useCallback(async () => {
     try { setError(''); const { data } = await axios.get(API, adminRequest); if (!Array.isArray(data.items)) throw Error('Unexpected server response'); setEpisodes(data.items); }
@@ -124,8 +126,76 @@ export default function PodcastAdminPage() {
     <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" aria-label="Podcast episodes"><header className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-5"><div><h2 className="text-xl font-bold">Episodes ({episodes.length})</h2><p className="mt-1 text-xs text-slate-500">Drag episodes to change public display order. Changes save immediately.</p></div><ReloadButton onClick={load} size="sm">Refresh</ReloadButton></header>
       {loading ? <p className="p-5">Loading…</p> : !episodes.length ? <p className="p-5 text-sm text-slate-500">No episodes yet.</p> : <div className="divide-y divide-slate-200">{episodes.map((episode, index) => <div key={episode.id} draggable={!reordering} onDragStart={e => { dragId.current = episode.id; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(episode.id)); }} onDragOver={e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }} onDrop={e => { e.preventDefault(); const from = episodes.findIndex(item => item.id === dragId.current); move(from, index); dragId.current = null; }} onDragEnd={() => { dragId.current = null; }} className="flex flex-wrap items-center gap-3 p-4 hover:bg-slate-50 sm:gap-4"><GripVertical size={20} aria-label="Drag to reorder" className="cursor-grab text-slate-500" /><img src={`https://i.ytimg.com/vi/${episode.youtube_id}/mqdefault.jpg`} alt="" className="h-16 w-28 shrink-0 rounded-lg bg-slate-100 object-cover" loading="lazy" /><div className="min-w-[160px] flex-1"><h3 className="font-bold text-[#02236E]">{episode.title}</h3><p className="text-xs text-slate-500">Position {index + 1} · /podcast/{episode.slug}</p></div>
         <div className="flex items-center gap-2"><AdminIconAction action={episode.is_published ? "hide" : "show"} disabled={reordering || saving} label={`${episode.is_published ? "Unpublish" : "Publish"} ${episode.title}`} onClick={() => togglePublished(episode, !episode.is_published)} /><span className={`kh-status-chip ${episode.is_published ? "is-live" : "is-draft"}`}>{episode.is_published ? "Published" : "Draft"}</span></div>
-        <div className="flex flex-wrap items-center gap-2"><button type="button" onClick={() => move(index, index - 1)} disabled={!index || reordering} aria-label={`Move ${episode.title} up`} className="rounded-lg border border-slate-300 p-2 disabled:opacity-30"><ChevronUp size={15} /></button><button type="button" onClick={() => move(index, index + 1)} disabled={index === episodes.length - 1 || reordering} aria-label={`Move ${episode.title} down`} className="rounded-lg border border-slate-300 p-2 disabled:opacity-30"><ChevronDown size={15} /></button><AdminIconAction action="edit" label={`Edit ${episode.title}`} onClick={() => startEdit(episode)} /><AdminIconAction action="duplicate" label={`Duplicate ${episode.title}`} onClick={() => duplicate(episode)} disabled={saving} /><AdminIconAction action="delete" label={`Delete ${episode.title}`} onClick={() => remove(episode)} /></div></div>)}</div>}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Preview on live site */}
+          <a
+            href={`/podcast/${episode.slug || ''}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="View live episode"
+            className="grid h-9 w-9 place-items-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-[#02236E]"
+          >
+            <ExternalLink size={15} />
+          </a>
+
+          {/* SEO Center */}
+          <button
+            type="button"
+            onClick={() => setSelectedSeoPodcast({ id: episode.id, slug: episode.slug, title: episode.title, entityType: 'podcast' })}
+            title={`Open SEO Center for ${episode.title}`}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-emerald-200 bg-emerald-50 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition-colors"
+          >
+            <Sliders size={13} />
+            SEO Center
+          </button>
+
+          {/* Duplicate */}
+          <button
+            type="button"
+            onClick={() => duplicate(episode)}
+            disabled={saving}
+            title={`Duplicate ${episode.title}`}
+            className="grid h-9 w-9 place-items-center rounded-xl border border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100 hover:text-amber-700 disabled:opacity-40"
+          >
+            <Copy size={14} />
+          </button>
+
+          {/* Edit */}
+          <button
+            type="button"
+            onClick={() => startEdit(episode)}
+            title={`Edit ${episode.title}`}
+            className="grid h-9 w-9 place-items-center rounded-xl border border-blue-200 bg-blue-50 text-xs font-bold text-[#02236E] hover:bg-blue-100 transition-colors"
+          >
+            <Pencil size={13} />
+          </button>
+
+          {/* Delete */}
+          <button
+            type="button"
+            onClick={() => remove(episode)}
+            disabled={saving}
+            title={`Delete ${episode.title}`}
+            className="grid h-9 w-9 place-items-center rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 disabled:opacity-40"
+          >
+            <Trash2 size={14} />
+          </button>
+
+          <button type="button" onClick={() => move(index, index - 1)} disabled={!index || reordering} aria-label={`Move ${episode.title} up`} className="rounded-lg border border-slate-300 p-2 disabled:opacity-30"><ChevronUp size={15} /></button>
+          <button type="button" onClick={() => move(index, index + 1)} disabled={index === episodes.length - 1 || reordering} aria-label={`Move ${episode.title} down`} className="rounded-lg border border-slate-300 p-2 disabled:opacity-30"><ChevronDown size={15} /></button>
+        </div></div>)}</div>}
       {reordering && <p className="border-t border-slate-100 p-3 text-xs text-slate-500">Saving new episode order…</p>}
     </section>
+
+    {selectedSeoPodcast && (
+      <SeoCenterModal
+        isOpen={Boolean(selectedSeoPodcast)}
+        onClose={() => setSelectedSeoPodcast(null)}
+        pageData={selectedSeoPodcast}
+        onSaveSuccess={() => {
+          load();
+        }}
+      />
+    )}
   </div>;
 }

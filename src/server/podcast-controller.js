@@ -52,7 +52,7 @@ export async function getPublishedPodcasts(_req, res) {
 }
 export async function getPublishedPodcastBySlug(slug) {
   await ensurePodcastSeo();
-  const [rows] = await pool.query(`SELECT ${fields} ${joined} WHERE p.is_published=1 AND p.slug=? LIMIT 1`, [slug]);
+  const [rows] = await pool.query(`SELECT ${fields} ${joined} WHERE p.is_published=1 AND (p.slug=? OR p.youtube_id=?) LIMIT 1`, [slug, slug]);
   return rows[0] || null;
 }
 export async function listAdminPodcasts(_req, res) {
