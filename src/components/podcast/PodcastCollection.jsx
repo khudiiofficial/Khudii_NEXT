@@ -51,7 +51,7 @@ export default function PodcastCollection({
   }, [limit, selectedIds]);
 
   return (
-    <section className="mx-auto w-full max-w-[1440px] px-5 py-12 md:py-16" aria-label="Khudii podcast episodes">
+    <section className="mx-auto w-full max-w-[1240px] px-5 py-12 md:py-16" aria-label="Khudii podcast episodes">
       {/* Header Section with optional Title and Action Button */}
       {(showTitle !== false && Boolean(heading)) || (showButton !== false && Boolean(buttonText)) ? (
         <div className="relative mb-8">
