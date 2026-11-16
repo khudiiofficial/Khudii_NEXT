@@ -591,7 +591,6 @@ export default function PagesListPage() {
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 text-xs font-bold text-[#02236E] hover:bg-blue-100"
                       >
                         <Pencil size={13} />
-                        Edit Sections
                       </Link>
                       <button
                         type="button"

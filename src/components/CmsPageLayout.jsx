@@ -60,31 +60,89 @@ export default function CmsPageLayout({ slug, children }) {
   const defaults = useMemo(() => defaultSections(slug), [slug]);
   const [saved, setSaved] = useState(null);
   const [dynamicSections, setDynamicSections] = useState(null);
+
   useEffect(() => {
-    let alive = true; setSaved(null); setDynamicSections(null);
+    let alive = true;
+    setSaved(null);
+    setDynamicSections(null);
+
     fetch(`${base}/cms/page?slug=${encodeURIComponent(slug)}`, { cache: 'no-store' })
       .then(async r => { if (!r.ok) throw Error('unavailable'); return r.json(); })
       .then(j => { if (alive && Array.isArray(j.sections)) setSaved(j.sections); })
       .catch(() => { });
-    if (slug !== '@global' && !slug.includes('[')) fetch(`${base}/cms/v2/page?path=${encodeURIComponent(slug)}`, { cache: 'no-store' })
-      .then(async r => r.ok ? r.json() : null)
-      .then(result => { if (!alive || !result?.data?.sections?.length) return; setDynamicSections(result.data.sections.map(s => ({ id: s.section_key, source: s.source_key || '', kind: s.section_type, title: s.title, visible: !!s.is_published, data: s.payload?.data || s.payload || {} }))); })
-      .catch(() => { });
+
+    if (slug !== '@global' && !slug.includes('[')) {
+      fetch(`${base}/cms/v2/page?path=${encodeURIComponent(slug)}`, { cache: 'no-store' })
+        .then(async r => r.ok ? r.json() : null)
+        .then(result => {
+          if (!alive || !result?.data?.sections?.length) return;
+          setDynamicSections(result.data.sections.map((s, sIdx) => {
+            let source = s.source_key || '';
+            if (!source && definition) {
+              const byTitle = definition.sections.find(d => d.title?.toLowerCase() === s.title?.toLowerCase());
+              if (byTitle) source = byTitle.key;
+              else if ((s.section_type === 'existing' || String(s.section_key).includes('existing')) && definition.sections[sIdx]) {
+                source = definition.sections[sIdx].key;
+              }
+            }
+            return {
+              id: s.section_key,
+              source,
+              kind: s.section_type,
+              title: s.title,
+              visible: !!s.is_published,
+              data: s.payload?.data || s.payload || {}
+            };
+          }));
+        })
+        .catch(() => { });
+    }
+
     return () => { alive = false; };
-  }, [slug]);
+  }, [slug, definition]);
+
   if (!definition) return <>{children}</>;
+
   let sections = dynamicSections || saved || defaults;
   if (slug === '@global' && !sections.some(s => s.source === 'body')) {
     const index = sections.findIndex(s => s.source === 'footer'), body = defaults.find(s => s.source === 'body');
-    sections = [...sections]; sections.splice(index >= 0 ? index : sections.length, 0, body);
+    sections = [...sections];
+    sections.splice(index >= 0 ? index : sections.length, 0, body);
   }
+
   const matched = new Set();
-  const output = sections.filter(s => s.source === 'body' || s.visible !== false).map(s => {
-    const idx = definition.sections.findIndex(d => d.key === s.source);
-    if (idx >= 0 && originals[idx]) { matched.add(idx); return <React.Fragment key={s.id}>{originals[idx]}</React.Fragment>; }
+  const output = sections.filter(s => s.source === 'body' || s.visible !== false).map((s, sIdx) => {
+    // 1. Try matching by key
+    let idx = definition.sections.findIndex(d => d.key === s.source);
+    // 2. Try matching by title
+    if (idx < 0 && s.title) {
+      idx = definition.sections.findIndex(d => d.title?.toLowerCase() === s.title?.toLowerCase());
+    }
+    // 3. Try matching by existing slot pattern or slot index
+    if (idx < 0 && (s.kind === 'existing' || String(s.id).includes('existing'))) {
+      const match = String(s.id).match(/existing-(\d+)/);
+      if (match) {
+        const slotIdx = parseInt(match[1], 10) - 1;
+        if (slotIdx >= 0 && slotIdx < definition.sections.length) idx = slotIdx;
+      } else if (sIdx < definition.sections.length) {
+        idx = sIdx;
+      }
+    }
+
+    if (idx >= 0 && originals[idx]) {
+      matched.add(idx);
+      return <React.Fragment key={s.id || idx}>{originals[idx]}</React.Fragment>;
+    }
     if (idx >= 0) return null;
-    return <CmsAddedSection key={s.id} item={s} />;
+    return <CmsAddedSection key={s.id || sIdx} item={s} />;
   });
-  originals.forEach((node, idx) => { if (idx >= definition.sections.length && !matched.has(idx)) output.push(<React.Fragment key={`unmapped-${idx}`}>{node}</React.Fragment>); });
+
+  // Guarantee that any unmatched original slot is never dropped
+  originals.forEach((node, idx) => {
+    if (!matched.has(idx)) {
+      output.push(<React.Fragment key={`orig-unmatched-${idx}`}>{node}</React.Fragment>);
+    }
+  });
+
   return <>{output}</>;
 }

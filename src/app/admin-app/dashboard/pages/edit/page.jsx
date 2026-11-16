@@ -763,7 +763,7 @@ function PageEditorContent() {
             <ArrowLeft size={13} /> Back to Pages
           </Link>
           <span className="text-slate-300">|</span>
-          <h1 className="text-lg font-black text-slate-900 m-0 tracking-tight">
+          <h1 className="text-lg font-bold text-[#02236E] m-0 tracking-tight">
             {pageInfo.title || 'Page Editor'}
           </h1>
         </div>
@@ -773,7 +773,7 @@ function PageEditorContent() {
           <button
             type="button"
             onClick={() => setSeoCenterOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-50 text-[#02236E] border border-emerald-300 text-xs font-extrabold hover:bg-[#02236E] hover:text-white transition-all cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-50 text-[#02236E] border border-emerald-300 text-xs font-bold hover:bg-emerald-600 hover:text-white transition-all cursor-pointer shadow-2xs"
           >
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Page SEO</span>
@@ -988,10 +988,10 @@ function PageEditorContent() {
                     }
                     setDirty(true);
                   }}
-                  className="text-[10px] font-bold text-amber-700 hover:bg-amber-100 bg-amber-50 px-2 py-0.5 rounded cursor-pointer border border-amber-300 transition-colors"
-                  title="Highlight words in gold/accent"
+                  className="text-[10px] font-bold text-[#02236E] hover:bg-blue-100 bg-blue-50 px-2 py-0.5 rounded cursor-pointer border border-amber-300 transition-colors"
+                  title="Highlight words in Blue"
                 >
-                  ✨ Gold Words
+                  ✨ Blue Words
                 </button>
               </div>
               <input
@@ -1418,7 +1418,7 @@ function PageEditorContent() {
                                   : 'bg-blue-50 text-[#02236E] border-blue-200 hover:bg-blue-100'
                               }`}
                             >
-                              {isExpanded ? 'Close Editor' : '✎ Edit Section'}
+                              {isExpanded ? 'Close' : '✎'}
                             </button>
 
                             {/* Delete Button */}
