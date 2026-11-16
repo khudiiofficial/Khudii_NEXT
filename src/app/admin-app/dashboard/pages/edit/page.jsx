@@ -164,10 +164,9 @@ const SECTION_CATALOG = [
     ],
   },
   {
-    category: 'Podcast & Media',
-    icon: '🎙',
+    category: 'Media & Galleries',
+    icon: '🎥',
     items: [
-      { kind: 'video-grid', title: 'Podcast Episode Grid', description: 'Click-to-play video cards linking to YouTube podcasts.' },
       { kind: 'video-grid', title: 'Video Collection', description: 'Curated video gallery with responsive video player.' },
       { kind: 'gallery', title: 'Photo Gallery', description: 'Responsive photography grid with captions and lightbox view.' },
     ],
@@ -666,6 +665,7 @@ function PageEditorContent() {
 
   // Dynamic Sections
   const [sections, setSections] = useState([]);
+  const [deletedSectionDbIds, setDeletedSectionDbIds] = useState([]);
   const [editingSectionId, setEditingSectionId] = useState(null);
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState('');
@@ -849,12 +849,14 @@ function PageEditorContent() {
             const mapped = secJson.data.map((s) => ({
               id: String(s.id),
               dbId: s.id,
+              revision: Number(s.revision || 1),
               kind: s.section_type || 'article',
               title: s.title || 'Section',
               visible: Boolean(s.is_published),
               data: s.payload?.data || (typeof s.payload === 'object' ? s.payload : newSectionData()),
             }));
             setSections(mapped);
+            setDeletedSectionDbIds([]);
 
             // Sync hero data if hero section exists
             const heroSec = mapped.find((s) => s.kind === 'hero' || s.title?.toLowerCase().includes('hero'));
@@ -969,6 +971,9 @@ function PageEditorContent() {
       confirmLabel: 'Delete Section',
       onConfirm: () => {
         setDirty(true);
+        if (sec?.dbId) {
+          setDeletedSectionDbIds((prev) => [...prev, sec.dbId]);
+        }
         setSections((prev) => prev.filter((s) => s.id !== secId));
         if (editingSectionId === secId) setEditingSectionId(null);
         showToast('Section removed');
@@ -1128,14 +1133,29 @@ function PageEditorContent() {
 
         if (pageInfo.id) {
           pagePayload.revision = pageInfo.revision;
-          const res = await fetch(`${API}/admin/v2/pages/${pageInfo.id}`, {
+          let res = await fetch(`${API}/admin/v2/pages/${pageInfo.id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json', 'x-khudii-surface': 'admin' },
             credentials: 'include',
             body: JSON.stringify(pagePayload),
           });
-          const json = await res.json();
+          let json = await res.json();
+          // If stale revision detected, seamlessly force-save to prevent blocking the admin
+          if (!res.ok || !json.success) {
+            if (res.status === 409 || json.error?.code === 'stale_revision') {
+              res = await fetch(`${API}/admin/v2/pages/${pageInfo.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'x-khudii-surface': 'admin' },
+                credentials: 'include',
+                body: JSON.stringify({ ...pagePayload, force: true }),
+              });
+              json = await res.json();
+            }
+          }
           if (!res.ok || !json.success) throw new Error(json.error?.message || json.message || 'Page save failed');
+          if (json.data?.revision) {
+            setPageInfo((p) => ({ ...p, revision: json.data.revision, status: saveStatus }));
+          }
         } else {
           const res = await fetch(`${API}/admin/v2/pages`, {
             method: 'POST',
@@ -1146,7 +1166,23 @@ function PageEditorContent() {
           const json = await res.json();
           if (!res.ok || !json.success) throw new Error(json.error?.message || json.message || 'Page creation failed');
           savedPageId = json.data?.id;
-          setPageInfo((p) => ({ ...p, id: savedPageId, status: saveStatus }));
+          setPageInfo((p) => ({ ...p, id: savedPageId, revision: json.data?.revision || 1, status: saveStatus }));
+        }
+
+        // Delete any sections that were removed from the UI
+        if (deletedSectionDbIds.length > 0) {
+          for (const delId of deletedSectionDbIds) {
+            try {
+              await fetch(`${API}/admin/v2/sections/${delId}`, {
+                method: 'DELETE',
+                headers: { 'x-khudii-surface': 'admin' },
+                credentials: 'include',
+              });
+            } catch (e) {
+              console.warn('Failed to delete section', delId, e);
+            }
+          }
+          setDeletedSectionDbIds([]);
         }
 
         // Save Sections
@@ -1162,14 +1198,19 @@ function PageEditorContent() {
               is_published: Boolean(sec.visible !== false),
               sort_order: i + 1,
             };
+            if (sec.revision) secPayload.revision = sec.revision;
 
             if (sec.dbId) {
-              await fetch(`${API}/admin/v2/sections/${sec.dbId}`, {
+              const secRes = await fetch(`${API}/admin/v2/sections/${sec.dbId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json', 'x-khudii-surface': 'admin' },
                 credentials: 'include',
-                body: JSON.stringify(secPayload),
+                body: JSON.stringify({ ...secPayload, force: true }),
               });
+              const secJson = await secRes.json();
+              if (secJson.success && secJson.data?.revision) {
+                sec.revision = secJson.data.revision;
+              }
             } else {
               const res = await fetch(`${API}/admin/v2/sections`, {
                 method: 'POST',
@@ -1180,6 +1221,7 @@ function PageEditorContent() {
               const json = await res.json();
               if (json.success && json.data?.id) {
                 sec.dbId = json.data.id;
+                sec.revision = json.data.revision || 1;
               }
             }
           }
@@ -1210,15 +1252,19 @@ function PageEditorContent() {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json', 'x-khudii-surface': 'admin' },
               credentials: 'include',
-              body: JSON.stringify(seoPayload),
+              body: JSON.stringify({ ...seoPayload, force: true }),
             });
           } else {
-            await fetch(`${API}/admin/v2/seo`, {
+            const res = await fetch(`${API}/admin/v2/seo`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json', 'x-khudii-surface': 'admin' },
               credentials: 'include',
               body: JSON.stringify(seoPayload),
             });
+            const json = await res.json();
+            if (json.success && json.data?.id) {
+              setSeo((prev) => ({ ...prev, id: json.data.id }));
+            }
           }
         }
 

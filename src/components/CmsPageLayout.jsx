@@ -217,6 +217,16 @@ export default function CmsPageLayout({ slug, children }) {
     sections.splice(index >= 0 ? index : sections.length, 0, body);
   }
 
+  const SLOT_KIND_MAP = {
+    'podcast-grid': ['episodes'],
+    'blogs': ['listing', 'blogs'],
+    'organizations': ['directory', 'organizations'],
+    'stories': ['stories'],
+    'faq': ['faq-list', 'faq'],
+    'carousel': ['carousel'],
+    'video-grid': ['gallery'],
+  };
+
   const matched = new Set();
   const output = sections.filter(s => s.source === 'body' || s.visible !== false).map((s, sIdx) => {
     // 1. Try matching by key
@@ -241,15 +251,27 @@ export default function CmsPageLayout({ slug, children }) {
       return <React.Fragment key={s.id || idx}>{originals[idx]}</React.Fragment>;
     }
     if (idx >= 0) return null;
+
+    // If an added connected module replaces a native slot (e.g. podcast-grid on /podcast replaces episodes),
+    // mark that native slot as matched so it does not duplicate as an unmapped original
+    if (SLOT_KIND_MAP[s.kind]) {
+      const nativeSlotIdx = definition.sections.findIndex(d => SLOT_KIND_MAP[s.kind].includes(d.key));
+      if (nativeSlotIdx >= 0) {
+        matched.add(nativeSlotIdx);
+      }
+    }
+
     return <CmsAddedSection key={s.id || sIdx} item={s} />;
   });
 
-  // Guarantee that any unmatched original slot is never dropped
-  originals.forEach((node, idx) => {
-    if (!matched.has(idx)) {
-      output.push(<React.Fragment key={`orig-unmatched-${idx}`}>{node}</React.Fragment>);
-    }
-  });
+  // Guarantee that any unmatched original slot is preserved when dynamicSections is not active
+  if (!dynamicSections) {
+    originals.forEach((node, idx) => {
+      if (!matched.has(idx)) {
+        output.push(<React.Fragment key={`orig-unmatched-${idx}`}>{node}</React.Fragment>);
+      }
+    });
+  }
 
   return <>{output}</>;
 }

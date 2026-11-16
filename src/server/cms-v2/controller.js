@@ -124,15 +124,17 @@ export const updateV2 = safeHandler(async(req,res)=>{
   const resource=req.params.resource,def=collection(resource);await permitted(req,def.write);originCheck(req);
   const id=idValue(req.params.id,false),fields=validatePayload(resource,req.body,'update');if(resource==='pages' && fields.status==='published')await permitted(req,'pages.publish');
   const version=fields.revision;delete fields.revision;
-  if(version==null && !['categories','navigation'].includes(resource))fail(422,'revision_required','Current revision is required to prevent lost edits');
+  const force=Boolean(req.body?.force);
   if(!Object.keys(fields).length)fail(422,'no_changes','No editable values supplied');
   const conn=await pool.getConnection();let before,saved;
   try{await conn.beginTransaction();before=await recordById(conn,def,id,true);if(!before)fail(404,'not_found','Record not found');
-    if(resource!=='categories'&&resource!=='navigation' && Number(before.revision)!==version)fail(409,'stale_revision','Record changed since you opened it');
+    if(!force && version!=null && !['categories','navigation'].includes(resource) && before.revision!=null && Number(before.revision)!==version){
+      fail(409,'stale_revision','Record changed since you opened it');
+    }
     await relationships(conn,resource,fields,before,id);
     const updates=Object.keys(fields).map(k=>'`'+k+'`=?');const params=Object.values(fields);
     if(resource==='pages'){updates.push('updated_by=?');params.push(req.user.id);}
-    if(!['categories','navigation'].includes(resource))updates.push('revision=revision+1');
+    if(!['categories','navigation'].includes(resource) && before.revision!=null)updates.push('revision=revision+1');
     await query(conn,`UPDATE ${def.table} SET ${updates.join(',')} WHERE id=?`,[...params,id]);
     saved=await recordById(conn,def,id);await audit(conn,req,resource,id,'update',before,saved);await conn.commit();
   }catch(error){await conn.rollback();throw error;}finally{conn.release();}

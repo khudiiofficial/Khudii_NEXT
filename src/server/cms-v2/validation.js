@@ -55,6 +55,7 @@ export function validatePayload(resource, payload, mode='create') {
   const out={};
   for(const [key,value] of Object.entries(payload)) {
     if(key==='revision' && mode!=='create') { out.revision=idValue(value,false); continue; }
+    if(key==='force') continue;
     if(!def.fields.includes(key))fail(422,'invalid_field',`Unsupported field: ${key}`,{[key]:'Unsupported field'});
     if(value===null){out[key]=null;continue;}
     if(booleans.has(key)){if(typeof value !== 'boolean')fail(422,'invalid_boolean',`${key} must be true or false`);out[key]=value?1:0;continue;}
