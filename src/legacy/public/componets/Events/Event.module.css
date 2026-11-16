@@ -193,15 +193,15 @@
         max-width: 300px;
     }
 
-:global(button){
+.class1 :global(button){
     padding: 10px 10px;
 }
 
-:global(button >svg) {
+.class1 :global(button >svg) {
 height: 10px;
 width: 10px;
 }
-:global(button>span){
+.class1 :global(button>span){
     font-size: 10px;
 }
 }

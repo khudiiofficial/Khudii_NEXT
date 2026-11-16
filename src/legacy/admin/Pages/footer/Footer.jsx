@@ -1,3 +1,4 @@
+import { adminConfirm } from '@/lib/admin-dialogs';
 // src/components/FooterAdmin.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -137,7 +138,7 @@ setcap('')
   };
 
   const handleDeleteImage = async (imageType) => {
-    if (!window.confirm(`Are you sure you want to delete the ${imageType} image?`)) {
+    if (!(await adminConfirm(`Are you sure you want to delete the ${imageType} image?`))) {
       return;
     }
 

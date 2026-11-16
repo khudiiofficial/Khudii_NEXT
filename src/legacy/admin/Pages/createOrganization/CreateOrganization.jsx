@@ -174,8 +174,8 @@
 //       validationRules.introductory_image_base64
 //     );
 //     newErrors.youtube_video_url = validateField('youtube_video_url', form.youtube_video_url, validationRules.youtube_video_url);
-    
-  
+
+
 //     // URLs validation
 //     newErrors.urls = [];
 //     form.urls.forEach((url, index) => {
@@ -206,7 +206,7 @@
 //         iconErrors.name = validateField("name", icon.name, validationRules.icons.name);
 //         iconErrors.svg = validateField("svg", icon.svg, validationRules.icons.svg);
 //         iconErrors.qty = validateField("qty", icon.qty, validationRules.icons.qty);
-        
+
 //         if (iconErrors.name.length > 0 || iconErrors.svg.length > 0 || iconErrors.qty.length > 0) {
 //           newErrors.icons[index] = iconErrors;
 //         }
@@ -296,7 +296,7 @@
 //   // Multiple images upload
 //   const handleImagesChange = (e) => {
 //     const files = Array.from(e.target.files);
-    
+
 //     // Validate total files
 //     if (form.images_base64.length + files.length > 10) {
 //       alert("Maximum 10 images allowed");
@@ -418,7 +418,7 @@
 //       await axios.post(`${APIPath}/api/organizations`, form, {
 //         withCredentials: true,
 //       });
-//       alert("✅ Organization created successfully!");
+//       alert("✅ Organization Created Successfully!");
 //       // Reset form
 //       setForm({
 //         name: "",
@@ -460,7 +460,7 @@
 //   // Helper function to render error messages
 //   const renderErrors = (errorArray) => {
 //     if (!errorArray || errorArray.length === 0) return null;
-    
+
 //     return (
 //       <div className="mt-1 space-y-1">
 //         {errorArray.map((error, index) => (
@@ -479,14 +479,14 @@
 //         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 //           <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Organization</h1>
 //           <p className="text-gray-600 mb-6">Fill in the details below to create a new organization</p>
-          
+
 //           <form onSubmit={handleSubmit} className="space-y-8">
 //             <input type="hidden" onChange={(e)=>{setcaptch(e.target.value)}} />
-            
+
 //             {/* Basic Fields */}
 //             <div className="space-y-4">
 //               <h2 className="text-xl font-semibold text-gray-800 border-b pb-2">Basic Information</h2>
-              
+
 //               <div>
 //                 <label className="block text-sm font-medium text-gray-700 mb-1">
 //                   Organization Name *
@@ -597,13 +597,13 @@
 //                           type="checkbox"
 //                           checked={form.category.includes(cat.name)}
 //                           onChange={() => handleCategoryChange(cat.name)}
-//                           className="h-4 w-4 text-[#02236e] focus:ring-blue-500 border-gray-300 rounded"
+//                           className="h-4 w-4 text-[#02236E] focus:ring-blue-500 border-gray-300 rounded"
 //                         />
 //                         <span className="text-sm text-gray-700">{cat.name}</span>
 //                       </label>
 //                     ))}
 //                   </div>
-                  
+
 //                   {/* Selected categories display */}
 //                   {form.category.length > 0 && (
 //                     <div className="mt-4 pt-3 border-t border-gray-200">
@@ -639,7 +639,7 @@
 //             {/* SEO Fields */}
 //             <div className="space-y-4">
 //               <h2 className="text-xl font-semibold text-gray-800 border-b pb-2">SEO Information</h2>
-              
+
 //               <div>
 //                 <label className="block text-sm font-medium text-gray-700 mb-1">
 //                   Meta Title
@@ -692,7 +692,7 @@
 //             {/* Intro Image */}
 //             <div className="space-y-4">
 //               <h2 className="text-xl font-semibold text-gray-800 border-b pb-2">Images</h2>
-              
+
 //               <div>
 //                 <label className="block text-sm font-medium text-gray-700 mb-2">
 //                   Introductory Image *
@@ -701,7 +701,7 @@
 //                   type="file" 
 //                   onChange={handleIntroImageChange}
 //                   accept="image/*"
-//                   className="cursor-pointer block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#02236e] hover:file:bg-blue-100"
+//                   className="cursor-pointer block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#02236E] hover:file:bg-blue-100"
 //                 />
 //                 <p className="text-xs text-gray-500 mt-1">Supported formats: JPEG, PNG, WebP. Max size: 5MB</p>
 //                 {renderErrors(errors.introductory_image_base64)}
@@ -727,7 +727,7 @@
 //                   multiple 
 //                   onChange={handleImagesChange}
 //                   accept="image/*"
-//                   className="cursor-pointer block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#02236e] hover:file:bg-blue-100"
+//                   className="cursor-pointer block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#02236E] hover:file:bg-blue-100"
 //                 />
 //                 <p className="text-xs text-gray-500 mt-1">You can upload up to 10 additional images</p>
 //                 {form.images_base64.length > 0 && (
@@ -761,7 +761,7 @@
 //                       value={form.socials[key]}
 //                       onChange={handleSocialChange}
 //                       placeholder={`Enter ${key} ${key==='Googlemap'? "(<iframe>...</iframe>)":''}`}
-//                       className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#02236e] focus:border-[#02236e] ${
+//                       className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#02236E] focus:border-[#02236E] ${
 //                         errors.socials?.[key]?.length ? 'border-red-500' : 'border-gray-300'
 //                       }`}
 //                     />
@@ -900,10 +900,10 @@ export default function CreateOrganizationPage() {
       location: "",
       googlemap: "",
       mobile: "",
-      website:"",
-      youtubechannel:"",
-      email:"",
-      linkedin:""
+      website: "",
+      youtubechannel: "",
+      email: "",
+      linkedin: ""
     },
     icons: [{ name: "", svg: "", qty: "" }],
   });
@@ -1042,17 +1042,17 @@ export default function CreateOrganizationPage() {
     newErrors.category = validateField("category", form.category, validationRules.category);
     newErrors.search_tags = validateField("search_tags", form.search_tags, validationRules.search_tags);
     newErrors.introductory_image_base64 = validateField(
-      "introductory_image_base64", 
-      form.introductory_image_base64, 
+      "introductory_image_base64",
+      form.introductory_image_base64,
       validationRules.introductory_image_base64
     );
     newErrors.youtube_video_url = validateField('youtube_video_url', form.youtube_video_url, validationRules.youtube_video_url);
-    
+
     // Partner image validation (only dimension check, not required)
     if (form.partner_image) {
       // Dimension validation will be handled separately
     }
-    
+
     // URLs validation
     newErrors.urls = [];
     form.urls.forEach((url, index) => {
@@ -1083,7 +1083,7 @@ export default function CreateOrganizationPage() {
         iconErrors.name = validateField("name", icon.name, validationRules.icons.name);
         iconErrors.svg = validateField("svg", icon.svg, validationRules.icons.svg);
         iconErrors.qty = validateField("qty", icon.qty, validationRules.icons.qty);
-        
+
         if (iconErrors.name.length > 0 || iconErrors.svg.length > 0 || iconErrors.qty.length > 0) {
           newErrors.icons[index] = iconErrors;
         }
@@ -1091,7 +1091,7 @@ export default function CreateOrganizationPage() {
     });
 
     setErrors(newErrors);
-    return !Object.values(newErrors).some(error => 
+    return !Object.values(newErrors).some(error =>
       Array.isArray(error) ? error.length > 0 : Object.keys(error).length > 0
     );
   };
@@ -1100,13 +1100,13 @@ export default function CreateOrganizationPage() {
   const checkImageDimensions = (base64Image) => {
     return new Promise((resolve, reject) => {
       const img = new Image();
-      img.onload = function() {
+      img.onload = function () {
         resolve({
           width: this.width,
           height: this.height
         });
       };
-      img.onerror = function() {
+      img.onerror = function () {
         reject(new Error('Failed to load image'));
       };
       img.src = base64Image;
@@ -1125,17 +1125,17 @@ export default function CreateOrganizationPage() {
     const reader = new FileReader();
     reader.onloadend = async () => {
       const base64Result = reader.result;
-      
+
       // Only check dimensions for partner_image
       if (fieldName === 'partner_image') {
         try {
           // Check image dimensions
           const dimensions = await checkImageDimensions(base64Result);
-          
+
           if (dimensions.width !== 300 || dimensions.height !== 300) {
             throw new Error(`Partner image must be exactly 300x300 pixels. Current dimensions: ${dimensions.width}x${dimensions.height}px`);
           }
-          
+
           // If dimensions are correct, call the callback
           callback(base64Result);
         } catch (error) {
@@ -1253,7 +1253,7 @@ export default function CreateOrganizationPage() {
   // Multiple images upload
   const handleImagesChange = (e) => {
     const files = Array.from(e.target.files);
-    
+
     if (form.images_base64.length + files.length > 10) {
       showWarning("Maximum 10 images allowed");
       return;
@@ -1332,7 +1332,7 @@ export default function CreateOrganizationPage() {
     if (errors.icons?.[index]?.[field]) {
       setErrors(prev => ({
         ...prev,
-        icons: prev.icons.map((iconError, i) => 
+        icons: prev.icons.map((iconError, i) =>
           i === index ? { ...iconError, [field]: [] } : iconError
         )
       }));
@@ -1382,7 +1382,7 @@ export default function CreateOrganizationPage() {
 
       console.log("Organization response:", response.data);
 
-      showSuccessAlert("Organization created successfully!");
+      showSuccessAlert("Organization Created Successfully!");
 
       setForm({
         name: "",
@@ -1443,7 +1443,7 @@ export default function CreateOrganizationPage() {
   // Helper function to render error messages
   const renderErrors = (errorArray) => {
     if (!errorArray || errorArray.length === 0) return null;
-    
+
     return (
       <div className="mt-1 space-y-1">
         {errorArray.map((error, index) => (
@@ -1457,19 +1457,19 @@ export default function CreateOrganizationPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div className="kh-video-editor-wrap">
+      <div className="kh-video-editor-wrap">
+        <div className="kh-video-editor-content">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Organization</h1>
           <p className="text-gray-600 mb-6">Fill In The Details Below To Create A New Organization</p>
-          
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <input type="hidden" onChange={(e)=>{setcaptch(e.target.value)}} />
-            
+
+          <form onSubmit={handleSubmit} className="kh-video-editor-form kh-video-editor-org">
+            <input type="hidden" onChange={(e) => { setcaptch(e.target.value) }} />
+
             {/* Basic Fields */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-gray-800 border-b pb-2">Basic Information</h2>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Organization Name *
@@ -1478,14 +1478,13 @@ export default function CreateOrganizationPage() {
                   type="text"
                   placeholder="Enter Organization Name"
                   value={(form.name) ?? ''}
-                  onChange={(e) => setForm({ 
-                    ...form, 
+                  onChange={(e) => setForm({
+                    ...form,
                     name: e.target.value,
                     slug: generateSlug(e.target.value)
                   })}
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.name?.length ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.name?.length ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   required
                 />
                 {renderErrors(errors.name)}
@@ -1500,9 +1499,8 @@ export default function CreateOrganizationPage() {
                   placeholder="Organization Slug"
                   value={(form.slug) ?? ''}
                   onChange={(e) => setForm({ ...form, slug: e.target.value })}
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.slug?.length ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.slug?.length ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   required
                 />
                 <p className="text-xs text-[#009dc8] mt-1">
@@ -1515,7 +1513,7 @@ export default function CreateOrganizationPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Description *
                 </label>
-                <RichTextEditor form={form} setForm={setForm}/>
+                <RichTextEditor form={form} setForm={setForm} />
                 {renderErrors(errors.description)}
               </div>
 
@@ -1528,9 +1526,8 @@ export default function CreateOrganizationPage() {
                   placeholder="Enter Search Tags Separated by Commas (e.g., Charity, Donation, Help)"
                   value={(form.search_tags) ?? ''}
                   onChange={(e) => setForm({ ...form, search_tags: e.target.value })}
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.search_tags?.length ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.search_tags?.length ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   Add relevant keywords to help users find this organization. Separate with commas.
@@ -1547,9 +1544,8 @@ export default function CreateOrganizationPage() {
                   placeholder="Enter Organization Video (<iframe>...</iframe>)"
                   value={(form.youtube_video_url) ?? ''}
                   onChange={(e) => setForm({ ...form, youtube_video_url: e.target.value })}
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.youtube_video_url?.length ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.youtube_video_url?.length ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   required
                 />
                 {renderErrors(errors.youtube_video_url)}
@@ -1560,9 +1556,8 @@ export default function CreateOrganizationPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-3">
                   Categories * (Select one or more)
                 </label>
-                <div className={`p-4 border rounded-lg ${
-                  errors.category?.length ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'
-                }`}>
+                <div className={`p-4 border rounded-lg ${errors.category?.length ? 'border-red-500 bg-red-50' : 'border-gray-300 bg-gray-50'
+                  }`}>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {availableCategories.map((cat) => (
                       <label key={cat.name} className="flex items-center space-x-3 cursor-pointer">
@@ -1570,20 +1565,20 @@ export default function CreateOrganizationPage() {
                           type="checkbox"
                           checked={form.category.includes(cat.name)}
                           onChange={() => handleCategoryChange(cat.name)}
-                          className="h-4 w-4 text-[#02236e] focus:ring-blue-500 border-gray-300 rounded"
+                          className="h-4 w-4 text-[#02236E] focus:ring-blue-500 border-gray-300 rounded"
                         />
                         <span className="text-sm text-gray-700">{cat.name}</span>
                       </label>
                     ))}
                   </div>
-                  
+
                   {form.category.length > 0 && (
                     <div className="mt-4 pt-3 border-t border-gray-200">
                       <p className="text-sm font-medium text-[#222222] mb-2">Selected Categories:</p>
                       <div className="flex flex-wrap gap-2">
                         {form.category.map((cat) => (
-                          <span 
-                            key={cat} 
+                          <span
+                            key={cat}
                             className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
                           >
                             {cat}
@@ -1610,7 +1605,7 @@ export default function CreateOrganizationPage() {
             {/* SEO Fields */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-gray-800 border-b pb-2">SEO Information</h2>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Meta Title
@@ -1620,9 +1615,8 @@ export default function CreateOrganizationPage() {
                   placeholder="Enter Meta Title for SEO"
                   value={(form.meta_title) ?? ''}
                   onChange={(e) => setForm({ ...form, meta_title: e.target.value })}
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.meta_title?.length ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.meta_title?.length ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 />
                 {renderErrors(errors.meta_title)}
               </div>
@@ -1636,9 +1630,8 @@ export default function CreateOrganizationPage() {
                   value={(form.meta_description) ?? ''}
                   onChange={(e) => setForm({ ...form, meta_description: e.target.value })}
                   rows={3}
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.meta_description?.length ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.meta_description?.length ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 />
                 {renderErrors(errors.meta_description)}
               </div>
@@ -1652,9 +1645,8 @@ export default function CreateOrganizationPage() {
                   placeholder="keyword1, keyword2, keyword3"
                   value={(form.meta_keywords) ?? ''}
                   onChange={(e) => setForm({ ...form, meta_keywords: e.target.value })}
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.meta_keywords?.length ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.meta_keywords?.length ? 'border-red-500' : 'border-gray-300'
+                    }`}
                 />
                 {renderErrors(errors.meta_keywords)}
               </div>
@@ -1663,16 +1655,16 @@ export default function CreateOrganizationPage() {
             {/* Images Section - ADDED Partner Image */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold text-[#222222] border-b pb-2">Images</h2>
-              
+
               <div>
                 <label className="block text-md font-medium [#222222] mb-2">
                   Org. Grid Image *
                 </label>
-                <input 
-                  type="file" 
+                <input
+                  type="file"
                   onChange={handleIntroImageChange}
                   accept="image/*"
-                  className="cursor-pointer block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#02236e] hover:file:bg-blue-100"
+                  className="cursor-pointer block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#02236E] hover:file:bg-blue-100"
                 />
                 <p className="text-xs text-[#009dc8] mt-1">Supported formats: <b>(WebP Only)</b> Max size: 5MB</p>
                 {renderErrors(errors.introductory_image_base64)}
@@ -1691,17 +1683,17 @@ export default function CreateOrganizationPage() {
               {/* ADDED: Partner Image Field */}
               <div className="py-3">
                 <label className="block text-md font-medium text-[#222222] mb-2">
-                  Partner Image 
+                  Partner Image
                 </label>
-                <input 
-                  type="file" 
+                <input
+                  type="file"
                   required
                   onChange={handlePartnerImageChange}
                   accept=".webp,image/webp"
-                  className="cursor-pointer block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#02236e] hover:file:bg-blue-100"
+                  className="cursor-pointer block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#02236E] hover:file:bg-blue-100"
                 />
                 <p className="text-xs text-[#009dc8] mt-1">
-                  Must Be Exactly 300x300px, Supported Formats: <b>(WebP Only)</b> 
+                  Must Be Exactly 300x300px, Supported Formats: <b>(WebP Only)</b>
                 </p>
                 {renderErrors(errors.partner_image)}
                 {form.partner_image && (
@@ -1731,12 +1723,12 @@ export default function CreateOrganizationPage() {
                 <label className="block text-md font-medium text-[#222222] mb-2">
                   Org. Detail Page Slider Images ({form.images_base64.length}/10)
                 </label>
-                <input 
-                  type="file" 
-                  multiple 
+                <input
+                  type="file"
+                  multiple
                   onChange={handleImagesChange}
                   accept="image/*"
-                  className="cursor-pointer block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#02236e] hover:file:bg-blue-100"
+                  className="cursor-pointer block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#02236E] hover:file:bg-blue-100"
                 />
                 <p className="text-xs text-[#009dc8] mt-1">You Can Upload Upto 10 Additional Images</p>
                 {form.images_base64.length > 0 && (
@@ -1782,10 +1774,9 @@ export default function CreateOrganizationPage() {
                       name={key}
                       value={(form.socials[key]) ?? ''}
                       onChange={handleSocialChange}
-                      placeholder={`Enter ${key} ${key==='Googlemap'? "(<iframe>...</iframe>)":''}`}
-                      className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#02236e] focus:border-[#02236e] ${
-                        errors.socials?.[key]?.length ? 'border-red-500' : 'border-gray-300'
-                      }`}
+                      placeholder={`Enter ${key} ${key === 'Googlemap' ? "(<iframe>...</iframe>)" : ''}`}
+                      className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#02236E] focus:border-[#02236E] ${errors.socials?.[key]?.length ? 'border-red-500' : 'border-gray-300'
+                        }`}
                     />
                     {renderErrors(errors.socials?.[key])}
                   </div>
@@ -1808,9 +1799,8 @@ export default function CreateOrganizationPage() {
                         value={(icon.name) ?? ''}
                         onChange={(e) => handleIconChange(i, "name", e.target.value)}
                         placeholder="Icon name"
-                        className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                          errors.icons?.[i]?.name?.length ? 'border-red-500' : 'border-gray-300'
-                        }`}
+                        className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.icons?.[i]?.name?.length ? 'border-red-500' : 'border-gray-300'
+                          }`}
                       />
                       {renderErrors(errors.icons?.[i]?.name)}
                     </div>
@@ -1821,9 +1811,8 @@ export default function CreateOrganizationPage() {
                         value={(icon.svg) ?? ''}
                         onChange={(e) => handleIconChange(i, "svg", e.target.value)}
                         placeholder="&lt;i&gt;...&lt;/i&gt;"
-                        className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                          errors.icons?.[i]?.svg?.length ? 'border-red-500' : 'border-gray-300'
-                        }`}
+                        className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.icons?.[i]?.svg?.length ? 'border-red-500' : 'border-gray-300'
+                          }`}
                       />
                       {renderErrors(errors.icons?.[i]?.svg)}
                     </div>
@@ -1835,9 +1824,8 @@ export default function CreateOrganizationPage() {
                           value={(icon.qty) ?? ''}
                           onChange={(e) => handleIconChange(i, "qty", e.target.value)}
                           placeholder="Number"
-                          className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                            errors.icons?.[i]?.qty?.length ? 'border-red-500' : 'border-gray-300'
-                          }`}
+                          className={`w-full p-2 border rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.icons?.[i]?.qty?.length ? 'border-red-500' : 'border-gray-300'
+                            }`}
                         />
                         {renderErrors(errors.icons?.[i]?.qty)}
                       </div>
@@ -1869,11 +1857,10 @@ export default function CreateOrganizationPage() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`cursor-pointer w-full sm:w-auto px-8 py-3 rounded-lg font-semibold text-white transition-colors ${
-                  isSubmitting 
-                    ? 'bg-gray-400 cursor-not-allowed' 
-                    : 'bg-[#1c5e20] hover:bg-[#247b2a] focus:ring-2 focus:ring-green-500 focus:ring-offset-2'
-                }`}
+                className={`cursor-pointer w-full sm:w-auto px-8 py-3 rounded-lg font-semibold text-white transition-colors ${isSubmitting
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-[#1c5e20] hover:bg-[#247b2a] focus:ring-2 focus:ring-green-500 focus:ring-offset-2'
+                  }`}
               >
                 {isSubmitting ? (
                   <span className="flex items-center justify-center gap-2">

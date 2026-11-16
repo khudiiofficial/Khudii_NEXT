@@ -1,3 +1,4 @@
+import { adminConfirm } from '@/lib/admin-dialogs';
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from '@/lib/router-compat';
@@ -12,7 +13,7 @@ export default function OrganizationsPage() {
   const navigate = useNavigate();
 
   const Delete = async (id, name) => {
-    if (!window.confirm(`Are you sure you want to delete Organization "${name}"? This action can not be undone `)) {
+    if (!(await adminConfirm(`Are you sure you want to delete Organization "${name}"? This action can not be undone `))) {
       return;
     }
 
@@ -32,7 +33,7 @@ export default function OrganizationsPage() {
   const getFallbackImage = (orgName) => {
     // Use picsum.photos for reliable placeholder images
     return `https://picsum.photos/400/200?random=${Math.random()}`;
-    
+
     // Alternative: If you want text on the placeholder, use this:
     // return `https://dummyimage.com/400x200/3B82F6/FFFFFF&text=${encodeURIComponent(orgName)}`;
   };
@@ -131,10 +132,10 @@ export default function OrganizationsPage() {
                     src={org.introductory_image_path}
                     alt={org.name}
                     className="w-full h-48 object-cover"
-                    // onError={(e) => {
-                    //   // Use the reliable fallback image
-                    //   e.target.src = getFallbackImage(org.name);
-                    // }}
+                  // onError={(e) => {
+                  //   // Use the reliable fallback image
+                  //   e.target.src = getFallbackImage(org.name);
+                  // }}
                   />
                 </div>
                 <div className="p-4">
@@ -147,7 +148,7 @@ export default function OrganizationsPage() {
                   <div className="flex justify-between items-center">
                     <button
                       onClick={() => navigate(`/admin-app/dashboard/edit-organization/${org.id}`)}
-                      className="cursor-pointer bg-[#02236e] text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition-colors duration-200 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      className="cursor-pointer bg-[#02236E] text-white px-4 py-2 rounded-lg hover:bg-blue-500 transition-colors duration-200 font-medium text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     >
                       Edit Organization
                     </button>

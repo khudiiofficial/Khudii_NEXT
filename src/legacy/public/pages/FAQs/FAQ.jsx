@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -71,6 +72,7 @@ try {
         url={`${url}/faqs`}
         type="FAQPage"
       />
+    <CmsPageLayout slug="/faqs">
     <PageHeader 
                    title="FAQS"
                    breadcrumbs={[
@@ -96,6 +98,7 @@ try {
         </div>
       </div>
     </section>
-    </>
+    </CmsPageLayout>
+</>
   );
 }

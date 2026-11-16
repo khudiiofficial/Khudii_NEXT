@@ -6,12 +6,20 @@ const getAllorganization = (req,res) => {
         i.partner_image,i.slug, i.meta_title, i.meta_description, i.meta_keywords,
            GROUP_CONCAT(DISTINCT img.image_path) AS images
     FROM items i
-    LEFT JOIN item_images img ON i.id = img.item_id WHERE i.deletestatus = 0
-    GROUP BY i.id ORDER BY i.id DESC
+    LEFT JOIN item_images img ON i.id = img.item_id
+    LEFT JOIN khudii_content_order ord ON ord.entity_type='organizations' AND ord.entity_id=i.id
+    WHERE i.deletestatus = 0 AND i.status = 1 AND i.deleted_at IS NULL
+    GROUP BY i.id,ord.sort_order ORDER BY CASE WHEN ord.sort_order IS NULL THEN 1 ELSE 0 END, ord.sort_order ASC, i.id DESC
   `;
 
-  db.query(sql, (err, rows) => {
-    if (err) return res.status(500).json({ error: err.message });
+  const legacySql = `
+    SELECT i.id, i.name, i.deletestatus, i.description, i.youtube_video_url, i.introductory_image_path,
+      i.partner_image, i.slug, i.meta_title, i.meta_description, i.meta_keywords,
+      GROUP_CONCAT(DISTINCT img.image_path) AS images
+    FROM items i LEFT JOIN item_images img ON i.id=img.item_id
+    WHERE i.deletestatus=0 AND i.status=1 AND i.deleted_at IS NULL GROUP BY i.id ORDER BY i.id DESC`;
+  const finish = (err, rows) => {
+    if (err) return res.status(503).json({ error: 'Organization directory is temporarily unavailable' });
 
     // Convert images string → array
     let items = rows.map((row) => ({
@@ -25,7 +33,12 @@ const getAllorganization = (req,res) => {
       meta_keywords: row.meta_keywords || "",
     }));
 
-  res.status(200).json(items)
+  res.set('Cache-Control','no-store');
+  res.status(200).json(items);
+  };
+  db.query(sql, (error, rows) => {
+    if (error?.code === 'ER_NO_SUCH_TABLE') return db.query(legacySql, finish);
+    return finish(error, rows);
   });
 };
 
@@ -41,7 +54,7 @@ let id;
            GROUP_CONCAT(DISTINCT img.image_path) AS images
     FROM items i
     LEFT JOIN item_images img ON i.id = img.item_id
-    WHERE i.slug = ? AND i.deletestatus = 0
+    WHERE i.slug = ? AND i.deletestatus = 0 AND i.status = 1 AND i.deleted_at IS NULL
     GROUP BY i.id;
   `;
 
@@ -314,7 +327,7 @@ export const getSpecificBlog = async (req, res) => {
   let id;
   try {
     // 1️⃣ Fetch the main document
-    const [docRows] = await db.promise().query("SELECT * FROM document WHERE slug = ?", [slug]);
+    const [docRows] = await db.promise().query("SELECT * FROM document WHERE slug = ? AND COALESCE(deletestatus,0)=0 AND status=1 AND deleted_at IS NULL", [slug]);
     if (docRows.length === 0) return res.status(404).json({ message: "Not found" });
     id = docRows[0].id;
     if (docRows[0].deletestatus === 1) return res.status(404).json({ message: "Not Found" });
@@ -397,149 +410,49 @@ export const getSpecificBlog = async (req, res) => {
 //getAllBlogs
 
 // Add this to your server.js (assumes `db` connection exists)
-export const getAllBlogs = (req, res) => {
-  db.query("SELECT * FROM document", (err, docs) => {
-    if (err) return res.status(500).json({ error: err.message });
-    if (!docs || docs.length === 0) return res.json([]);
-
-    const results = [];
-    let processedDocs = 0;
-    let hasErrored = false;
-
-    function handleError(err) {
-      if (!hasErrored) {
-        hasErrored = true;
-        return res.status(500).json({ error: err.message || err });
-      }
-    }
-
-    docs.forEach((doc) => {
-      // Build the object to return
+export const getAllBlogs = async (req, res) => {
+  try {
+    const [docs] = await db.promise().query(`SELECT * FROM document
+      WHERE COALESCE(deletestatus,0)=0 AND status=1 AND deleted_at IS NULL
+      ORDER BY sort_order ASC, id DESC`);
+    if (!docs.length) return res.status(200).json([]);
+    const results = await Promise.all(docs.map(async (doc) => {
       const fullDoc = {
-        id: doc.id,
-        Name: doc.Name,
-        deletestatus: doc.deletestatus,
-        Intro: doc.intro,
-        Conclusion: doc.conclusion,
-        Image: doc.image_path,
-        // Include SEO fields
-        slug: doc.slug || "",
-        meta_title: doc.meta_title || "",
-        meta_description: doc.meta_description || "",
-        meta_keywords: doc.meta_keywords || "",
-        Arr: [],
-        NGOs: { INTRO: "", Arr: [] },
+        id: doc.id, Name: doc.Name, deletestatus: 0,
+        Intro: doc.intro, Conclusion: doc.conclusion, Image: doc.image_path,
+        slug: doc.slug || '', meta_title: doc.meta_title || '',
+        meta_description: doc.meta_description || '', meta_keywords: doc.meta_keywords || '',
+        Arr: [], NGOs: { INTRO: '', Arr: [] },
       };
-
-      let arrDone = false;
-      let ngosDone = false;
-
-      function checkDocDoneAndPush() {
-        if (arrDone && ngosDone) {
-          results.push(fullDoc);
-          processedDocs++;
-          if (processedDocs === docs.length) {
-            return res.status(200).json(DtoArr(results));
-          }
-        }
+      const [sections] = await db.promise().query(`SELECT * FROM documentarr
+        WHERE document_id=? AND status=1 AND deleted_at IS NULL ORDER BY id ASC`, [doc.id]);
+      fullDoc.Arr = await Promise.all(sections.map(async (section) => {
+        const [bullets] = await db.promise().query(`SELECT bullet FROM documentarrbullets
+          WHERE arr_id=? AND status=1 AND deleted_at IS NULL ORDER BY id ASC`, [section.id]);
+        return { Heading: section.heading, Start: section.start,
+          Bullet_Header: section.bullet_header, Bullets: bullets.map(b => b.bullet), End: section.end };
+      }));
+      const [ngos] = await db.promise().query(`SELECT id,intro FROM ngos
+        WHERE document_id=? AND status=1 AND deleted_at IS NULL ORDER BY id ASC LIMIT 1`, [doc.id]);
+      if (ngos.length) {
+        fullDoc.NGOs.INTRO = ngos[0].intro || '';
+        const [categories] = await db.promise().query(`SELECT id,h1 FROM ngosarr
+          WHERE ngos_id=? AND status=1 AND deleted_at IS NULL ORDER BY id ASC`, [ngos[0].id]);
+        fullDoc.NGOs.Arr = await Promise.all(categories.map(async (category) => {
+          const [values] = await db.promise().query(`SELECT value FROM ngosarrof
+            WHERE ngos_arr_id=? AND status=1 AND deleted_at IS NULL ORDER BY id ASC`, [category.id]);
+          return { h1: category.h1, OF: values.map(v => v.value) };
+        }));
       }
-
-      // ---------- Fetch Arr and Bullets ----------
-      db.query(
-        "SELECT * FROM documentarr WHERE document_id = ?",
-        [doc.id],
-        (err, arrRows) => {
-          if (err) return handleError(err);
-
-          if (!arrRows || arrRows.length === 0) {
-            arrDone = true;
-            checkDocDoneAndPush();
-          } else {
-            let remainingArr = arrRows.length;
-
-            arrRows.forEach((arr) => {
-              db.query(
-                "SELECT bullet FROM documentarrbullets WHERE arr_id = ?",
-                [arr.id],
-                (err, bulletRows) => {
-                  if (err) return handleError(err);
-
-                  fullDoc.Arr.push({
-                    Heading: arr.heading,
-                    Start: arr.start,
-                    Bullet_Header: arr.bullet_header,
-                    Bullets: (bulletRows || []).map((b) => b.bullet),
-                    End: arr.end,
-                  });
-
-                  remainingArr--;
-                  if (remainingArr === 0) {
-                    arrDone = true;
-                    checkDocDoneAndPush();
-                  }
-                }
-              );
-            });
-          }
-        }
-      );
-
-      // ---------- Fetch NGOs -> NGOsArr -> NGOsArrOF ----------
-      db.query(
-        "SELECT * FROM ngos WHERE document_id = ?",
-        [doc.id],
-        (err, ngoRows) => {
-          if (err) return handleError(err);
-
-          if (!ngoRows || ngoRows.length === 0) {
-            ngosDone = true;
-            checkDocDoneAndPush();
-          } else {
-            // Use first NGOs row as the root for this document (matches previous code)
-            fullDoc.NGOs.INTRO = ngoRows[0].intro || "";
-
-            db.query(
-              "SELECT * FROM ngosarr WHERE ngos_id = ?",
-              [ngoRows[0].id],
-              (err, ngosArrRows) => {
-                if (err) return handleError(err);
-
-                if (!ngosArrRows || ngosArrRows.length === 0) {
-                  ngosDone = true;
-                  checkDocDoneAndPush();
-                } else {
-                  let remainingNGOArr = ngosArrRows.length;
-
-                  ngosArrRows.forEach((n) => {
-                    db.query(
-                      "SELECT value FROM ngosarrof WHERE ngos_arr_id = ?",
-                      [n.id],
-                      (err, ofRows) => {
-                        if (err) return handleError(err);
-
-                        fullDoc.NGOs.Arr.push({
-                          h1: n.h1,
-                          OF: (ofRows || []).map((o) => o.value),
-                        });
-
-                        remainingNGOArr--;
-                        if (remainingNGOArr === 0) {
-                          ngosDone = true;
-                          checkDocDoneAndPush();
-                        }
-                      }
-                    );
-                  });
-                }
-              }
-            );
-          }
-        }
-      );
-    });
-  });
+      return fullDoc;
+    }));
+    res.set('Cache-Control', 'no-store, max-age=0, must-revalidate');
+    return res.status(200).json(results);
+  } catch(error) {
+    console.error('[public blogs]', error?.code || error?.message);
+    return res.status(503).json({success:false,message:'Blog content is temporarily unavailable'});
+  }
 };
-
 
 // export const getSmilarItems=(req,res)=>{
 
@@ -556,7 +469,7 @@ export const getAllBlogs = (req, res) => {
 // export const getSmilarItems = (req, res) => {
 //     const search = req.query.search || "";
     
-//  db.query('SELECT * FROM items WHERE JSON_CONTAINS(category, ?)', [JSON.stringify(search)], (err, result) => {
+//  db.query('SELECT * FROM items WHERE JSON_CONTAINS(category, ?) AND status=1 AND COALESCE(deletestatus,0)=0 AND deleted_at IS NULL', [JSON.stringify(search)], (err, result) => {
 //     if (err) {
 //       console.error("Database Error:", err);
 //       res.status(500).json({ error: "Database Error" });
@@ -618,69 +531,236 @@ export const getAllBlogs = (req, res) => {
 // };
 
 export const getSimilarItems = async (req, res) => {
-  const search = req.query.search || "";
+  // Multi-entity search across configured content areas (Organizations, Blogs, Categories, Stories, Podcasts, Events)
+  const term = typeof req.query.search === 'string' ? req.query.search.trim() : '';
+  if (term.length < 2) return res.json([]);
+  if (term.length > 100) return res.status(422).json({ message: 'Search is too long' });
 
-  if (!search) {
-    return res.status(400).json({ error: "Search parameter is required" });
-  }
+  // Parse requested search areas
+  const requestedAreas = req.query.areas
+    ? String(req.query.areas).split(',').map(s => s.trim().toLowerCase()).filter(Boolean)
+    : null;
 
   try {
-    // Case insensitive search in JSON category array
-    const sql1 = `
-      SELECT * FROM items 
-      WHERE EXISTS (
-        SELECT 1 FROM JSON_TABLE(
-          category, 
-          '$[*]' COLUMNS (category_name VARCHAR(50) PATH '$')
-        ) AS categories 
-        WHERE LOWER(categories.category_name) = LOWER(?)
-      )
-    `;
+    // If areas wasn't explicitly passed, retrieve from admin settings or fallback to standard set
+    let allowedAreas = requestedAreas;
+    if (!allowedAreas || !allowedAreas.length) {
+      try {
+        const [settingsRows] = await db.promise().query("SELECT content FROM khudii_admin_settings WHERE bucket = 'header'");
+        if (settingsRows.length) {
+          const parsed = JSON.parse(settingsRows[0].content || '{}');
+          if (Array.isArray(parsed.search_areas) && parsed.search_areas.length) {
+            allowedAreas = parsed.search_areas;
+          }
+        }
+      } catch {
+        // Fallback below
+      }
+    }
+    if (!allowedAreas || !allowedAreas.length) {
+      allowedAreas = ['organizations', 'blogs', 'categories', 'stories'];
+    }
 
-    // Alternative if JSON_TABLE not supported:
-    // const sql1 = `
-    //   SELECT * FROM items 
-    //   WHERE JSON_SEARCH(LOWER(category), 'all', LOWER(?)) IS NOT NULL
-    // `;
+    const results = [];
+    const searchParam = term;
+    const lowerParam = `%${term.toLowerCase()}%`;
 
-    // Case insensitive search in name and search_tags
-    const sql2 = "SELECT * FROM items WHERE LOWER(name) LIKE LOWER(?) OR LOWER(search_tags) LIKE LOWER(?)";
+    // 1. Organizations
+    if (allowedAreas.includes('organizations')) {
+      try {
+        const [orgs] = await db.promise().query(`
+          SELECT id, name, description, introductory_image_path, slug, category, search_tags
+          FROM items
+          WHERE COALESCE(deletestatus, 0) = 0 AND status = 1 AND deleted_at IS NULL
+            AND (LOCATE(LOWER(?), LOWER(name)) > 0
+              OR LOCATE(LOWER(?), LOWER(COALESCE(search_tags, ''))) > 0
+              OR LOCATE(LOWER(?), LOWER(COALESCE(category, ''))) > 0)
+          ORDER BY CASE WHEN LOWER(name) = LOWER(?) THEN 0
+                        WHEN LOWER(name) LIKE LOWER(CONCAT(?, '%')) THEN 1 ELSE 2 END,
+                   name ASC
+          LIMIT 12`, [searchParam, searchParam, searchParam, searchParam, searchParam]);
 
-    // Execute both queries in parallel for better performance
-    const [result1, result2] = await Promise.all([
-      new Promise((resolve, reject) => {
-        db.query(sql1, [search], (err, results) => {
-          if (err) reject(err);
-          else resolve(results);
+        orgs.forEach(o => {
+          const cleanSlug = String(o.slug || o.id).replace(/^\/+/, '');
+          results.push({
+            id: `org-${o.id}`,
+            entity_id: o.id,
+            name: o.name,
+            description: o.description || '',
+            slug: cleanSlug,
+            href: `/${cleanSlug}`,
+            type: 'organizations',
+            typeLabel: 'Organization',
+            category: o.category || 'Welfare',
+            image: o.introductory_image_path || null,
+          });
         });
-      }),
-      new Promise((resolve, reject) => {
-        db.query(sql2, [`%${search}%`, `%${search}%`], (err, results) => {
-          if (err) reject(err);
-          else resolve(results);
+      } catch (err) {
+        console.error('[search:orgs]', err.message);
+      }
+    }
+
+    // 2. Blogs & Articles
+    if (allowedAreas.includes('blogs')) {
+      try {
+        const [blogs] = await db.promise().query(`
+          SELECT id, Name, intro, image_path, slug
+          FROM document
+          WHERE COALESCE(deletestatus, 0) = 0 AND status = 1 AND deleted_at IS NULL
+            AND (LOCATE(LOWER(?), LOWER(Name)) > 0 OR LOCATE(LOWER(?), LOWER(COALESCE(slug, ''))) > 0)
+          ORDER BY CASE WHEN LOWER(Name) = LOWER(?) THEN 0
+                        WHEN LOWER(Name) LIKE LOWER(CONCAT(?, '%')) THEN 1 ELSE 2 END,
+                   id DESC
+          LIMIT 8`, [searchParam, searchParam, searchParam, searchParam]);
+
+        blogs.forEach(b => {
+          const cleanSlug = String(b.slug || b.id).replace(/^\/+/, '');
+          results.push({
+            id: `blog-${b.id}`,
+            entity_id: b.id,
+            name: b.Name,
+            description: b.intro || '',
+            slug: cleanSlug,
+            href: `/blogs/${cleanSlug}`,
+            type: 'blogs',
+            typeLabel: 'Blog',
+            category: 'Article',
+            image: b.image_path || null,
+          });
         });
-      })
-    ]);
+      } catch (err) {
+        console.error('[search:blogs]', err.message);
+      }
+    }
 
-    // Combine results from both queries
-    const combinedResults = [...DtoArr(result1), ...DtoArr(result2)];
-    
-    // Remove duplicates based on item ID (assuming each item has unique 'id')
-    const uniqueResults = combinedResults.filter((item, index, self) => 
-      index === self.findIndex(i => i.id === item.id)
-    );
+    // 3. Categories & Sectors
+    if (allowedAreas.includes('categories')) {
+      try {
+        const [secs] = await db.promise().query(`
+          SELECT id, name, description, src, slug
+          FROM sectors
+          WHERE COALESCE(deletestatus, 0) = 0 AND status = 1 AND deleted_at IS NULL
+            AND (LOCATE(LOWER(?), LOWER(name)) > 0 OR LOCATE(LOWER(?), LOWER(COALESCE(slug, ''))) > 0)
+          ORDER BY name ASC
+          LIMIT 8`, [searchParam, searchParam]);
 
-    // Alternative: Using Map for better performance with large datasets
-    // const uniqueResults = Array.from(
-    //   new Map(combinedResults.map(item => [item.id, item])).values()
-    // );
+        secs.forEach(s => {
+          const cleanSlug = String(s.slug || s.name || s.id).toLowerCase().replace(/\s+/g, '-').replace(/^\/+/, '');
+          results.push({
+            id: `cat-${s.id}`,
+            entity_id: s.id,
+            name: s.name,
+            description: s.description || '',
+            slug: cleanSlug,
+            href: `/categories/${cleanSlug}`,
+            type: 'categories',
+            typeLabel: 'Category',
+            category: 'Sector',
+            image: s.src || null,
+          });
+        });
+      } catch (err) {
+        console.error('[search:categories]', err.message);
+      }
+    }
 
-    // console.log(`Found ${uniqueResults.length} unique items`);
-    return res.status(200).json(uniqueResults);
+    // 4. Success Stories
+    if (allowedAreas.includes('stories')) {
+      try {
+        const [stories] = await db.promise().query(`
+          SELECT id, title, description, slug, urdu_title
+          FROM successstories
+          WHERE COALESCE(deletestatus, 0) = 0 AND status = 1 AND deleted_at IS NULL
+            AND (LOCATE(LOWER(?), LOWER(title)) > 0 OR LOCATE(LOWER(?), LOWER(COALESCE(urdu_title, ''))) > 0)
+          ORDER BY id DESC
+          LIMIT 6`, [searchParam, searchParam]);
 
-  } catch (err) {
-    console.error("❌ Database Error:", err);
-    return res.status(500).json({ error: "Database Error" });
+        stories.forEach(st => {
+          const cleanSlug = String(st.slug || st.id).replace(/^\/+/, '');
+          results.push({
+            id: `story-${st.id}`,
+            entity_id: st.id,
+            name: st.title || st.urdu_title,
+            description: st.description || '',
+            slug: cleanSlug,
+            href: `/success-stories`,
+            type: 'stories',
+            typeLabel: 'Success Story',
+            category: 'Impact Story',
+            image: null,
+          });
+        });
+      } catch (err) {
+        console.error('[search:stories]', err.message);
+      }
+    }
+
+    // 5. Podcasts & Media
+    if (allowedAreas.includes('podcasts')) {
+      try {
+        const [pods] = await db.promise().query(`
+          SELECT id, title, description, slug, youtube_id
+          FROM podcasts
+          WHERE status = 1 AND deleted_at IS NULL AND is_published = 1
+            AND (LOCATE(LOWER(?), LOWER(title)) > 0 OR LOCATE(LOWER(?), LOWER(COALESCE(description, ''))) > 0)
+          ORDER BY id DESC
+          LIMIT 6`, [searchParam, searchParam]);
+
+        pods.forEach(p => {
+          const cleanSlug = String(p.slug || p.id).replace(/^\/+/, '');
+          results.push({
+            id: `podcast-${p.id}`,
+            entity_id: p.id,
+            name: p.title,
+            description: p.description || '',
+            slug: cleanSlug,
+            href: `/podcast/${cleanSlug}`,
+            type: 'podcasts',
+            typeLabel: 'Podcast',
+            category: 'Media',
+            image: p.youtube_id ? `https://img.youtube.com/vi/${p.youtube_id}/hqdefault.jpg` : null,
+          });
+        });
+      } catch (err) {
+        console.error('[search:podcasts]', err.message);
+      }
+    }
+
+    // 6. Events
+    if (allowedAreas.includes('events')) {
+      try {
+        const [evts] = await db.promise().query(`
+          SELECT id, title, url, videoId
+          FROM events
+          WHERE status = 1 AND deleted_at IS NULL
+            AND (LOCATE(LOWER(?), LOWER(title)) > 0)
+          ORDER BY id DESC
+          LIMIT 6`, [searchParam]);
+
+        evts.forEach(ev => {
+          results.push({
+            id: `event-${ev.id}`,
+            entity_id: ev.id,
+            name: ev.title,
+            description: '',
+            slug: String(ev.id),
+            href: ev.url || '/social-media',
+            type: 'events',
+            typeLabel: 'Event',
+            category: 'Community',
+            image: ev.videoId ? `https://img.youtube.com/vi/${ev.videoId}/hqdefault.jpg` : null,
+          });
+        });
+      } catch (err) {
+        console.error('[search:events]', err.message);
+      }
+    }
+
+    res.set('Cache-Control', 'no-store, max-age=0, must-revalidate');
+    return res.json(results);
+  } catch (error) {
+    console.error('[multisearch error]', error?.code || error?.message);
+    return res.status(503).json({ message: 'Search service is temporarily unavailable' });
   }
 };
 
@@ -941,7 +1021,7 @@ export const itemByCategory = (req, res) => {
   const { name } = req.params;
   
   // Use JSON_CONTAINS to search within the JSON array
-  db.query('SELECT * FROM items WHERE JSON_CONTAINS(category, ?)', [JSON.stringify(name)], (err, result) => {
+  db.query('SELECT * FROM items WHERE JSON_CONTAINS(category, ?) AND status=1 AND COALESCE(deletestatus,0)=0 AND deleted_at IS NULL', [JSON.stringify(name)], (err, result) => {
     if (err) {
       console.error("Database Error:", err);
       res.status(500).json({ error: "Database Error" });
@@ -953,7 +1033,7 @@ export const itemByCategory = (req, res) => {
 
 
 export const getsuccessstories=(req,res)=>{
-db.query('SELECT * FROM successstories WHERE deletestatus = 0 ORDER BY id DESC',(err,results)=>{
+db.query('SELECT * FROM successstories WHERE deletestatus = 0 AND is_published = 1 ORDER BY (display_order=0),display_order ASC,id DESC',(err,results)=>{
 if(err){
   return res.status(500).json({message:"could not get"})
 }
@@ -968,7 +1048,7 @@ res.status(200).json(results)
 
 export const getStoryBySlug=async(req,res)=>{
 const {slug}=req.params
-db.query('SELECT * FROM successstories WHERE deletestatus = 0 AND slug = ?',[slug],(err,results)=>{
+db.query('SELECT * FROM successstories WHERE deletestatus = 0 AND is_published = 1 AND slug = ?',[slug],(err,results)=>{
 if(err){
   return res.status(500).json({message:"could not get"})
 }
@@ -1647,7 +1727,7 @@ export const DetailForAll = async (req, res) => {
              GROUP_CONCAT(DISTINCT img.image_path) AS images
       FROM items i
       LEFT JOIN item_images img ON i.id = img.item_id
-      WHERE i.slug = ? AND i.deletestatus = 0
+      WHERE i.slug = ? AND i.deletestatus = 0 AND i.status = 1 AND i.deleted_at IS NULL
       GROUP BY i.id;
     `;
 
@@ -1696,7 +1776,7 @@ export const DetailForAll = async (req, res) => {
 
     // If not found in items, try documents/blogs
     const [docRows] = await db.promise().query(
-      "SELECT * FROM document WHERE slug = ? AND deletestatus = 0",
+      "SELECT * FROM document WHERE slug = ? AND deletestatus = 0 AND status=1 AND deleted_at IS NULL",
       [slug]
     );
 

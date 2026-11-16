@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import { useForm } from "react-hook-form";
 import { useState,useEffect,useRef } from "react";
 import PageHeader from "../../componets/PageHeader/PageHeader";
@@ -141,6 +142,7 @@ if(res.status===200){
         url={`${url}/contribute-your-story`}
         type="website"
       />
+    <CmsPageLayout slug="/contribute-your-story">
 
       <PageHeader 
         title="Contribute Your Story"
@@ -392,6 +394,7 @@ if(res.status===200){
         </div>
       )}
       </section>
-    </>
+    </CmsPageLayout>
+</>
   );
 }

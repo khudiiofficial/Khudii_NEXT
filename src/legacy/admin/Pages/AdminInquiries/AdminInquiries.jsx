@@ -1,3 +1,4 @@
+import { adminConfirm } from '@/lib/admin-dialogs';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AdminInquiries.css';
@@ -116,7 +117,7 @@ const AdminInquiries = () => {
   };
 
   const deleteInquiry = async (id) => {
-    if (!confirm('Are you sure you want to delete this inquiry?')) return;
+    if (!(await adminConfirm('Are you sure you want to delete this inquiry?'))) return;
 
     try {
       await axios.delete(`${API_URL}/admin/inquiries/${id}`, {

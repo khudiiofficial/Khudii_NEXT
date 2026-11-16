@@ -11,7 +11,7 @@ export default function PodcastCollection({ heading = 'Khudii Podcast', descript
       .finally(() => { if (!ctrl.signal.aborted) setLoading(false); });
     return () => ctrl.abort();
   }, []);
-  return <section className="mx-auto w-full max-w-7xl px-5 py-12 md:py-16" aria-label="Khudii podcast episodes">
+  return <section className="mx-auto w-full max-w-[1440px] px-5 py-12 md:py-16" aria-label="Khudii podcast episodes">
     {/* <div className="mb-8"><h2 className="text-2xl font-bold text-[#02236e] md:text-3xl">{heading}</h2>{description && <p className="mt-2 text-slate-600">{description}</p>}</div> */}
     {loading && <p role="status" className="text-slate-600">Loading Podcasts…</p>}
     {!loading && error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">Could not load podcasts. {error}</p>}

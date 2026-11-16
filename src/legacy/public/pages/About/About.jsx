@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import React from 'react'
 import PageHeader from '../../componets/PageHeader/PageHeader'
 import AboutUs from '../../componets/AboutUS/AboutUs'
@@ -12,13 +13,15 @@ const About = ({con,url}) => {
         url={`${url}/about-khudii`}
         image="/Khudii.webp"
       />
+    <CmsPageLayout slug="/about-khudii">
     <PageHeader  title="About"
         breadcrumbs={[
           { label: "Home", link: "/" },
           { label: "About" }
         ]}/>
         <AboutUs/>
-    </>
+    </CmsPageLayout>
+</>
   )
 }
 

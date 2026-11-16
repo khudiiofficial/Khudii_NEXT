@@ -10,7 +10,7 @@ const EventAdmin = () => {
     imagepath1: '',
     imagepath2: ''
   });
-   const [cap,setcap]=useState('')
+  const [cap, setcap] = useState('')
 
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -34,7 +34,7 @@ const EventAdmin = () => {
       const response = await axios.get(`${API_BASE_URL}/api/events`, {
         withCredentials: true
       });
-      
+
       if (response.data.success) {
         setEventData(response.data.data);
         setFormData({
@@ -74,7 +74,7 @@ const EventAdmin = () => {
       } else {
         setFormData(prev => ({ ...prev, imageFile2: file }));
       }
-      
+
       const reader = new FileReader();
       reader.onload = (e) => {
         setPreviewUrls(prev => ({
@@ -99,10 +99,10 @@ const EventAdmin = () => {
   // Update event data
   const handleUpdate = async (e) => {
     e.preventDefault();
-    
- if(cap){
+
+    if (cap) {
       console.log('bot detected')
-setcap('')
+      setcap('')
       return
     }
     if (!formData.description) {
@@ -113,7 +113,7 @@ setcap('')
     try {
       setSaving(true);
       setMessage('');
-      
+
       let imageBase641 = null;
       let imageBase642 = null;
 
@@ -139,10 +139,10 @@ setcap('')
           image1: response.data.data.imagepath1 || '',
           image2: response.data.data.imagepath2 || ''
         });
-        setFormData(prev => ({ 
-          ...prev, 
+        setFormData(prev => ({
+          ...prev,
           imageFile1: null,
-          imageFile2: null 
+          imageFile2: null
         }));
         if (fileInputRef1.current) fileInputRef1.current.value = '';
         if (fileInputRef2.current) fileInputRef2.current.value = '';
@@ -195,9 +195,9 @@ setcap('')
       <div className="form-section">
         <h2>Edit Events Section</h2>
         <form onSubmit={handleUpdate} className="event-form">
-          
 
-    <input type="hidden" onChange={(e)=>{setcap(e.target.value)}} />
+
+          <input type="hidden" onChange={(e) => { setcap(e.target.value) }} />
 
 
           <div className="form-group">
@@ -234,7 +234,7 @@ setcap('')
                   )}
                 </div>
               </div>
-                  {/* Image Preview Cards */}
+              {/* Image Preview Cards */}
               {(previewUrls.image1) && (
                 <div className="preview-section">
                   <label>Image 1 Preview:</label>
@@ -293,12 +293,12 @@ setcap('')
           </div>
 
           <div className="form-actions">
-            <button type="submit" disabled={saving || loading} className="bg-[#02236e] btn hover:bg-[#032f95] text-white">
+            <button type="submit" disabled={saving || loading} className="bg-[#02236E] btn hover:bg-[#1d4ed8] text-white">
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
-            
-            <button 
-              type="button" 
+
+            <button
+              type="button"
               onClick={fetchEventData}
               disabled={loading}
               className="bg-[#fbf137] btn border-[#fbf137] hover:bg-[#f7e029] text-[#222222] ml-3"

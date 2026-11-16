@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import { adminConfirm } from '@/lib/admin-dialogs';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './VisionMissionAdmin.css';
+import AdminPublishSwitch from '@/components/AdminPublishSwitch';
 
-const API_BASE_URL = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
+const API_BASE_URL = (process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app');
 
 const VisionMissionAdmin = () => {
   
  const [cap,setcap]=useState('')
 
   const [items, setItems] = useState([]);
+  const dragId=useRef(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -26,7 +29,7 @@ const VisionMissionAdmin = () => {
     try {
       setLoading(true);
       const response = await axios.get(`${API_BASE_URL}/api/vision-mission`, {
-        withCredentials: true
+        withCredentials: true, headers: { 'x-khudii-surface': 'admin' }
       });
       setItems(response.data.data);
     } catch (error) {
@@ -56,7 +59,7 @@ setcap('')
       setMessage('');
       
       const response = await axios.post(`${API_BASE_URL}/api/vision-mission`, formData, {
-        withCredentials: true
+        withCredentials: true, headers: { 'x-khudii-surface': 'admin' }
       });
 
       if (response.data.success) {
@@ -91,7 +94,7 @@ setcap('')
       setMessage('');
       
       const response = await axios.put(`${API_BASE_URL}/api/vision-mission/${editingId}`, formData, {
-        withCredentials: true
+        withCredentials: true, headers: { 'x-khudii-surface': 'admin' }
       });
 
       if (response.data.success) {
@@ -109,11 +112,11 @@ setcap('')
 
   // Delete item
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this item?')) return;
+    if (!(await adminConfirm('Are you sure you want to delete this item?'))) return;
 
     try {
       const response = await axios.delete(`${API_BASE_URL}/api/vision-mission/${id}`, {
-        withCredentials: true
+        withCredentials: true, headers: { 'x-khudii-surface': 'admin' }
       });
 
       if (response.data.success) {
@@ -151,6 +154,16 @@ setcap('')
     setEditingId(null);
   };
 
+  // Drag-and-drop uses the existing sort endpoint and updates the frontend order.
+  const moveDrag=async(from,to)=>{
+    if(from<0||to<0||from===to)return;
+    const next=[...items];next.splice(to,0,next.splice(from,1)[0]);
+    const reordered=next.map((v,i)=>({...v,sort_order:i}));
+    setItems(reordered);
+    try{await axios.patch(`${API_BASE_URL}/api/vision-mission/sort`,{items:reordered.map(v=>({id:v.id,sort_order:v.sort_order}))},{withCredentials:true,headers:{'x-khudii-surface':'admin'}});}
+    catch(e){setMessage(e.response?.data?.message||'Could not save order');fetchItems();}
+  };
+
   // Move item up
   const moveUp = async (index) => {
     
@@ -178,7 +191,7 @@ setcap('')
       await axios.patch(`${API_BASE_URL}/api/vision-mission/sort`, {
         items: itemsWithNewOrder.map(item => ({ id: item.id, sort_order: item.sort_order }))
       }, {
-        withCredentials: true
+        withCredentials: true, headers: { 'x-khudii-surface': 'admin' }
       });
     } catch (error) {
       console.error('Error updating sort order:', error);
@@ -214,7 +227,7 @@ setcap('')
       await axios.patch(`${API_BASE_URL}/api/vision-mission/sort`, {
         items: itemsWithNewOrder.map(item => ({ id: item.id, sort_order: item.sort_order }))
       }, {
-        withCredentials: true
+        withCredentials: true, headers: { 'x-khudii-surface': 'admin' }
       });
     } catch (error) {
       console.error('Error updating sort order:', error);
@@ -229,7 +242,7 @@ setcap('')
       const response = await axios.put(`${API_BASE_URL}/api/vision-mission/${item.id}`, {
         is_active: !item.is_active
       }, {
-        withCredentials: true
+        withCredentials: true, headers: { 'x-khudii-surface': 'admin' }
       });
 
       if (response.data.success) {
@@ -311,15 +324,7 @@ setcap('')
           </div>
 
           <div className="form-row">
-            <div className="form-group">
-              <label>Sort Order</label>
-              <input
-                type="number"
-                value={(formData.sort_order) ?? ''}
-                onChange={(e) => handleChange('sort_order', parseInt(e.target.value))}
-                min="0"
-              />
-            </div>
+            <p className="text-sm text-slate-500">Drag the saved cards to change frontend display order.</p>
 
             {/* <div className="form-group">
               <label className="checkbox-label">
@@ -362,9 +367,14 @@ setcap('')
             <p>No items found. Add your first item above.</p>
           </div>
         ) : (
-          <div className="items-list">
+          <div className="items-list"><p className="text-xs text-slate-500">Drag to reorder items. The public page follows this order.</p>
             {items.map((item, index) => (
-              <div key={item.id} className={`item-card ${!item.is_active ? 'inactive' : ''}`}>
+              <div key={item.id} className={`item-card ${!item.is_active ? 'inactive' : ''}`} draggable
+                onDragStart={e=>{dragId.current=item.id;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(item.id));}}
+                onDragOver={e=>e.preventDefault()}
+                onDrop={e=>{e.preventDefault();moveDrag(items.findIndex(v=>v.id===dragId.current),index);dragId.current=null;}}
+                onDragEnd={()=>{dragId.current=null;}}>
+                <span className="cursor-grab text-xs font-semibold text-slate-500">Drag to reorder</span>
                 <div className="item-header">
                   <div className="item-icon">
                     <i className={item.icon}></i>
@@ -397,6 +407,7 @@ setcap('')
                 </div>
                 <p className="item-description">{item.description}</p>
                 <div className="item-actions">
+                  <AdminPublishSwitch checked={Boolean(item.is_active)} onChange={()=>toggleActive(item)} label={item.is_active?'Published':'Draft'}/>
                   {/* <button 
                     onClick={() => toggleActive(item)} 
                     className={`btn ${item.is_active ? 'btn-warning' : 'btn-success'}`}

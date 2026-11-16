@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import React from 'react'
 import PageHeader from '../../componets/PageHeader/PageHeader'
 import SEO from '../../componets/Helmet/Helmet'
@@ -12,6 +13,7 @@ const Tribute = ({con,url}) => {
         url={`${url}/tribute`}
         type="website"
       />
+    <CmsPageLayout slug="/tribute">
     
        <PageHeader 
                 title="Tribute"
@@ -44,7 +46,8 @@ const Tribute = ({con,url}) => {
               />
             </div>
           </div>
-        </section></>
+        </section></CmsPageLayout>
+</>
   )
 }
 

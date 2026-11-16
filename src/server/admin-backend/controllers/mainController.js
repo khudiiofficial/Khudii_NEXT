@@ -2399,7 +2399,7 @@ export const softDeleteOrganization = (req, res) => {
 
 // Blog Controllers
 export const getAllDocuments = (req, res) => {
-  const sql = "SELECT * FROM document";
+  const sql = "SELECT * FROM document WHERE COALESCE(deletestatus,0)=0 AND deleted_at IS NULL ORDER BY id DESC";
   db1.query(sql, (err, results) => {
     if (err) {
       console.error("Error fetching documents:", err);
@@ -2763,7 +2763,7 @@ export const updateBlog = async (req, res) => {
         }
       }
       if (uploadedUrl) {
-        if (imagePath && imagePath !== uploadedUrl) await deleteImageFile(imagePath);
+        // Keep the original asset; it may be used by other content and media references.
         imagePath = uploadedUrl;
       }
     }
@@ -2938,26 +2938,20 @@ export const updateBlog = async (req, res) => {
     });
   }
 };
-export const deleteBlog = (req, res) => {
-  const id = req.params.id;
-  const query = 'UPDATE document SET deletestatus=1 WHERE id=?';
-
-  db1.query(query, [id], (err, results) => {
-    if (err) {
-      return res.status(500).json({ message: "could not delete" });
-    }
-    if (results.affectedRows === 0) {
-      return res.status(404).json({ message: "Organization not found" });
-    }
-    db1.query('SELECT * FROM document WHERE id=?', [id], async (err1, results) => {
-      if (err1) {
-        return res.status(500).json({ message: "could not delete" });
-      }
-      const get = results[0].image_path;
-      await deleteImageFile(get);
-      return res.status(200).json({ message: "Blog deleted Successfully" });
-    });
-  });
+export const deleteBlog = async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id < 1) return res.status(422).json({success:false,message:'Invalid blog ID'});
+  try {
+    const [result] = await db1.promise().query(`UPDATE document
+      SET deletestatus=1, status=0, deleted_at=CURRENT_TIMESTAMP
+      WHERE id=? AND COALESCE(deletestatus,0)=0 AND deleted_at IS NULL`,[id]);
+    if(!result.affectedRows) return res.status(404).json({success:false,message:'Blog not found'});
+    // FTP assets may be referenced by other articles: preserve them when archiving.
+    return res.json({success:true,id,message:'Blog archived successfully'});
+  }catch(error){
+    console.error('[archive blog]',error?.code||error?.message);
+    return res.status(503).json({success:false,message:'Unable to archive blog'});
+  }
 };
 
 // Success story CRUD: enforce the same payload contract on server and client.

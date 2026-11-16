@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import React from 'react'
 import Blogs from '../../componets/Blogs/Blogs'
 import PageHeader from '../../componets/PageHeader/PageHeader'
@@ -12,6 +13,7 @@ const Blogss = ({con,url}) => {
         url={`${url}/blogs`}
         type="blog"
       />
+    <CmsPageLayout slug="/blogs">
        <PageHeader 
                        title="Blogs"
                        breadcrumbs={[
@@ -23,7 +25,8 @@ const Blogss = ({con,url}) => {
 <Blogs/>
 
 
-    </>
+    </CmsPageLayout>
+</>
   )
 }
 

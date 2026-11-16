@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import { CheckCircle } from "lucide-react";
 import PageHeader from "../../componets/PageHeader/PageHeader";
 import SEO from "../../componets/Helmet/Helmet";
@@ -44,6 +45,7 @@ export default function Certification({ con, url }) {
         url={`${url}/certifications`}
         type="website"
       />
+    <CmsPageLayout slug="/certifications">
 
       <PageHeader
         title="Certifications"
@@ -98,6 +100,7 @@ export default function Certification({ con, url }) {
           </div>
         </section>
       }
-    </>
+    </CmsPageLayout>
+</>
   );
 }

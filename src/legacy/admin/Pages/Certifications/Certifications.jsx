@@ -1,19 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import { adminConfirm } from '@/lib/admin-dialogs';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
-const API_URL = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
+const API_URL = (process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app');
 
 const CertificationAdmin = () => {
   const [certifications, setCertifications] = useState([]);
+  const dragId = useRef(null);
+  const [orderSaving, setOrderSaving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [editingCert, setEditingCert] = useState(null);
-  const [loader,setloader]=useState(false)
- const [cap,setcap]=useState('')
-  const [formData, setFormData] = useState({ 
-    title: '', 
-    description: '', 
+  const [loader, setloader] = useState(false)
+  const [cap, setcap] = useState('')
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
     display_order: 0,
-    image_base64: null 
+    image_base64: null
   });
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
@@ -24,6 +27,7 @@ const CertificationAdmin = () => {
     withCredentials: true,
     headers: {
       'Content-Type': 'application/json',
+      'x-khudii-surface': 'admin',
     },
   });
 
@@ -57,6 +61,18 @@ const CertificationAdmin = () => {
     fetchCertifications();
   }, []);
 
+  // Drag orders are persisted atomically; public certification listing uses display_order.
+  const reorderCertifications = async (from, to) => {
+    if (orderSaving || from < 0 || to < 0 || from === to) return;
+    const before = [...certifications], next = [...before];
+    next.splice(to, 0, next.splice(from, 1)[0]);
+    setCertifications(next.map((v, i) => ({ ...v, display_order: i + 1 })));
+    setOrderSaving(true);
+    try { await api.put('/admin/reorder/certifications', { ids: next.map(v => v.id) }); showMessage('Certification order saved.'); }
+    catch (e) { setCertifications(before); showMessage(e.response?.data?.message || 'Unable to save certification order', 'error'); }
+    finally { setOrderSaving(false); }
+  };
+
   // Handle form input change
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -75,13 +91,13 @@ const CertificationAdmin = () => {
         showMessage('Please Select an Image File', 'error');
         return;
       }
-      
+
       // Validate file size (5MB)
       if (file.size > 5 * 1024 * 1024) {
         showMessage('File Size must be Less than 5MB', 'error');
         return;
       }
-      
+
       const reader = new FileReader();
       reader.onload = (event) => {
         setFormData(prev => ({
@@ -96,8 +112,8 @@ const CertificationAdmin = () => {
   // Create new certification
   const handleCreate = async (e) => {
     e.preventDefault();
-    
- if(cap){
+
+    if (cap) {
       console.log('Bot Detected')
       setcap('')
       return
@@ -106,7 +122,7 @@ const CertificationAdmin = () => {
       showMessage('Title and Image are Required', 'error');
       return;
     }
-setloader(true)
+    setloader(true)
     try {
       const response = await api.post('/certifications', formData);
       if (response.data.success) {
@@ -118,24 +134,24 @@ setloader(true)
       console.error('Error Creating Certification:', error);
       showMessage('Error Creating Certification', 'error');
     }
-setloader(false)
+    setloader(false)
   };
 
   // Update certification
   const handleUpdate = async (e) => {
-    
- if(cap){
+
+    if (cap) {
       console.log('Bot Detected')
       setcap('')
       return
     }
     e.preventDefault();
-  
+
     if (!formData.title) {
       showMessage('Title is Required', 'error');
       return;
     }
-  setloader(true)
+    setloader(true)
     try {
       const response = await api.put(`/certifications/${editingCert.id}`, formData);
       if (response.data.success) {
@@ -152,7 +168,7 @@ setloader(false)
 
   // Delete certification
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you Sure you Want to Delete this Certification?')) {
+    if (!(await adminConfirm('Are you Sure you Want to Delete this Certification?'))) {
       return;
     }
 
@@ -260,7 +276,7 @@ setloader(false)
       borderRadius: '4px',
       fontSize: '14px',
       background: '#dddddd',
-      cursor: 'pointer',  
+      cursor: 'pointer',
     },
     formActions: {
       display: 'flex',
@@ -276,7 +292,7 @@ setloader(false)
       transition: 'background-color 0.2s',
     },
     btnPrimary: {
-      backgroundColor: '#02236e',
+      backgroundColor: '#2563eb',
       color: 'white',
     },
     btnSecondary: {
@@ -369,7 +385,7 @@ setloader(false)
   return (
     <div style={styles.admin}>
       <h1>Certification Management</h1>
-      
+
       {message && (
         <div style={{
           ...styles.message,
@@ -380,15 +396,15 @@ setloader(false)
       )}
 
       {/* Add/Edit Form */}
-      <form 
-        onSubmit={editingCert ? handleUpdate : handleCreate} 
+      <form
+        onSubmit={editingCert ? handleUpdate : handleCreate}
         style={styles.form}
       >
-            <input type="hidden" onChange={(e)=>{setcap(e.target.value)}} />
+        <input type="hidden" onChange={(e) => { setcap(e.target.value) }} />
 
 
         <h2>{editingCert ? 'Edit Certification' : 'Add New Certification'}</h2>
-        
+
         <div style={styles.formGroup}>
           <label htmlFor="title" style={styles.label}>
             Title: *
@@ -421,18 +437,7 @@ setloader(false)
         </div>
 
         <div style={styles.formGroup}>
-          <label htmlFor="display_order" style={styles.label}>
-            Display Order:
-          </label>
-          <input
-            type="number"
-            id="display_order"
-            name="display_order"
-            value={(formData.display_order) ?? ''}
-            onChange={handleInputChange}
-            placeholder="Display Order"
-            style={styles.input}
-          />
+          <p className="text-sm text-slate-500">Use drag-and-drop in the list below to set the display order.</p>
         </div>
 
         <div style={styles.formGroup}>
@@ -449,9 +454,9 @@ setloader(false)
           />
           {formData.image_base64 && (
             <div>
-              <img 
-                src={formData.image_base64} 
-                alt="Preview" 
+              <img
+                src={formData.image_base64}
+                alt="Preview"
                 style={styles.imagePreview}
               />
             </div>
@@ -459,17 +464,17 @@ setloader(false)
         </div>
 
         <div style={styles.formActions}>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             style={{ ...styles.btn, ...styles.btnPrimary }}
             disabled={loader}
           >
             {/* {editingCert ? 'Update' : 'Create'} */}
-            {loader && editingCert? 'Updating...':loader && !editingCert ? "Creating...":!loader && editingCert?'Update':"create"}
+            {loader && editingCert ? 'Updating...' : loader && !editingCert ? "Creating..." : !loader && editingCert ? 'Update' : "create"}
           </button>
           {editingCert && (
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={cancelEdit}
               style={{ ...styles.btn, ...styles.btnSecondary }}
             >
@@ -481,7 +486,7 @@ setloader(false)
 
       {/* Certifications List */}
       <div style={styles.contentList}>
-        <h2>Existing Certifications</h2>
+        <h2>Existing Certifications</h2><p className="text-sm text-slate-500">Drag the cards into public display order. Changes save immediately.</p>
         {loading ? (
           <div style={styles.loading}>Loading...</div>
         ) : certifications.length === 0 ? (
@@ -490,10 +495,15 @@ setloader(false)
           </div>
         ) : (
           <div style={styles.contentGrid}>
-            {certifications.map((cert) => (
-              <div key={cert.id} style={styles.contentCard}>
-                <img 
-                  src={cert.image_url} 
+            {certifications.map((cert, index) => (
+              <div key={cert.id} style={{ ...styles.contentCard, cursor: orderSaving ? 'wait' : 'grab' }} draggable={!orderSaving}
+                onDragStart={e => { dragId.current = cert.id; e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(cert.id)); }}
+                onDragOver={e => e.preventDefault()}
+                onDrop={e => { e.preventDefault(); reorderCertifications(certifications.findIndex(v => v.id === dragId.current), index); dragId.current = null; }}
+                onDragEnd={() => { dragId.current = null; }}>
+                <span aria-label="Drag to reorder" className="text-xs font-semibold text-slate-500">Drag to reorder</span>
+                <img
+                  src={cert.image_url}
                   alt={cert.title}
                   style={styles.certImage}
                   onError={(e) => {

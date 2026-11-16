@@ -23,7 +23,7 @@
 //     }
 //   };
 
-  
+
 //   const showMessage = (msg, type = 'success') => {
 //     setMessage(msg);
 //     setMessageType(type);
@@ -35,7 +35,7 @@
 //   useEffect(() => {
 //     fetchTestimonials();
 //   }, []);
-  
+
 //   // const feedbacks = [
 //   //   {
 //   //     id: 1,
@@ -46,7 +46,7 @@
 //   //     videoUrl:
 //   //       "/Vedios/NABILA-NASIR-AMIR-PIUBLIC-SCHOOL.mp4",
 //   //     role: "School Principal",
-     
+
 //   //   },
 //   //   {
 //   //     id: 2,
@@ -57,7 +57,7 @@
 //   //     videoUrl:
 //   //       "/Vedios/AHSAN-GHAURI-KALSKE-WATER-RO-PLANT.mp4",
 //   //     role: "Plant Manager",
-      
+
 //   //   },
 //   // ];
 
@@ -93,7 +93,7 @@
 //         </div>
 
 //         {/* Feedback Grid */}
-//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+//         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
 //           {feedbacks.map((feedback, index) => (
 //             <div
 //               key={feedback.id}
@@ -251,7 +251,7 @@ const ClientFeedbacks = () => {
       }
     } catch (error) {
       console.error('Error fetching testimonials:', error);
-      
+
       // Handle different types of errors
       if (error.code === 'NETWORK_ERROR' || error.message === 'Network Error') {
         showMessage('Network error: Unable to connect to server', 'error');
@@ -264,7 +264,7 @@ const ClientFeedbacks = () => {
       } else {
         showMessage(error.response?.data?.message || 'Error fetching testimonials', 'error');
       }
-      
+
       // Set empty array as fallback
       setFeedbacks([]);
     } finally {
@@ -341,11 +341,10 @@ const ClientFeedbacks = () => {
       <div className="max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8">
         {/* Message Display */}
         {message && (
-          <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${
-            messageType === 'error' 
-              ? 'bg-red-100 border border-red-400 text-red-700' 
+          <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg ${messageType === 'error'
+              ? 'bg-red-100 border border-red-400 text-red-700'
               : 'bg-green-100 border border-green-400 text-green-700'
-          }`}>
+            }`}>
             <div className="flex items-center">
               <span className="mr-2">
                 {messageType === 'error' ? '⚠️' : '✅'}
@@ -371,17 +370,17 @@ const ClientFeedbacks = () => {
           //   <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
           //   <span className="ml-3 text-[#222222]">Loading testimonials...</span>
           // </div>
-           <div className="flex items-center justify-center h-90 ">
-     
-      {/* <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"> */}
-        <img src="/siteicon.png" alt="" width={200} height={200}/>
-      {/* </div> */}
-    </div>
+          <div className="flex items-center justify-center h-90 ">
+
+            {/* <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"> */}
+            <img src="/siteicon.png" alt="" width={200} height={200} />
+            {/* </div> */}
+          </div>
         )}
 
         {/* Feedback Grid */}
         {!loading && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
             {displayFeedbacks.map((feedback, index) => (
               <div
                 key={feedback.id || index}

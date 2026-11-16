@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import React, { useEffect, useState } from "react";
 import { useParams } from '@/lib/router-compat';
 import axios from "axios";
@@ -77,6 +78,7 @@ export default function BlogDetails({blog,url}) {
         type="article"
       />
     
+      <CmsPageLayout slug="/Blog/[slug]">
       <div className={styles.container}>
       <article className={styles.blogWrapper}>
         {/* Header with Gradient Background */}
@@ -215,7 +217,7 @@ export default function BlogDetails({blog,url}) {
 
       </article>
     </div>
-
+      </CmsPageLayout>
     </>
 
   );

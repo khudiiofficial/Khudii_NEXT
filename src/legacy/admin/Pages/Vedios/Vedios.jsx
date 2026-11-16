@@ -1,3 +1,4 @@
+import { adminConfirm } from '@/lib/admin-dialogs';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import VideoForm from './VideoForm';
@@ -49,7 +50,7 @@ const fetchVideos = async () => {
 
   // Handle delete video
   const handleDelete = async (id) => {
-  if (!window.confirm('Are you sure you want to delete this video?')) {
+  if (!(await adminConfirm('Are you sure you want to delete this video?'))) {
     return;
   }
 

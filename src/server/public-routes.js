@@ -1,7 +1,8 @@
+import {publicCmsV2Routes} from './cms-v2/routes.js';
 import {publicResolveRedirect,recordPublic404} from './site-diagnostics.js';
 import { receivePublicAnalytics } from './admin-backend/controllers/analytics.js';
 import { getPublishedPodcasts } from './podcast-controller.js';
-import { cmsGetPublicPage, cmsGetPublicSettings } from './cms-controller.js';
+import { cmsGetPublicPage, cmsGetPublicSettings, cmsGetHeaderSettings } from './cms-controller.js';
 import {
   AddVolunteer,
   ApplyForJob,
@@ -44,6 +45,7 @@ import {
 const route = (method, path, handler) => ({ method, path, handlers: [handler] });
 
 export const routes = [
+  ...publicCmsV2Routes,
   { method:'GET',path:'/api/traffic/resolve',handlers:[publicResolveRedirect] },
   { method:'POST',path:'/api/traffic/404',handlers:[recordPublic404] },
   route('GET', '/cms/page', cmsGetPublicPage),
@@ -78,6 +80,7 @@ export const routes = [
   route('GET', '/api/stories', getStoriesData),
   route('GET', '/api/events', getEventData),
   route('GET', '/api/telephone', getTelephoneData),
+  route('GET', '/api/header', cmsGetHeaderSettings),
   route('GET', '/api/footer', getFooterContent),
   route('GET', '/api/getabout', getAllContent),
   route('GET', '/api/seo', getSEOData),

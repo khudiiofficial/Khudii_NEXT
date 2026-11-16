@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 // src/components/OrganizationDetail.jsx
 import React, {  useState } from "react";
 // import axios from "axios";
@@ -70,6 +71,7 @@ if (error) return (
   image={org?.introductory_image_path || "/Khudii.webp"}
   url={`${url}/${org?.slug || ''}`}
 />
+<CmsPageLayout slug="/organization/[slug]">
 <>
   <Crousel setloader={setloader} key={org.slug}/>
   </>
@@ -81,6 +83,7 @@ if (error) return (
   {/* <>
   <Blogs loader1={loader} key={org.slug}/>
   </> */}
+  </CmsPageLayout>
   </>
   );
 };

@@ -6,16 +6,16 @@ const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
 const DifferentOrganizations = () => {
   const [loading, setLoading] = useState(false);
   const [organizations, setOrganizations] = useState([]);
-  const [error,setError]=useState(null)
-  const nav=useNavigate()
+  const [error, setError] = useState(null)
+  const nav = useNavigate()
   useEffect(() => {
     (async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`${APIPath}/items`,{withCredentials:true});
-      
+        const res = await axios.get(`${APIPath}/items`, { withCredentials: true });
+
         setOrganizations(res.data); // replace with res.data later
-     
+
       } catch (error) {
         console.log(error);
         setError(error.message)
@@ -30,29 +30,29 @@ const DifferentOrganizations = () => {
       //   <div className="loader"></div>
       // </div>
       <div className="flex items-center justify-center h-90 ">
-     
-      {/* <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"> */}
-        <img src="/siteicon.png" alt="" width={200} height={200}/>
-      {/* </div> */}
-    </div>
+
+        {/* <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"> */}
+        <img src="/siteicon.png" alt="" width={200} height={200} />
+        {/* </div> */}
+      </div>
     );
   }
 
-if(error){
-  return(
-     <div className={`errorContainer`}>
-          <div className={`errorIcon`}>⚠️</div>
-          <h2 className={`errorTitle`}>Unable to Load Content</h2>
-          <p className={`errorMessage`}>{error}</p>
-          <button 
-            className={`bg-[#e7001e] retryButton`}
-            onClick={() => window.location.reload()}
-          >
-            Retry
-          </button>
-        </div>
-        )
-}
+  if (error) {
+    return (
+      <div className={`errorContainer`}>
+        <div className={`errorIcon`}>⚠️</div>
+        <h2 className={`errorTitle`}>Unable to Load Content</h2>
+        <p className={`errorMessage`}>{error}</p>
+        <button
+          className={`bg-[#e7001e] retryButton`}
+          onClick={() => window.location.reload()}
+        >
+          Retry
+        </button>
+      </div>
+    )
+  }
   return (
     <div className="org-container py-14 px-6">
       <div className="max-w-7xl mx-auto">
@@ -77,29 +77,37 @@ if(error){
             </div>
           ))}
         </div> */}
-         <div className="max-w-[1240px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+        <div className="max-w-[1240px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           {organizations.length > 0 ? (
             organizations.map((org, idx) => (
               <article
-              onClick={()=>{nav(`/${org.slug}`,{state:{id:org.id}})}}
+                onClick={() => { nav(`/${org.slug}`, { state: { id: org.id } }) }}
                 key={org.id || idx}
                 className="cursor-pointer group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-100"
                 role="article"
                 aria-labelledby={`org-title-${org.id || idx}`}
               >
                 {/* Image */}
-                <div className="w-full overflow-hidden bg-white rounded-t-xl">
-              <img
-                src={org.introductory_image_path || '/placeholder-org.webp'}
-                alt={org.name || 'Organization logo'}
-                className="w-100 object-cover duration-500"
-                loading="lazy"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = '/fallback-org.png';
-                }}
-              />
-</div>
+                <div className="w-full h-48 overflow-hidden bg-white rounded-t-xl relativew-full h-auto overflow-hidden bg-gray-100 rounded-t-xl relative">
+                  <img
+                    src={org.introductory_image_path || '/placeholder-org.webp'}
+                    alt={org.name || 'Organization logo'}
+                    className="w-full h-full object-contain duration-500 transition-all hover:scale-105"
+                    loading="lazy"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      if (!target.dataset.retried && org.introductory_image_path?.includes('media.khudii.com')) {
+                        target.dataset.retried = 'true';
+                        target.src = org.introductory_image_path.includes('?')
+                          ? `${org.introductory_image_path}&t=${Date.now()}`
+                          : `${org.introductory_image_path}?t=${Date.now()}`;
+                      } else {
+                        target.onerror = null;
+                        target.src = '/fallback-org.png';
+                      }
+                    }}
+                  />
+                </div>
 
                 {/* Content */}
                 <div className="p-4 sm:p-4">
@@ -113,8 +121,8 @@ if(error){
                   <p className="text-[#222222]-600 text-sm leading-relaxed mb-4 line-clamp-3">
                     {org.description
                       ? org.description
-                          .replace(/<[^>]*>/g, '') // strip HTML for safety (or use DOMPurify if rich text needed)
-                          .substring(0, 140) + (org.description.length > 140 ? '...' : '')
+                        .replace(/<[^>]*>/g, '') // strip HTML for safety (or use DOMPurify if rich text needed)
+                        .substring(0, 140) + (org.description.length > 140 ? '...' : '')
                       : 'Empowering communities through sustainable initiatives.'}
                   </p>
 

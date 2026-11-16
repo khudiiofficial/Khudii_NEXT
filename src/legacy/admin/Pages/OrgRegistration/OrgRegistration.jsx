@@ -1,3 +1,4 @@
+import { adminConfirm } from '@/lib/admin-dialogs';
 // import React, { useState, useEffect } from 'react';
 // import axios from 'axios';
 // import './OrgRegistartion.css';
@@ -251,7 +252,7 @@ const OrgRegistration = () => {
   };
 
   const deleteSubmission = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this submission?')) {
+    if (!(await adminConfirm('Are you sure you want to delete this submission?'))) {
       return;
     }
 

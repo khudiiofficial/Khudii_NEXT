@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import React from 'react'
 import PageHeader from '../../componets/PageHeader/PageHeader'
 import VideoGallery from '../../componets/vediosComponent/VediosComponent'
@@ -12,6 +13,7 @@ const Vedios = ({con,url}) => {
         url={`${url}/videos`}
         type="website"
       />
+    <CmsPageLayout slug="/videos">
       
      <PageHeader 
             title="Videos"
@@ -22,7 +24,8 @@ const Vedios = ({con,url}) => {
           />
 
           <VideoGallery/>
-    </>
+    </CmsPageLayout>
+</>
   )
 }
 

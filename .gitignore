@@ -5,9 +5,7 @@
 /.next/
 /out/
 /.cursor/*
-/scripts/*
-/src/docs/*
-
+ 
 # production
 /build
  
@@ -16,11 +14,11 @@
 *.pem
 *.rar
 *.zip
-/kingtravelcan_html
 *.html
 *.php
 /temp
 /temp_html
+public/uploads/
  
 # debug
 npm-debug.log*
@@ -33,6 +31,8 @@ yarn-error.log*
 .env.*
 *.env
 *.env.*
+env.local
+env.production
 
 # typescript
 *.tsbuildinfo
@@ -50,16 +50,12 @@ test-db.ts
 test-save.ts
 fix.ts
 fix-db.js
-src/scratch/sync_hotels.ts
 check.ts
 temp_errors.md
 test-db.js
 clear-db.js
 check_packages.ts
 check_pages.ts
-scripts/check-prod-db.mjs
-scripts/db_check.js
-scripts/fix_input_colors.js
 create_table.ts
 test_fetch.ts
 test_insert.ts
@@ -68,27 +64,22 @@ test_insert.ts
 temp-fetch.js
 temp-fetch.ts
 test-insert.ts
-update-flight-fields.ts
-migrate-flight-enquiries.ts
-src/lib/emailTemplate.ts
-src/lib/emailTemplate.ts
 drizzle/meta/_journal.json
+!/drizzle/
+/drizzle/*
+!/drizzle/0003_hotel_directory.sql
+!/drizzle/0004_hotels_cms_page.sql
 fix.js
 alter_table.mjs
-src/app/api/seed-blogs/route.ts
 *.cjs
-scripts/fix_quote_enquiries.mjs
-scripts/test_smtp.mjs
-*.cjs
-/src/docs
+docs/performance
+env.local
+/scripts
+env.local
+/delivery
+/database/
 *.md
-.vscode
-
-.tmp-db-check.js
-migration-output.txt
-.tmp-live-db-fix.js
-/scratch
-/scratch
-scratch/create_tables.js
-scratch/alter_text_to_longtext.js
-/docs/performance
+/docs/*
+/migrations/*
+/scripts/
+/tests

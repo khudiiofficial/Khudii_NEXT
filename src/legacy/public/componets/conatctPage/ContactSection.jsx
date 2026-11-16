@@ -213,7 +213,7 @@ const myDivRef = useRef(null);
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-slate-800">Call Us</h3>
+                <h3 className="font-semibold text-[#02236E]">Call Us</h3>
                 <a  target="_blank"
                   className="text-slate-700 font-medium block"
                   href={`tel:${tel}`}
@@ -234,7 +234,7 @@ const myDivRef = useRef(null);
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-slate-800">Email Us</h3>
+                <h3 className="font-semibold text-[#02236E]">Email Us</h3>
                 <a  target="_blank"
                   className="text-slate-700 font-medium block"
                   href={`mailto:${footerdata.email}`}

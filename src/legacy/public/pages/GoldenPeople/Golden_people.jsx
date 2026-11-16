@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import React from 'react'
 import PageHeader from '../../componets/PageHeader/PageHeader'
 import SEO from '../../componets/Helmet/Helmet'
@@ -12,6 +13,7 @@ const Golden_people = ({con,url}) => {
         url={`${url}/golden-people`}
         image="/golden-people.png.webp"
       />
+    <CmsPageLayout slug="/golden-people">
        <PageHeader 
             title="Golden People"
             breadcrumbs={[
@@ -44,7 +46,8 @@ const Golden_people = ({con,url}) => {
         </div>
       </div>
     </section>
-    </>
+    </CmsPageLayout>
+</>
   )
 }
 

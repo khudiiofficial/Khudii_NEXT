@@ -256,7 +256,7 @@
 }
 
 .btn-primary {
-  background: #02236e !important;
+  background: #2563eb !important;
   color: white;
 }
 
@@ -275,7 +275,7 @@
 
 .btn-outline {
   background: transparent;
-  color: #02236e;
+  color: #2563eb;
   border: 1px solid #d1d5db;
 }
 
@@ -437,7 +437,7 @@
 .person-position {
   margin: 0 0 4px 0;
   font-size: 0.875rem;
-  color: #02236e;
+  color: #2563eb;
 }
 
 .person-role {

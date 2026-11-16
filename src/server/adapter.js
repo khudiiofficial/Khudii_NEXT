@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { recordBackendLog } from './site-diagnostics.js';
 
 function compilePath(pattern) {
   const keys = [];
@@ -76,6 +77,7 @@ export async function dispatch(request, routes, originalPath) {
   }
 
   if (!matched) {
+    await recordBackendLog({method:request.method,path:originalPath,status:404,source:'api-router',message:'Route not found'});
     return NextResponse.json(
       { success: false, message: 'Route not found', path: originalPath, method: request.method },
       { status: 404 },
@@ -91,8 +93,11 @@ export async function dispatch(request, routes, originalPath) {
   try {
     body = await bodyFor(request);
   } catch (error) {
+    await recordBackendLog({method:request.method,path:originalPath,status:400,source:'request-body',message:'Invalid request body'});
     return NextResponse.json({ success: false, message: 'Invalid request body' }, { status: 400 });
   }
+
+  const isAdminMutation = originalPath !== '/auth/login' && matched.route.handlers.length > 1 && ['POST','PUT','PATCH','DELETE'].includes(request.method);
 
   const req = {
     method: request.method,
@@ -202,6 +207,23 @@ export async function dispatch(request, routes, originalPath) {
       ...(process.env.NODE_ENV === 'development' ? { error: error.message } : {}),
     };
   }
+
+  // Capture both successful and failed authenticated mutations for RCA.
+  if (isAdminMutation && req.user) {
+    const { writeActivityLog } = await import('./admin-backend/controllers/activityLogs.js');
+    await writeActivityLog({actor:req.user.id || req.user.userId || req.user.email, method:request.method, path:originalPath,status,ip:(request.headers.get('x-forwarded-for') || '').split(',')[0].trim()});
+  }
+
+  // Count confirmed public form submissions without collecting form field values.
+  const publicForms = new Set(['/api/contact','/api/volunteer','/api/job-application','/api/contribute-story','/api/donations','/contact-inquiry','/api/organization/submit']);
+  if (!isAdminMutation && request.headers.get('x-khudii-surface') !== 'admin' && request.method === 'POST' && publicForms.has(originalPath) && status >= 200 && status < 300 && payload?.success !== false) {
+    try {
+      const { recordAnalyticsEvent, categoryForPath } = await import('./admin-backend/controllers/analytics.js');
+      await recordAnalyticsEvent({ surface:'frontend', category:categoryForPath(originalPath), action:'submit_success', path:originalPath });
+    } catch (error) { console.error('[form analytics]', error.message); }
+  }
+
+  if (status >= 400) await recordBackendLog({method:request.method,path:originalPath,status,source:matched.route.handlers.length>1?'admin-api':'public-api',message:status>=500?'Internal server error':'Request returned '+status});
 
   if (payload instanceof Response) return payload;
   if (payload === undefined) payload = { success: status < 400 };

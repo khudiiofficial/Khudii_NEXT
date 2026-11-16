@@ -272,9 +272,9 @@
 }
 
 .carousel-admin .type-selector-btn.active {
-  border-color: #02236e;
+  border-color: #2563eb;
   background: #eef3ff;
-  color: #02236e;
+  color: #2563eb;
 }
 
 .carousel-admin .form-actions {
@@ -310,7 +310,7 @@
 }
 
 .carousel-admin .btn-primary {
-  background: #02236e;
+  background: #2563eb;
   color: #ffffff;
 }
 
@@ -393,7 +393,7 @@
 
 .carousel-admin .filter-btn {
   padding: 8px 20px;
-  border: 2px solid #02236e;
+  border: 2px solid #2563eb;
   color: #222222;
   background: transparent;
   border-radius: 6px;
@@ -409,7 +409,7 @@
 }
 
 .carousel-admin .filter-btn.active {
-  background: #02236e;
+  background: #2563eb;
   color: #ffffff;
 }
 
@@ -559,7 +559,7 @@
 }
 
 .carousel-admin .image-type-mobile {
-  color: #02236e;
+  color: #2563eb;
 }
 
 .carousel-admin .image-type-desktop {
@@ -734,7 +734,7 @@
 }
 
 .carousel-admin .switch-control input:checked + .switch-slider {
-  background: #02236e;
+  background: #2563eb;
 }
 
 .carousel-admin .switch-control input:checked + .switch-slider::after {
@@ -937,7 +937,7 @@
 }
 
 .carousel-admin .card-slug-input:focus {
-  border-color: #02236e;
+  border-color: #2563eb;
   outline: none;
   box-shadow: 0 0 0 3px rgba(2, 35, 110, 0.12);
 }
@@ -1008,9 +1008,9 @@
 }
 
 .carousel-admin .btn-apply-slug:hover:not(:disabled) {
-  background: #02236e;
+  background: #2563eb;
   color: #ffffff;
-  border-color: #02236e;
+  border-color: #2563eb;
 }
 
 .carousel-admin .btn-apply-slug:disabled {
@@ -1024,7 +1024,7 @@
   gap: 12px;
   padding: 12px 16px;
   background: #f0f6ff;
-  border-left: 4px solid #02236e;
+  border-left: 4px solid #2563eb;
   border-radius: 8px;
   margin-bottom: 20px;
   font-size: 13px;

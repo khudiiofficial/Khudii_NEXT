@@ -1,5 +1,5 @@
-'use client';
-import dynamic from 'next/dynamic';
-import PublicPage from '@/components/PublicPage';
-const Component = dynamic(() => import('@/legacy/public/pages/Home/Home'), { ssr: true });
-export default function Page() { return <PublicPage component={Component} seoPath="/" passSeo={true} />; }
+import ClientPage from './page.client';
+import {generateKhudiiPageMetadata} from '@/server/seo-intelligence';
+export const dynamic='force-dynamic';
+export async function generateMetadata(){return generateKhudiiPageMetadata('/','Home');}
+export default function Page(){return <ClientPage/>;}

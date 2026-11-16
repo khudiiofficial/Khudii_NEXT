@@ -81,7 +81,8 @@
 }
 
 .class1 {
-  color: #0033A0; /* Improved contrast - darker blue */
+  color: #02236E;
+  /* Improved contrast - darker blue */
   text-align: center;
   margin-bottom: 20px;
   font-size: 34px;
@@ -126,17 +127,17 @@
     min-height: 44px;
     min-width: 44px;
   }
-  
+
   .class2 {
     height: auto;
     width: 150px;
   }
-  
+
   .class3 {
     height: 150px;
     width: 150px;
   }
-  
+
   .wrapper {
     padding: 0px 0px;
   }
@@ -162,10 +163,12 @@
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
   }
+
   50% {
     transform: scale(1.1);
     box-shadow: 0 0 0 15px rgba(59, 130, 246, 0);
   }
+
   100% {
     transform: scale(1);
     box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
@@ -178,6 +181,7 @@
 
 /* Respect reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
+
   .partner_mob,
   .partner_mob:hover,
   .partner_mob:focus-visible,
@@ -186,8 +190,8 @@
     transition: none;
     transform: none;
   }
-  
-  :global(img) {
+
+  .partner_mob :global(img) {
     transition: none;
   }
 }
@@ -197,7 +201,7 @@
   .partner_mob {
     border: 1px solid ButtonText;
   }
-  
+
   .partner_mob:focus-visible {
     outline: 2px solid ButtonText;
   }
@@ -218,11 +222,11 @@
 
 /* Ensure images have proper contrast against background */
 /* img { */
-  /* background-color: #f5f5f5; Fallback background while loading */
+/* background-color: #f5f5f5; Fallback background while loading */
 /* } */
 
 /* Loading state styles */
-:global([role="status"]) {
+.class4 :global([role="status"]) {
   padding: 2rem;
   text-align: center;
   animation: fadeIn 0.3s ease-in;
@@ -232,6 +236,7 @@
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -253,9 +258,9 @@
 }
 
 /* Improve focus visibility for all interactive elements */
-button:focus-visible,
-[role="button"]:focus-visible,
-a:focus-visible {
+.class4 button:focus-visible,
+.class4 [role="button"]:focus-visible,
+.class4 a:focus-visible {
   outline: 2px solid #0066FF;
   outline-offset: 2px;
   box-shadow: 0 0 0 4px rgba(0, 102, 255, 0.2);
@@ -263,5 +268,6 @@ a:focus-visible {
 
 /* Ensure text contrast in all states */
 .text-gray-600 {
-  color: #4B5563; /* WCAG AA compliant */
+  color: #4B5563;
+  /* WCAG AA compliant */
 }

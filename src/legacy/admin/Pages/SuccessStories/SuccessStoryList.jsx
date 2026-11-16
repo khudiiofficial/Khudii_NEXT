@@ -1,8 +1,9 @@
 import React from 'react';
-import {GripVertical,ChevronUp,ChevronDown} from 'lucide-react';
+import {GripVertical,ChevronUp,ChevronDown,Sliders} from 'lucide-react';
 import AdminPublishSwitch from '@/components/AdminPublishSwitch';
+import AdminIconAction from '@/components/AdminIconAction';
 
-const SuccessStoryList = ({ stories, onEdit, onDelete, onMove, onToggle, onDropRow, dragId, ordering }) => {
+const SuccessStoryList = ({ stories, onEdit, onDuplicate, onDelete, onMove, onToggle, onDropRow, onSeo, dragId, ordering }) => {
   if (stories.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-md p-8 text-center">
@@ -78,21 +79,19 @@ const SuccessStoryList = ({ stories, onEdit, onDelete, onMove, onToggle, onDropR
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <AdminPublishSwitch checked={story.is_published!==0} disabled={ordering} onChange={value=>onToggle(story,value)} label={story.is_published!==0?'Published':'Draft'}/>
+                  <div className="flex justify-end gap-2 items-center"><AdminIconAction action={Boolean(story.is_published)?'hide':'show'} disabled={ordering} onClick={()=>onToggle(story,!Boolean(story.is_published))} label={`${Boolean(story.is_published)?'Hide':'Publish'} ${story.title}`}/><span className={`kh-status-chip ${Boolean(story.is_published)?'is-live':'is-draft'}`}>{Boolean(story.is_published)?'Published':'Draft'}</span></div>
 
-                  <div className="flex justify-end space-x-2">
+                  <div className="flex justify-end gap-2 mt-2">
                     <button
-                      onClick={() => onEdit(story)}
-                      className="cursor-pointer text-[#2563eb] hover:text-[#1d4ed8] transition-colors duration-200"
+                      type="button"
+                      onClick={() => onSeo && onSeo(story)}
+                      title={`Open SEO Center for ${story.title}`}
+                      className="grid h-8 w-8 place-items-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition-colors"
                     >
-                      Edit
+                      <Sliders size={13} />
                     </button>
-                    <button
-                      onClick={() => onDelete(story.id)}
-                      className="cursor-pointer text-[#e7001e] hover:text-[#f80120] transition-colors duration-200"
-                    >
-                      Delete
-                    </button>
+                    <AdminIconAction action="edit" label={`Edit ${story.title}`} onClick={()=>onEdit(story)} /><AdminIconAction action="duplicate" label={`Duplicate ${story.title}`} onClick={()=>onDuplicate(story)} />
+                    <AdminIconAction action="delete" label={`Delete ${story.title}`} onClick={()=>onDelete(story.id)} />
                   </div>
                 </td>
               </tr>

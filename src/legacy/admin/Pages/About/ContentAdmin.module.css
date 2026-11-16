@@ -181,7 +181,7 @@
 .formGroup input:focus,
 .formGroup textarea:focus {
   outline: none;
-  border-color: #02236e;
+  border-color: #2563eb;
 }
 
 .formGroup textarea {
@@ -234,7 +234,7 @@
 /* Buttons */
 .primaryBtn {
   padding: 12px 24px;
-  background: #02236e;
+  background: #2563eb;
   color: white;
   border: none;
   border-radius: 6px;
@@ -328,7 +328,7 @@
 
 .itemContent h4 {
   margin: 0 0 8px 0;
-  color: #02236e;
+  color: #2563eb;
   font-size: 1.5rem;
   font-weight: 600;
 }

@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import React from 'react'
 import PageHeader from '../../componets/PageHeader/PageHeader'
 import ContactSection from '../../componets/conatctPage/ContactSection'
@@ -13,6 +14,7 @@ const ContactUs = ({con,url}) => {
         url={`${url}/contact`}
         type="website"
       />
+    <CmsPageLayout slug="/contact">
      <PageHeader 
                 title="Contact"
                 breadcrumbs={[
@@ -23,7 +25,8 @@ const ContactUs = ({con,url}) => {
 
     <ContactSection/>
     
-    </>
+    </CmsPageLayout>
+</>
   )
 }
 

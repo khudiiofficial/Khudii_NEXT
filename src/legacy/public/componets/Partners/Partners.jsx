@@ -15,10 +15,10 @@
 //   try {
 //     const res=await axios.get(`${APIPath}/items`)
 //     if(res.status===200){
-      
+
 //   setarr(res.data)
 //     }
-    
+
 //   } catch (error) {
 //     console.error(error)
 //   }
@@ -49,12 +49,12 @@
 
 //   return (
 //     <div className="w-full flex flex-col bg-[#f0f0f0] items-center">
-    
+
 //       <h2 className="text-2xl sm:text-3xl font-bold text-[#02236e] p-4 md:p-8 lg:p-10">
 //         Our Partners
 //       </h2>
 
-   
+
 //       <div>
 //       <div className="max-w-[1240px] mx-auto px-4 flex flex-wrap justify-center items-center gap-2 sm:gap-2 md:gap-4 pb-8">
 //         {arr.map((ele, index) => (
@@ -63,7 +63,7 @@
 //             ref={(el) => (imageRefs.current[index] = el)}
 //             className={`${styles.partner_mob} cursor-pointer flex flex-wrap items-center justify-center transition-transform duration-300 hover:scale-105 overflow-hidden sm:w-[calc(40%-4px)] lg:w-[225px] lg:h-[225px] bg-white rounded-[20px]`}
 //           >
-          
+
 //             <img
 //               src={ele.partner_image}
 //               alt={`Partner ${index + 1} logo`}
@@ -151,13 +151,13 @@ const Partners = () => {
   };
 
   return (
-    <section 
+    <section
       className="w-full flex flex-col bg-[#f0f0f0] items-center"
       aria-label="Our Partners section"
     >
       {/* Heading with improved contrast */}
-      <h2 
-        className="text-2xl sm:text-3xl font-bold text-[#0033A0] p-4 md:p-8 lg:p-10"
+      <h2
+        className="text-2xl sm:text-3xl font-bold text-[#02236E] p-4 md:p-8 lg:p-10"
         id="partners-heading"
       >
         Our Partners
@@ -165,7 +165,7 @@ const Partners = () => {
 
       {/* Loading state */}
       {loading && (
-        <div 
+        <div
           className="text-center py-8"
           role="status"
           aria-live="polite"
@@ -195,19 +195,26 @@ const Partners = () => {
                   <img
                     src={ele.partner_image}
                     alt={`${ele.name || `Partner ${index + 1}`} logo`}
-                    className={`w-full h-full object-contain transition-all duration-300 ${
-                      animatedIndices.has(index)
+                    className={`w-full h-full object-contain transition-all duration-300 ${animatedIndices.has(index)
                         ? 'opacity-100 translate-y-0'
                         : 'opacity-0 translate-y-5'
-                    }`}
+                      }`}
                     style={{
                       transition: 'opacity 0.6s ease-out, transform 0.6s ease-out',
                     }}
                     loading="lazy"
                     onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = '/fallback-partner.png';
-                      e.target.alt = `Logo for ${ele.name || 'partner'} (image unavailable)`;
+                      const target = e.currentTarget;
+                      if (!target.dataset.retried && ele.partner_image?.includes('media.khudii.com')) {
+                        target.dataset.retried = 'true';
+                        target.src = ele.partner_image.includes('?')
+                          ? `${ele.partner_image}&t=${Date.now()}`
+                          : `${ele.partner_image}?t=${Date.now()}`;
+                      } else {
+                        target.onerror = null;
+                        target.src = '/fallback-partner.png';
+                        target.alt = `Logo for ${ele.name || 'partner'} (image unavailable)`;
+                      }
                     }}
                   />
                 </div>
@@ -223,7 +230,7 @@ const Partners = () => {
 
       {/* Empty state */}
       {!loading && arr.length === 0 && (
-        <div 
+        <div
           className="text-center py-8"
           role="status"
           aria-live="polite"

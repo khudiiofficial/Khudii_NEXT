@@ -1,3 +1,4 @@
+import { adminConfirm } from '@/lib/admin-dialogs';
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
@@ -30,11 +31,11 @@ const BankDataManager = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const response = await axios.get(`${APIPath}/api/bank`, {
         withCredentials: true
       });
-      
+
       if (response.data.success) {
         setBankData(response.data.data);
       } else {
@@ -126,7 +127,7 @@ const BankDataManager = () => {
 
       if (response.data.success) {
         setBankData(response.data.data);
-        
+
         // Reset image states only if we sent an image
         if (imageChanged) {
           setNewImageBase64(null);
@@ -135,9 +136,9 @@ const BankDataManager = () => {
             fileInputRef.current.value = '';
           }
         }
-        
+
         setSuccess('Bank data updated successfully!');
-        
+
         // Clear success message after 3 seconds
         setTimeout(() => setSuccess(null), 3000);
       } else {
@@ -152,7 +153,7 @@ const BankDataManager = () => {
   };
 
   const handleRemoveLogo = async () => {
-    if (!window.confirm('Are you sure you want to remove the bank logo?')) {
+    if (!(await adminConfirm('Are you sure you want to remove the bank logo?'))) {
       return;
     }
 
@@ -169,7 +170,7 @@ const BankDataManager = () => {
           fileInputRef.current.value = '';
         }
         setSuccess('Bank logo removed successfully!');
-        
+
         setTimeout(() => setSuccess(null), 3000);
       } else {
         setError('Failed to remove logo');
@@ -193,7 +194,7 @@ const BankDataManager = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
           <h1 className="text-3xl font-bold text-[#222222]">Bank Account Details</h1>
@@ -229,7 +230,7 @@ const BankDataManager = () => {
           {/* Left Column - Logo Upload */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6">Bank Logo</h2>
-            
+
             {/* Logo Preview */}
             <div className="mb-6">
               {newImageBase64 ? (
@@ -238,9 +239,9 @@ const BankDataManager = () => {
                     <img
                       src={newImageBase64}
                       alt="New Bank Logo Preview"
-                      className="h-48 w-48 object-contain rounded-lg border-2 border-[#02236e] mx-auto"
+                      className="h-48 w-48 object-contain rounded-lg border-2 border-[#02236E] mx-auto"
                     />
-                    <div className="mt-4 text-sm text-[#02236e] font-medium">
+                    <div className="mt-4 text-sm text-[#02236E] font-medium">
                       ✓ New logo ready to save
                     </div>
                   </div>
@@ -278,7 +279,7 @@ const BankDataManager = () => {
                 type="file"
                 accept="image/*"
                 onChange={handleImageSelect}
-                className="cursor-pointer block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-[#02236e] hover:file:bg-blue-200"
+                className="cursor-pointer block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-100 file:text-[#02236E] hover:file:bg-blue-200"
               />
               <p className="text-xs text-[#009dc8] mt-1">
                 Supported formats: <b>WebP</b> Only (Max size: 5MB)
@@ -297,7 +298,7 @@ const BankDataManager = () => {
                     Cancel New Logo
                   </button>
                   <div className="w-full mt-2">
-                    <p className="text-sm text-[#02236e] font-medium">
+                    <p className="text-sm text-[#02236E] font-medium">
                       ⚠️ Remember: Click "Save Bank Details" to upload this new logo
                     </p>
                   </div>
@@ -338,7 +339,7 @@ const BankDataManager = () => {
           {/* Right Column - Bank Details Form */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h2 className="text-xl font-bold text-gray-900 mb-6">Bank Account Information</h2>
-            
+
             <form onSubmit={handleSubmit} className="space-y-6">
               {/* Bank Name */}
               <div>
@@ -423,15 +424,15 @@ const BankDataManager = () => {
                   <div>
                     <p className="text-sm font-medium text-gray-700">Image Status:</p>
                     <p className="text-sm text-gray-500">
-                      {newImageBase64 
-                        ? "New logo ready to upload" 
-                        : bankData.imagepath 
-                          ? "Using existing logo" 
+                      {newImageBase64
+                        ? "New logo ready to upload"
+                        : bankData.imagepath
+                          ? "Using existing logo"
                           : "No logo set"}
                     </p>
                   </div>
                   {newImageBase64 && (
-                    <div className="px-3 py-1 bg-blue-100 text-[#02236e] rounded-full text-xs font-medium">
+                    <div className="px-3 py-1 bg-blue-100 text-[#02236E] rounded-full text-xs font-medium">
                       Pending Upload
                     </div>
                   )}
@@ -450,11 +451,10 @@ const BankDataManager = () => {
                 <button
                   type="submit"
                   disabled={saving}
-                  className={`cursor-pointer w-full px-6 py-3 rounded-lg font-medium text-white transition-colors ${
-                    saving
-                      ? 'bg-[#1c5e20] cursor-allowed'
-                      : 'bg-[#1c5e20] hover:bg-[#247b2a]'
-                  }`}
+                  className={`cursor-pointer w-full px-6 py-3 rounded-lg font-medium text-white transition-colors ${saving
+                    ? 'bg-[#1c5e20] cursor-allowed'
+                    : 'bg-[#1c5e20] hover:bg-[#247b2a]'
+                    }`}
                 >
                   {saving ? (
                     <span className="flex items-center justify-center">
@@ -467,8 +467,8 @@ const BankDataManager = () => {
                   ) : 'Save Bank Details'}
                 </button>
                 <p className="animate-pulse text-sm font-medium text-red-700 mt-2 text-center">
-                  {newImageBase64 
-                    ? "⚠️ This Will Upload The New Logo And Update Bank Details" 
+                  {newImageBase64
+                    ? "⚠️ This Will Upload The New Logo And Update Bank Details"
                     : "Only Bank Details Will Be Updated, Logo Remains Unchanged"}
                 </p>
               </div>

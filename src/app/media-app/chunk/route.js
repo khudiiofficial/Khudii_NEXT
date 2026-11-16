@@ -7,6 +7,8 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 300;
 
 const allowedMimePrefixes = ['image/', 'video/'];
+const PUBLIC_UPLOAD_MAX_BYTES = Number(process.env.PUBLIC_UPLOAD_MAX_BYTES || 10485760);
+const ALLOWED_UPLOAD_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf']);
 const allowedMimeTypes = new Set([
   'application/pdf',
   'application/msword',
@@ -72,10 +74,13 @@ export async function POST(request) {
     const total = Number(request.headers.get('x-khudii-upload-total'));
     const offset = Number(request.headers.get('x-khudii-upload-offset'));
     const declaredSize = Number(request.headers.get('x-khudii-upload-size'));
-    const maxBytes = Number(process.env.MAX_UPLOAD_BYTES || 524288000);
+    const isAdminUpload = isAdminHost(request);
+    const maxBytes = isAdminUpload ? Number(process.env.MAX_UPLOAD_BYTES || 524288000) : PUBLIC_UPLOAD_MAX_BYTES;
     const maxChunkBytes = Number(process.env.MAX_UPLOAD_CHUNK_BYTES || 2621440);
 
-    if (!allowedMimePrefixes.some((prefix) => mime.startsWith(prefix)) && !allowedMimeTypes.has(mime)) {
+    if (isAdminUpload
+      ? (!allowedMimePrefixes.some((prefix) => mime.startsWith(prefix)) && !allowedMimeTypes.has(mime))
+      : !ALLOWED_UPLOAD_TYPES.has(mime)) {
       return NextResponse.json({ success: false, message: 'Unsupported file type' }, { status: 415 });
     }
     if (![index, total, offset, declaredSize].every(Number.isFinite) || index < 0 || total < 1 || index >= total) {

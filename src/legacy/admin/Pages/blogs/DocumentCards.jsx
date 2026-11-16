@@ -1,3 +1,4 @@
+import { adminConfirm } from '@/lib/admin-dialogs';
 // frontend/src/components/DocumentCards.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
@@ -8,7 +9,7 @@ export default function DocumentCards() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(null);
-  
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,7 +19,7 @@ export default function DocumentCards() {
   const fetchDocuments = () => {
     setLoading(true);
     axios
-      .get(`${APIPath}/api/documents`,{withCredentials:true})
+      .get(`${APIPath}/api/documents`, { withCredentials: true })
       .then((res) => {
         setDocuments(res.data.reverse());
         setError(null);
@@ -30,12 +31,12 @@ export default function DocumentCards() {
       .finally(() => setLoading(false));
   };
 
-  const handleDelete = (id, name) => {
-    if (!window.confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) return;
-    
+  const handleDelete = async (id, name) => {
+    if (!(await adminConfirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`))) return;
+
     setDeleteLoading(id);
     axios
-      .delete(`${APIPath}/api/documents/${id}`,{withCredentials:true})
+      .delete(`${APIPath}/api/documents/${id}`, { withCredentials: true })
       .then(() => {
         alert("✅ Document deleted successfully!");
         fetchDocuments();
@@ -107,7 +108,7 @@ export default function DocumentCards() {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Discover and manage all your blog posts in one place
           </p>
-          
+
           {/* Create Button */}
           {/* <button
             onClick={handleCreate}
@@ -135,7 +136,7 @@ export default function DocumentCards() {
               </p>
               <button
                 onClick={handleCreate}
-                className="bg-[#02236e] text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                className="bg-[#02236E] text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
               >
                 Create Your First Blog
               </button>
@@ -156,12 +157,12 @@ export default function DocumentCards() {
                         src={doc.image_path}
                         alt={doc.Name}
                         className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                        // onError={(e) => {
-                        //   e.target.src = `https://via.placeholder.com/400x200/3B82F6/FFFFFF?text=${encodeURIComponent(doc.Name || 'Blog')}`;
-                        // }}
+                      // onError={(e) => {
+                      //   e.target.src = `https://via.placeholder.com/400x200/3B82F6/FFFFFF?text=${encodeURIComponent(doc.Name || 'Blog')}`;
+                      // }}
                       />
                     ) : (
-                      <div className="w-full h-48 bg-gradient-to-br from-[#02236e] to-purple-600 flex items-center justify-center">
+                      <div className="w-full h-48 bg-gradient-to-br from-[#02236E] to-purple-600 flex items-center justify-center">
                         <svg className="w-16 h-16 text-white opacity-80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
@@ -176,10 +177,10 @@ export default function DocumentCards() {
 
                   {/* Content Section */}
                   <div className="p-6">
-                    <h2 className="h-[57px] text-xl font-bold text-[#222222] mb-3 line-clamp-2 group-hover:text-[#02236e] transition-colors">
+                    <h2 className="h-[57px] text-xl font-bold text-[#222222] mb-3 line-clamp-2 group-hover:text-[#02236E] transition-colors">
                       {doc.Name || "Untitled Document"}
                     </h2>
-                    
+
                     <p className="text-gray-600 leading-relaxed mb-4 line-clamp-3">
                       {doc.intro ? `${doc.intro.slice(0, 120)}${doc.intro.length > 120 ? '...' : ''}` : "No description available."}
                     </p>

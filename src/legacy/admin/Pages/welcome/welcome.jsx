@@ -13,7 +13,7 @@ const WelcomeAdmin = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
-  const [cap,setcap]=useState('')
+  const [cap, setcap] = useState('')
 
 
 
@@ -24,7 +24,7 @@ const WelcomeAdmin = () => {
       const response = await axios.get(`${API_BASE_URL}/api/welcome`, {
         withCredentials: true
       });
-      
+
       if (response.data.success) {
         setWelcomeData(response.data.data);
       }
@@ -39,10 +39,10 @@ const WelcomeAdmin = () => {
   // Update welcome section data
   const handleUpdate = async (e) => {
     e.preventDefault();
-    
- if(cap){
+
+    if (cap) {
       console.log('bot detected')
-setcap('')
+      setcap('')
       return
     }
 
@@ -55,7 +55,7 @@ setcap('')
     try {
       setSaving(true);
       setMessage('');
-      
+
       const response = await axios.put(`${API_BASE_URL}/api/welcome`, welcomeData, {
         withCredentials: true
       });
@@ -99,7 +99,7 @@ setcap('')
 
       <div className="welcome-form-section">
         <form onSubmit={handleUpdate} className="w-full welcome-form">
-              <input type="hidden" onChange={(e)=>{setcap(e.target.value)}} />
+          <input type="hidden" onChange={(e) => { setcap(e.target.value) }} />
 
           <div className="form-group">
             <label htmlFor="welcome_title">Welcome Title *</label>
@@ -137,7 +137,7 @@ setcap('')
               disabled={loading}
             />
             <small>
-              Only the video ID from YouTube URL. 
+              Only the video ID from YouTube URL.
               Example: For "https://www.youtube.com/watch?v=<b>dQw4w9WgXcQ</b>", use "<b>dQw4w9WgXcQ</b>"
             </small>
           </div>
@@ -158,18 +158,18 @@ setcap('')
               </div>
             </div>
           )}
-<br /><br />
+          <br /><br />
           <div className="form-actions">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={saving || loading}
-              className="cursor-pointer bg-[#02236e] btn hover:bg-[#032f95] text-white"
+              className="cursor-pointer bg-[#02236E] btn hover:bg-[#1d4ed8] text-white"
             >
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
-            
-            <button 
-              type="button" 
+
+            <button
+              type="button"
               onClick={fetchWelcomeData}
               disabled={loading}
               className="cursor-pointer bg-[#fbf137] btn border-[#fbf137] hover:bg-[#f7e029] text-[#222222] ml-3"

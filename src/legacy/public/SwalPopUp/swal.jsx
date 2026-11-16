@@ -1,42 +1,18 @@
-import Swal from "sweetalert2";
+/**
+ * Backward compatibility wrapper for legacy public alerts.
+ * Centralized in src/lib/dialogs.js as single source of truth.
+ */
+import { showError as showDialogError, showSuccess as showDialogSuccess } from "@/lib/dialogs";
 
-  // function to show error alert
 export const showError = (message = "Something went Wrong!") => {
-  Swal.fire({
-    icon: "error",
-    title: "Error!",
-    text: message,
-
-    // icon & title color
-    iconColor: "#e7001e",
-    titleColor: "#e7001e",
-
-    confirmButtonText: "OK",
-
-    buttonsStyling: false, // REQUIRED
-    customClass: {
-      confirmButton:
-        "px-15 h-10 rounded-[15px] bg-[#e7001e] text-white font-semibold hover:bg-red-900 focus:outline-none",
-      popup: "rounded-2xl",
-      title: "text-red-800 text-2xl font-bold",
-      htmlContainer: "text-gray-600",
-    },
-  });
+  return showDialogError("Error", message);
 };
 
-export const showSuccessAlert = (message) => {
-  Swal.fire({
-    icon: "success",
-    title: "Success!",
-    html: "<p>"+message+"</p>",
-    iconColor: "#1c5e20",
-    confirmButtonText: "OK",
-    buttonsStyling: false,
-    customClass: {
-      title: "text-[#1c5e20] text-2xl font-semibold",
-      confirmButton:
-        "cursor-pointer px-6 h-10 rounded-[15px] bg-[#1c5e20] text-white font-semibold",
-      popup: "rounded-2xl",
-    },
-  });
+export const showSuccessAlert = (message = "Operation completed successfully") => {
+  return showDialogSuccess("Success!", message);
+};
+
+export default {
+  showError,
+  showSuccessAlert,
 };

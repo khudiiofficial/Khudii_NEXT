@@ -1,6 +1,6 @@
 .back-to-top-btn {
   position: fixed;
-  bottom: 140px;
+  bottom: 90px;
   right: 30px;
   width: 45px;
   height: 45px;
@@ -70,21 +70,21 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .back-to-top-btn {
-    bottom: 140px;
+    bottom: 90px;
     right: 20px;
     width: 40px;
     height: 40px;
   }
-  
+
   .back-to-top-btn i {
     font-size: 16px;
   }
-  
+
   .progress-ring {
     width: 40px;
     height: 40px;
   }
-  
+
   .progress-ring__circle-bg,
   .progress-ring__circle {
     r: 17;
@@ -92,7 +92,7 @@
     cy: 20;
     strokeWidth: 2.5;
   }
-  
+
   .back-to-top-btn:hover {
     transform: translateY(-2px) scale(1.05);
   }
@@ -101,21 +101,21 @@
 /* Extra small devices */
 @media (max-width: 480px) {
   .back-to-top-btn {
-    bottom: 140px;
+    bottom: 95px;
     right: 15px;
     width: 38px;
     height: 38px;
   }
-  
+
   .back-to-top-btn i {
     font-size: 15px;
   }
-  
+
   .progress-ring {
     width: 38px;
     height: 38px;
   }
-  
+
   .progress-ring__circle-bg,
   .progress-ring__circle {
     r: 16;

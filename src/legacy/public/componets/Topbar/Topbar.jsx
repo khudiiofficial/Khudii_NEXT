@@ -8,8 +8,8 @@ const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
 const Topbar = () => {
   const [isMobile, setIsMobile] = useState(false)
   const [texts,settexts]=useState([])
-  const [data,setdata]=useState({})
-  const [tel,settel]=useState('')
+  const [data,setdata]=useState({ phone_number: '(+92) 3198 - KHUDII (548344)' })
+  const [tel,settel]=useState('+923198548344')
 const handleAnimationComplete = () => {
   console.log('All letters have animated!');
 };
@@ -116,8 +116,8 @@ key={idx}
   onLetterAnimationComplete={handleAnimationComplete}/>
   :
   <p className={styles.mid}>
-        Pakistan's 1st E-Community of Human Purpose!
-      </p> 
+    Pakistan's First Digital Hub — Connecting Donors, Volunteers &amp; Welfare Organizations.
+  </p> 
  
 }
       <p className={styles.buttonWrapper}>

@@ -1,7 +1,14 @@
-import { listFormsInbox, updateFormInboxState, listFormEmailLogs } from './form-management.js';
-import {listSeoIntelligence,updateSeoEntity,getSeoAuditHistory,captureSeoAuditSnapshot} from './seo-intelligence.js';
+import {processMediaImage} from './media-processing.js';
+import { listUsersHandler, createUserHandler, updateUserHandler, deleteUserHandler } from './user-management.js';
+import { getMediaStorageHandler, setMediaStorageHandler, testPublicMediaHandler, testFtpMediaHandler } from './media-storage-management.js';
+import {requireLegacyRole} from './cms-v2/security.js';
+import {adminCmsV2Routes} from './cms-v2/routes.js';
+import { listFormsInbox, updateFormInboxState, listFormEmailLogs, getFormInboxDetail, deleteFormSubmission, getFormsTimeline } from './form-management.js';
+import {listSeoIntelligence,updateSeoEntity,getSeoAuditHistory,captureSeoAuditSnapshot,getEntitySeo,saveEntitySeo,generateEntitySeo} from './seo-intelligence.js';
 import {getBackendLogs,exportBackendLogs,listRedirects,createRedirect,updateRedirect,deleteRedirect} from './site-diagnostics.js';
 import { reorderAdminCollection } from './admin-backend/controllers/reorder.js';
+import {listOrderedOrganizations,reorderOrganizations,setOrganizationVisibility,duplicateOrganization} from './admin-backend/controllers/organizationManagement.js';
+import {listManageableBlogs,publishBlog,reorderBlogs,duplicateBlog} from './admin-backend/controllers/blogManagement.js';
 import { receiveAdminAnalytics } from './admin-backend/controllers/analytics.js';
 import { listAdminPodcasts, getAdminPodcast, createPodcast, updatePodcast, deletePodcast, reorderPodcasts, getYoutubePodcastMetadata } from './podcast-controller.js';
 import { getActivityLogs, downloadActivityLogs } from './admin-backend/controllers/activityLogs.js';
@@ -130,13 +137,19 @@ import {
   updateWelcomeSection,
 } from './admin-backend/controllers/mainController.js';
 import { auth } from './admin-backend/middleware/auth.js';
-import {cmsGetPage,cmsSavePage,cmsGetSettings,cmsSaveSettings,cmsGetMedia,cmsUpdateMedia,cmsUploadMedia} from './cms-controller.js';
+import {cmsGetPage,cmsSavePage,cmsGetSettings,cmsSaveSettings,cmsGetHeaderSettings,cmsSaveHeaderSettings,cmsGetMedia,cmsUpdateMedia,cmsUploadMedia} from './cms-controller.js';
 
-const protectedRoute = (method, path, handler) => ({ method, path, handlers: [auth, handler] });
+const protectedRoute = (method, path, handler) => ({ method, path, handlers: [auth, requireLegacyRole, handler] });
 const openRoute = (method, path, handler) => ({ method, path, handlers: [handler] });
 
 export const routes = [
+  ...adminCmsV2Routes,
+  protectedRoute('GET','/api/header',cmsGetHeaderSettings),
+  protectedRoute('PUT','/api/header',cmsSaveHeaderSettings),
   protectedRoute('GET','/admin/seo/intelligence',listSeoIntelligence),
+  protectedRoute('GET','/admin/seo/entity',getEntitySeo),
+  protectedRoute('POST','/admin/seo/entity',saveEntitySeo),
+  protectedRoute('POST','/admin/seo/generate',generateEntitySeo),
   protectedRoute('GET','/admin/seo/history',getSeoAuditHistory),
   protectedRoute('POST','/admin/seo/audit-snapshot',captureSeoAuditSnapshot),
   protectedRoute('PUT','/admin/seo/intelligence',updateSeoEntity),
@@ -149,12 +162,25 @@ export const routes = [
   protectedRoute('GET','/admin/cms/page',cmsGetPage),
   protectedRoute('PUT','/admin/cms/page',cmsSavePage),
   protectedRoute('GET','/admin/forms/inbox',listFormsInbox),
+  protectedRoute('GET','/admin/forms/timeline',getFormsTimeline),
+  protectedRoute('GET','/admin/forms/inbox/detail/:form/:id',getFormInboxDetail),
   protectedRoute('PATCH','/admin/forms/inbox/state',updateFormInboxState),
+  protectedRoute('POST','/admin/forms/inbox/state',updateFormInboxState),
+  protectedRoute('DELETE','/admin/forms/inbox/:form/:id',deleteFormSubmission),
   protectedRoute('GET','/admin/forms/email-logs',listFormEmailLogs),
   protectedRoute('GET','/admin/settings',cmsGetSettings),
   protectedRoute('PUT','/admin/settings',cmsSaveSettings),
+  protectedRoute('GET','/admin/users',listUsersHandler),
+  protectedRoute('POST','/admin/users',createUserHandler),
+  protectedRoute('PUT','/admin/users/:id',updateUserHandler),
+  protectedRoute('DELETE','/admin/users/:id',deleteUserHandler),
+  protectedRoute('GET','/admin/media/storage-mode',getMediaStorageHandler),
+  protectedRoute('POST','/admin/media/storage-mode',setMediaStorageHandler),
+  protectedRoute('POST','/admin/media/test-public',testPublicMediaHandler),
+  protectedRoute('POST','/admin/media/test-ftp',testFtpMediaHandler),
   protectedRoute('GET','/admin/media',cmsGetMedia),
   protectedRoute('PUT','/admin/media',cmsUpdateMedia),
+  protectedRoute('POST','/admin/media/process',processMediaImage),
   protectedRoute('POST','/admin/media/upload',cmsUploadMedia),
   openRoute('POST', '/auth/login', login),
   openRoute('POST', '/authlogin', authlogin),
@@ -168,12 +194,20 @@ export const routes = [
   protectedRoute('GET', '/admin/reports/activity/download', downloadActivityLogs),
   protectedRoute('GET', '/admin/reports/overview', getAdminOverview),
   protectedRoute('GET', '/organizations', getAllOrganizations),
+  protectedRoute('GET', '/admin/organizations', listOrderedOrganizations),
+  protectedRoute('PUT', '/admin/organizations/order', reorderOrganizations),
+  protectedRoute('PATCH', '/admin/organizations/:id/visibility', setOrganizationVisibility),
+  protectedRoute('POST', '/admin/organizations/:id/duplicate', duplicateOrganization),
   protectedRoute('POST', '/api/organizations', createOrganization),
   protectedRoute('GET', '/api/organizations/:id', getOrganizationById),
   protectedRoute('PUT', '/api/organizations/:id', updateOrganization),
   protectedRoute('DELETE', '/api/organizations/:id/images', deleteOrganizationImage),
   protectedRoute('POST', '/api/delete/:id', softDeleteOrganization),
 
+  protectedRoute('GET','/admin/blogs',listManageableBlogs),
+  protectedRoute('PUT','/admin/blogs/order',reorderBlogs),
+  protectedRoute('PATCH','/admin/blogs/:id/publish',publishBlog),
+  protectedRoute('POST','/admin/blogs/:id/duplicate',duplicateBlog),
   protectedRoute('GET', '/api/documents', getAllDocuments),
   protectedRoute('GET', '/api/blogs/:id', getBlogById),
   protectedRoute('POST', '/api/blogs', createBlog),

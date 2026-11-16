@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import React from 'react'
 import Topbar from '../../componets/Topbar/Topbar'
 import Crousel from '../../componets/crousel/Crousel'
@@ -24,6 +25,7 @@ const HomePage = ({con,url}) => {
         url={ url||"https://khudii.com"}
         image="/Khudii.webp"
       />
+    <CmsPageLayout slug="/">
     <Crousel/>
     <Cards/>
     <WelcomeSection/>
@@ -36,7 +38,8 @@ const HomePage = ({con,url}) => {
     <FacebookPage/>
    
 
-    </>
+    </CmsPageLayout>
+</>
 
 
 

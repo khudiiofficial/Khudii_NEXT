@@ -1,5 +1,6 @@
 import '@/legacy/admin/index.css';
 import '@/legacy/admin/App.css';
+import './admin-premium.css';
 import AdminProviders from '@/components/AdminProviders';
 
 export const metadata = {

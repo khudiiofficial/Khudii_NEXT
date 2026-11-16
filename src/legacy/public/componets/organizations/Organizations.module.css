@@ -100,7 +100,8 @@ font-weight: 700;
 }
 
 .class3 {
-  color: #0033A0; /* Improved contrast - darker blue */
+  color: #02236E;
+  /* Improved contrast - darker blue */
 }
 
 .card_container {
@@ -142,7 +143,8 @@ font-weight: 700;
 .org_btn {
   border-radius: 25px;
   color: #ffffff;
-  background-color: #CC0000; /* Darker red for better contrast */
+  background-color: #CC0000;
+  /* Darker red for better contrast */
   min-width: 44px;
   min-height: 44px;
   padding: 10px 20px;
@@ -181,7 +183,8 @@ font-weight: 700;
 }
 
 .class12 {
-  color: #0033A0; /* Improved contrast */
+  color: #02236E;
+  /* Improved contrast */
   font-size: 35px;
   font-weight: 700;
 }
@@ -191,24 +194,24 @@ font-weight: 700;
   .class12 {
     font-size: 28px;
   }
-  
+
   /* Ensure all interactive elements have adequate touch targets */
- 
+
 }
 
 @media (max-width: 576px) {
   .class12 {
     font-size: 25px;
   }
-  
+
   .exp_org_btn {
     display: none;
   }
-  
+
   .org_sec_left {
     display: none;
   }
-  
+
   /* Increase touch targets on mobile */
   .org_btn {
     padding: 12px 24px;
@@ -217,9 +220,9 @@ font-weight: 700;
 }
 
 /* Improved focus states for all interactive elements */
-a:focus-visible,
-button:focus-visible,
-[role="article"]:focus-visible {
+.main a:focus-visible,
+.main button:focus-visible,
+.main [role="article"]:focus-visible {
   outline: 2px solid #0066FF;
   outline-offset: 2px;
   border-radius: 4px;
@@ -262,22 +265,23 @@ button:focus-visible,
 }
 
 /* Improved card hover states for better UX */
-:global([role="article"]) {
+.main :global([role="article"]) {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-[role="article"]:hover {
+.main [role="article"]:hover {
   transform: translateY(-4px);
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 /* Ensure proper contrast for text in all states */
 .text-gray-600 {
-  color: #4B5563; /* WCAG AA compliant contrast ratio */
+  color: #4B5563;
+  /* WCAG AA compliant contrast ratio */
 }
 
 /* Loading and empty states with proper ARIA */
-:global([role="status"]) {
+.main :global([role="status"]) {
   padding: 2rem;
   text-align: center;
 }

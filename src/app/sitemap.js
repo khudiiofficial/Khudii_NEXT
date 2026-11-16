@@ -1,30 +1,7 @@
-const routes = [
-  '',
-  '/organizations',
-  '/about-khudii',
-  '/golden-people',
-  '/contact',
-  '/contribute-your-story',
-  '/donate-now',
-  '/success-stories',
-  '/social-media',
-  '/videos',
-  '/testimonials',
-  '/tribute',
-  '/certifications',
-  '/faqs',
-  '/blogs',
-  '/jobs',
-  '/volunteer',
-  '/organization/registration',
-];
-
-export default function sitemap() {
-  const site = (process.env.NEXT_PUBLIC_SITE_URL || 'https://khudii.com').replace(/\/$/, '');
-  return routes.map((route) => ({
-    url: `${site}${route}`,
-    lastModified: new Date(),
-    changeFrequency: route === '' ? 'daily' : 'weekly',
-    priority: route === '' ? 1 : 0.7,
-  }));
+import {getSitemapContentUrls} from '@/server/seo-intelligence';
+import {cmsV2Sitemap} from '@/server/cms-v2/metadata';
+export const dynamic='force-dynamic';
+export default async function sitemap(){
+  try{const [legacy,dynamicPages]=await Promise.all([getSitemapContentUrls(),cmsV2Sitemap().catch(()=>[])]);return [...new Map([...legacy,...dynamicPages].map(item=>[item.url,item])).values()];}
+  catch(e){console.error('[sitemap generation]',e.code||e.message);const base=(process.env.NEXT_PUBLIC_SITE_URL||'https://www.khudii.com').replace(/\/+$/,'');return [{url:base+'/',changeFrequency:'weekly',priority:1}];}
 }

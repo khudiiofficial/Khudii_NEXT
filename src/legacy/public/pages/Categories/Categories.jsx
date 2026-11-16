@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import React from 'react'
 import { useParams } from '@/lib/router-compat'
 import PageHeader from '../../componets/PageHeader/PageHeader'
@@ -101,6 +102,7 @@ const Categories = ({cat = {},url}) => {
         />
         
 
+    <CmsPageLayout slug="/Categories/[slug]">
     <PageHeader 
                         title={`${cat.name}`}
                         breadcrumbs={[
@@ -111,8 +113,7 @@ const Categories = ({cat = {},url}) => {
 
 
 <OrganizationBycategory name={cat.name}/>
-   
-
+    </CmsPageLayout>
    </>
   }
     </>

@@ -1,3 +1,4 @@
+import { adminConfirm } from '@/lib/admin-dialogs';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AdminDonations.css';
@@ -58,7 +59,7 @@ const AdminDonations = () => {
   };
 
   const deleteDonation = async (id) => {
-    if (!confirm('Are you sure you want to delete this donation?')) return;
+    if (!(await adminConfirm('Are you sure you want to delete this donation?'))) return;
 
     try {
       await axios.delete(`${API_URL}/admin/donations/${id}`, {

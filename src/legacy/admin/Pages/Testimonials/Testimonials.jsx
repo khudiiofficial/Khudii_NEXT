@@ -1,3 +1,4 @@
+import { adminConfirm } from '@/lib/admin-dialogs';
 // components/TestimonialAdmin.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -8,8 +9,8 @@ const API_URL = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
 const TestimonialAdmin = () => {
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(false);
-  
- const [cap,setcap]=useState('')
+
+  const [cap, setcap] = useState('')
 
 
   const [editingTestimonial, setEditingTestimonial] = useState(null);
@@ -74,12 +75,12 @@ const TestimonialAdmin = () => {
         showMessage('Please select a video file', 'error');
         return;
       }
-      
+
       if (file.size > 50 * 1024 * 1024) {
         showMessage('Video size must be less than 50MB', 'error');
         return;
       }
-      
+
       const reader = new FileReader();
       reader.onload = (event) => {
         setFormData(prev => ({
@@ -98,12 +99,12 @@ const TestimonialAdmin = () => {
         showMessage('Please select an image file', 'error');
         return;
       }
-      
+
       if (file.size > 5 * 1024 * 1024) {
         showMessage('Image size must be less than 5MB', 'error');
         return;
       }
-      
+
       const reader = new FileReader();
       reader.onload = (event) => {
         setFormData(prev => ({
@@ -143,10 +144,10 @@ const TestimonialAdmin = () => {
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    
- if(cap){
+
+    if (cap) {
       console.log('bot detected')
-setcap('')
+      setcap('')
       return
     }
 
@@ -165,15 +166,15 @@ setcap('')
       }, 200);
 
       const response = await api.post('/testimonials', formData);
-      
+
       clearInterval(progressInterval);
       setUploadProgress(100);
-      
+
       if (response.data.success) {
         showMessage('Testimonial Created Successfully!');
         resetForm();
         fetchTestimonials();
-        
+
         setTimeout(() => setUploadProgress(0), 1000);
       }
     } catch (error) {
@@ -185,10 +186,10 @@ setcap('')
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-    
- if(cap){
+
+    if (cap) {
       console.log('Bot Detected')
-setcap('')
+      setcap('')
       return
     }
 
@@ -216,15 +217,15 @@ setcap('')
       };
 
       const response = await api.put(`/testimonials/${editingTestimonial.id}`, updateData);
-      
+
       clearInterval(progressInterval);
       setUploadProgress(100);
-      
+
       if (response.data.success) {
         showMessage('Testimonial Updated Successfully!');
         resetForm();
         fetchTestimonials();
-        
+
         setTimeout(() => setUploadProgress(0), 1000);
       }
     } catch (error) {
@@ -235,7 +236,7 @@ setcap('')
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to Delete this Testimonial?')) {
+    if (!(await adminConfirm('Are you sure you want to Delete this Testimonial?'))) {
       return;
     }
 
@@ -289,7 +290,7 @@ setcap('')
         <h1 className="admin-title">Testimonial Management</h1>
         <p className="admin-subtitle">Manage Video Testimonials for Your Platform</p>
       </div>
-      
+
       {message && (
         <div className={`message ${messageType === 'error' ? 'message-error' : 'message-success'}`}>
           <div className="message-content">
@@ -303,14 +304,14 @@ setcap('')
 
       <div className="form-container">
         <form onSubmit={editingTestimonial ? handleUpdate : handleCreate} className="testimonial-form">
-            <input type="hidden" onChange={(e)=>{setcap(e.target.value)}} />
+          <input type="hidden" onChange={(e) => { setcap(e.target.value) }} />
           <div className="form-header">
             <h2>{editingTestimonial ? 'Edit Testimonial' : 'Add New Testimonial'}</h2>
             {editingTestimonial && (
               <span className="editing-badge">Editing: #{editingTestimonial.id}</span>
             )}
           </div>
-          
+
           <div className="form-grid">
             <div className="form-group">
               <label htmlFor="name" className="form-label">Name *</label>
@@ -361,8 +362,8 @@ setcap('')
                 <div className="file-input-icon">🖼️</div>
                 <div className="file-input-text">
                   <div className="file-input-title">
-                    {formData.thumbnail_base64 ? 'New Thumbnail Selected' : 
-                     formData.existing_thumbnail_url ? 'Current Thumbnail (Click to change)' : 'Choose Thumbnail Image'}
+                    {formData.thumbnail_base64 ? 'New Thumbnail Selected' :
+                      formData.existing_thumbnail_url ? 'Current Thumbnail (Click to change)' : 'Choose Thumbnail Image'}
                   </div>
                   <div className="file-input-subtitle">
                     {formData.existing_thumbnail_url ? 'Click to Upload New Thumbnail' : 'WEBP Only (up to 5MB)'}
@@ -377,7 +378,7 @@ setcap('')
                 className="file-input"
               />
             </label>
-            
+
             {/* Show current thumbnail in edit mode */}
             {editingTestimonial && formData.existing_thumbnail_url && !formData.thumbnail_base64 && (
               <div className="image-preview-container">
@@ -385,30 +386,30 @@ setcap('')
                   <span>Current Thumbnail</span>
                   <span className="preview-info">(Select new file above to change)</span>
                 </div>
-                <img 
-                  src={formData.existing_thumbnail_url} 
-                  alt="Current thumbnail" 
+                <img
+                  src={formData.existing_thumbnail_url}
+                  alt="Current thumbnail"
                   className="image-preview"
                 />
               </div>
             )}
-            
+
             {/* Show new thumbnail preview when selected */}
             {formData.thumbnail_base64 && (
               <div className="image-preview-container">
                 <div className="preview-header">
                   <span>New Thumbnail Preview</span>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => setFormData(prev => ({ ...prev, thumbnail_base64: null }))}
                     className="preview-close"
                   >
                     ×
                   </button>
                 </div>
-                <img 
-                  src={formData.thumbnail_base64} 
-                  alt="New thumbnail preview" 
+                <img
+                  src={formData.thumbnail_base64}
+                  alt="New thumbnail preview"
                   className="image-preview"
                 />
               </div>
@@ -421,8 +422,8 @@ setcap('')
                 <div className="file-input-icon">📹</div>
                 <div className="file-input-text">
                   <div className="file-input-title">
-                    {formData.video_base64 ? 'New Video Selected' : 
-                     editingTestimonial ? 'Change Video (Optional)' : 'Choose Video File *'}
+                    {formData.video_base64 ? 'New Video Selected' :
+                      editingTestimonial ? 'Change Video (Optional)' : 'Choose Video File *'}
                   </div>
                   <div className="file-input-subtitle">
                     {editingTestimonial ? 'Select new video to replace current one' : 'MP4, MOV, AVI up to 50MB'}
@@ -438,19 +439,19 @@ setcap('')
                 required={!editingTestimonial} // Only required for new testimonials
               />
             </label>
-            
+
             {uploadProgress > 0 && (
               <div className="upload-progress">
                 <div className="progress-bar">
-                  <div 
-                    className="progress-fill" 
+                  <div
+                    className="progress-fill"
                     style={{ width: `${uploadProgress}%` }}
                   ></div>
                 </div>
                 <div className="progress-text">Uploading... {uploadProgress}%</div>
               </div>
             )}
-            
+
             {/* Show current video in edit mode */}
             {editingTestimonial && formData.existing_video_url && !formData.video_base64 && (
               <div className="video-preview-container">
@@ -464,14 +465,14 @@ setcap('')
                 </video>
               </div>
             )}
-            
+
             {/* Show new video preview when selected */}
             {formData.video_base64 && (
               <div className="video-preview-container">
                 <div className="preview-header">
                   <span>New Video Preview</span>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     onClick={() => setFormData(prev => ({ ...prev, video_base64: null }))}
                     className="preview-close"
                   >
@@ -487,9 +488,9 @@ setcap('')
           </div>
 
           <div className="form-actions">
-            <button 
-              type="submit" 
-              className="cursor-pointer bg-[#02236e] hover:bg-[#2563eb] text-white p-2 rounded-lg btn-primary"
+            <button
+              type="submit"
+              className="cursor-pointer bg-[#02236E] hover:bg-[#02236E] text-white p-2 rounded-lg btn-primary"
               disabled={uploadProgress > 0 || (!editingTestimonial && !formData.video_base64)}
             >
               {uploadProgress > 0 ? (
@@ -502,8 +503,8 @@ setcap('')
               )}
             </button>
             {editingTestimonial && (
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={cancelEdit}
                 className="btn btn-secondary"
               >
@@ -550,12 +551,12 @@ setcap('')
                     <p className="person-role">{testimonial.role}</p>
                   </div>
                 </div>
-                
+
                 <div className="media-container">
                   {testimonial.thumbnail && (
                     <div className="thumbnail-preview">
-                      <img 
-                        src={testimonial.thumbnail} 
+                      <img
+                        src={testimonial.thumbnail}
                         alt={`${testimonial.name} thumbnail`}
                         className="thumbnail-image"
                       />
@@ -568,16 +569,16 @@ setcap('')
                     </video>
                   </div>
                 </div>
-                
+
                 <div className="card-actions">
-                  <button 
+                  <button
                     onClick={() => startEdit(testimonial)}
                     className="cursor-pointer bg-[#1c5e20] text-white px-4 py-2 rounded-lg"
                   >
                     <span className="btn-icon">✏️</span>
                     Edit
                   </button>
-                  <button 
+                  <button
                     onClick={() => handleDelete(testimonial.id)}
                     className="cursor-pointer bg-[#e7001e] text-white px-4 py-2 rounded-lg"
                   >

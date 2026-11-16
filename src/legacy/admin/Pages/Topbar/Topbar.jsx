@@ -1,3 +1,4 @@
+import { adminConfirm } from '@/lib/admin-dialogs';
 // import React, { useState, useEffect } from 'react';
 // import axios from 'axios';
 
@@ -80,7 +81,7 @@
 //     try {
 //       const response = await api.post('/api/topbar', formData);
 //       if (response.data.success) {
-//         showMessage('Content created successfully!');
+//         showMessage('Content Created Successfully!');
 //         setFormData({ text: '' });
 //         fetchContents();
 //       }
@@ -281,7 +282,7 @@
 //   return (
 //     <div style={styles.admin}>
 //       <h1>Topbar Content Management</h1>
-      
+
 //       {message && (
 //         <div style={{
 //           ...styles.message,
@@ -296,7 +297,7 @@
 //         onSubmit={editingContent ? handleUpdate : handleCreate} 
 //         style={styles.form}
 //       >
-        
+
 //     <input type="hidden" onChange={(e)=>{setcap(e.target.value)}} />
 
 
@@ -392,16 +393,16 @@
 //             .content-grid {
 //               grid-template-columns: 1fr !important;
 //             }
-            
+
 //             .content-meta {
 //               flex-direction: column;
 //               gap: 5px;
 //             }
-            
+
 //             .form-actions {
 //               flex-direction: column;
 //             }
-            
+
 //             button {
 //               width: 100%;
 //             }
@@ -490,7 +491,7 @@ const TopbarAdmin = () => {
   // Update telephone data
   const updateTelephoneData = async (e) => {
     e.preventDefault();
-    
+
     if (!telephoneData.phone_number.trim() || !telephoneData.icon_name.trim()) {
       showMessage('Phone number and icon name are required', 'error');
       return;
@@ -583,7 +584,7 @@ const TopbarAdmin = () => {
 
   // Delete content
   const handleDelete = async (id) => {
-    if (!window.confirm('Are You Sure You Want to Delete This Content?')) {
+    if (!(await adminConfirm('Are You Sure You Want to Delete This Content?'))) {
       return;
     }
 
@@ -675,7 +676,7 @@ const TopbarAdmin = () => {
     },
     btn: {
       padding: '10px 20px',
-      backgroundColor: '#02236e',
+      backgroundColor: '#2563eb',
       color: 'white',
       border: 'none',
       borderRadius: '4px',
@@ -684,7 +685,7 @@ const TopbarAdmin = () => {
       transition: 'background-color 0.2s',
     },
     btnPrimary: {
-      backgroundColor: '#02236e',
+      backgroundColor: '#2563eb',
       color: 'white',
     },
     btnSecondary: {
@@ -728,7 +729,7 @@ const TopbarAdmin = () => {
       borderTop: '1px solid #e9ecef',
     },
     metaCreated: {
-      color: '#02236e',
+      color: '#2563eb',
       fontSize: '12px',
     },
     metaUpdated: {
@@ -762,7 +763,7 @@ const TopbarAdmin = () => {
     },
     telephoneIcon: {
       fontSize: '18px',
-      color: '#02236e',
+      color: '#2563eb',
     },
   };
 
@@ -777,7 +778,7 @@ const TopbarAdmin = () => {
   return (
     <div style={styles.admin}>
       <h1>Topbar Content Management</h1>
-      
+
       {message && (
         <div style={{
           ...styles.message,
@@ -831,19 +832,19 @@ const TopbarAdmin = () => {
             <span>{telephoneData.phone_number}</span>
           </div>
         )}
-<br />
+        <br />
         <div style={styles.formActions}>
-          <button 
-            type="submit" 
-            style={{ ...styles.btn  , ...styles.btnPrimary }}
+          <button
+            type="submit"
+            style={{ ...styles.btn, ...styles.btnPrimary }}
             onMouseOver={(e) => e.target.style.backgroundColor = btnHover.btnPrimaryHover.backgroundColor}
             onMouseOut={(e) => e.target.style.backgroundColor = styles.btnPrimary.backgroundColor}
             disabled={telephoneSaving || telephoneLoading}
           >
             {telephoneSaving ? 'Saving...' : 'Update Telephone'}
           </button>
-          <button 
-            type="button" 
+          <button
+            type="button"
             onClick={fetchTelephoneData}
             style={{ ...styles.btn, ...styles.btnSecondary }}
             onMouseOver={(e) => e.target.style.backgroundColor = btnHover.btnSecondaryHover.backgroundColor}
@@ -856,8 +857,8 @@ const TopbarAdmin = () => {
       </form>
 
       {/* Topbar Content Section */}
-      <form 
-        onSubmit={editingContent ? handleUpdate : handleCreate} 
+      <form
+        onSubmit={editingContent ? handleUpdate : handleCreate}
         style={styles.form}
       >
         <input type="hidden" onChange={(e) => { setcap(e.target.value) }} />
@@ -878,8 +879,8 @@ const TopbarAdmin = () => {
           />
         </div>
         <div style={styles.formActions}>
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             style={{ ...styles.btn, ...styles.btnPrimary }}
             onMouseOver={(e) => e.target.style.backgroundColor = btnHover.btnPrimaryHover.backgroundColor}
             onMouseOut={(e) => e.target.style.backgroundColor = styles.btnPrimary.backgroundColor}
@@ -887,8 +888,8 @@ const TopbarAdmin = () => {
             {editingContent ? 'Update' : 'Create'}
           </button>
           {editingContent && (
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={cancelEdit}
               style={{ ...styles.btn, ...styles.btnSecondary }}
               onMouseOver={(e) => e.target.style.backgroundColor = btnHover.btnSecondaryHover.backgroundColor}

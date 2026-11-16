@@ -130,19 +130,21 @@ const VideoForm = ({ video, onSubmit, onCancel }) => {
         method,
         headers: {
           'Content-Type': 'application/json',
+          'x-khudii-surface': 'admin',
         },
           credentials: 'include',
         body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to ${video ? 'update' : 'create'} video`);
+        const body = await response.json().catch(() => ({}));
+        throw new Error(body.message || body.error || `Failed to ${video ? 'update' : 'create'} video (HTTP ${response.status})`);
       }
 
       onSubmit();
       alert(`Video ${video ? 'updated' : 'created'} successfully!`);
     } catch (err) {
-      alert(`Failed to ${video ? 'update' : 'create'} video`);
+      alert(err.message || `Failed to ${video ? 'update' : 'create'} video`);
       console.error('Error:', err);
     } finally {
       setLoading(false);

@@ -1,3 +1,4 @@
+import { adminConfirm } from '@/lib/admin-dialogs';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { generateSlug, validateSlug } from './utils.js';
@@ -173,7 +174,7 @@ const SectorsList = () => {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this sector?')) {
+    if ((await adminConfirm('Are you sure you want to delete this sector?'))) {
       try {
         await axios.delete(`${API_URL}/sectors/admin/${id}`, { withCredentials: true });
         fetchSectors();
@@ -193,7 +194,7 @@ const SectorsList = () => {
   };
 
   const handlePermanentDelete = async (id) => {
-    if (window.confirm('This will permanently delete the sector and remove it from all items. Are you sure?')) {
+    if ((await adminConfirm('This will permanently delete the sector and remove it from all items. Are you sure?'))) {
       try {
         await axios.delete(`${API_URL}/sectors/admin/permanent/${id}`, { withCredentials: true });
         fetchSectors();

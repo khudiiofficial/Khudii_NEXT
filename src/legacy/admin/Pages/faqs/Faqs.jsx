@@ -1,974 +1,586 @@
-import React, { useState, useEffect, useRef } from 'react';
+'use client';
+
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import axios from 'axios';
+import {
+  CircleHelp,
+  Search,
+  ArrowUp,
+  ArrowDown,
+  GripVertical,
+  RefreshCw,
+  X,
+  CheckCircle2,
+  AlertCircle,
+  Sliders
+} from 'lucide-react';
+import AdminPublishSwitch from '@/components/AdminPublishSwitch';
+import { confirmDialog, confirmDelete, showSuccess, showError, toastNotice } from '@/lib/dialogs';
+import { EditButton, DuplicateButton, DeleteButton } from '@/components/ui/CrudActions';
+import { AddButton, CancelButton, UpdateButton, CreateButton } from '@/components/ui/AppButton';
+import SeoCenterModal from '@/components/admin/SeoCenterModal';
 
-const FAQManager = () => {
-  const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
+const APIPath = process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app';
 
-  // State variables
+export default function FAQManager() {
   const [faqs, setFaqs] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [showForm, setShowForm] = useState(false);
-  const [editingFAQ, setEditingFAQ] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'published' | 'draft'
+  const [seoModalOpen, setSeoModalOpen] = useState(false);
+
+  // Modal State
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({
     question: '',
     answer: '',
+    category: 'General',
     display_order: 0,
-    is_active: true
+    is_active: true,
   });
   const [formErrors, setFormErrors] = useState({});
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterActive, setFilterActive] = useState('all'); // 'all', 'active', 'inactive'
-  const [sortBy, setSortBy] = useState('display_order'); // 'display_order', 'created_at', 'question'
-  const [sortOrder, setSortOrder] = useState('asc'); // 'asc', 'desc'
-  const [bulkActions, setBulkActions] = useState({
-    selectedIds: [],
-    allSelected: false
-  });
-  const [previewMode, setPreviewMode] = useState(false);
-  const [expandedFAQs, setExpandedFAQs] = useState([]);
 
-  const formRef = useRef(null);
+  const [reordering, setReordering] = useState(false);
+  const dragId = useRef(null);
 
-  // Fetch FAQs on component mount
-  useEffect(() => {
-    fetchFAQs();
-  }, []);
+  const showToast = (message, type = 'success') => {
+    toastNotice(message, type === 'error' ? 'error' : 'success');
+  };
 
-  // Scroll to form when opened
-  useEffect(() => {
-    if (showForm && formRef.current) {
-      formRef.current.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [showForm]);
-
-  // API Functions
   const fetchFAQs = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
       const response = await axios.get(`${APIPath}/api/faqs`, {
-        withCredentials: true
+        withCredentials: true,
+        headers: { 'x-khudii-surface': 'admin' },
       });
-      
       if (response.data.success) {
-        setFaqs(response.data.data);
-        setError(null);
-      } else {
-        setError('Failed to load FAQs');
+        setFaqs(Array.isArray(response.data.data) ? response.data.data : []);
       }
     } catch (err) {
-      console.error('Error fetching FAQs:', err);
-      setError(err.response?.data?.message || 'Failed to load FAQs. Please check your connection.');
+      showToast('Failed to load FAQs.', 'error');
     } finally {
       setLoading(false);
     }
   };
 
-  const createFAQ = async (faqData) => {
-    try {
-      const response = await axios.post(`${APIPath}/api/faqs`, faqData, {
-        withCredentials: true
-      });
-      
-      if (response.data.success) {
-        alert('FAQ created successfully!');
-        return response.data;
-      } else {
-        throw new Error(response.data.message);
-      }
-    } catch (error) {
-      throw error;
-    }
-  };
+  useEffect(() => {
+    fetchFAQs();
+  }, []);
 
-  const updateFAQ = async (id, faqData) => {
-    try {
-      const response = await axios.put(`${APIPath}/api/faqs/${id}`, faqData, {
-        withCredentials: true
-      });
-      
-      if (response.data.success) {
-        alert('FAQ updated successfully!');
-        return response.data;
-      } else {
-        throw new Error(response.data.message);
-      }
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const deleteFAQ = async (id) => {
-    try {
-      const response = await axios.delete(`${APIPath}/api/faqs/${id}`, {
-        withCredentials: true
-      });
-      
-      if (response.data.success) {
-        alert('FAQ deleted successfully!');
-        return response.data;
-      } else {
-        throw new Error(response.data.message);
-      }
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const toggleFAQStatus = async (id) => {
-    try {
-      const response = await axios.put(`${APIPath}/api/faqs/${id}/toggle`, {}, {
-        withCredentials: true
-      });
-      
-      if (response.data.success) {
-        alert(`FAQ ${response.data.data.is_active ? 'activated' : 'deactivated'} successfully!`);
-        return response.data;
-      } else {
-        throw new Error(response.data.message);
-      }
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  const updateDisplayOrderBulk = async (faqsArray) => {
-    try {
-      const response = await axios.put(
-        `${APIPath}/api/faqs/display-order/update`,
-        { faqs: faqsArray },
-        { withCredentials: true }
-      );
-      
-      if (response.data.success) {
-        return response.data;
-      } else {
-        throw new Error(response.data.message);
-      }
-    } catch (error) {
-      throw error;
-    }
-  };
-
-  // Form Handling
-  const handleFormChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-    
-    // Clear error when user types
-    if (formErrors[name]) {
-      setFormErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const validateForm = () => {
-    const errors = {};
-    
-    if (!formData.question.trim()) {
-      errors.question = 'Question is required';
-    } else if (formData.question.length < 10) {
-      errors.question = 'Question must be at least 10 characters';
-    }
-    
-    if (!formData.answer.trim()) {
-      errors.answer = 'Answer is required';
-    } else if (formData.answer.length < 20) {
-      errors.answer = 'Answer must be at least 20 characters';
-    }
-    
-    if (formData.display_order < 0) {
-      errors.display_order = 'Display order cannot be negative';
-    }
-    
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true)
-   
-    if (!validateForm()) {
-      return;
-    }
-    
-    try {
-      if (editingFAQ) {
-        await updateFAQ(editingFAQ.id, formData);
-      } else {
-        await createFAQ(formData);
-      }
-      
-      // Reset form and fetch updated list
-      resetForm();
-      fetchFAQs();
-    } catch (err) {
-      console.error('Error saving FAQ:', err);
-      alert(err.response?.data?.message || 'Failed to save FAQ. Please try again.');
-    }
-    setLoading(false)
-  };
-
-  const resetForm = () => {
+  const openCreateModal = () => {
+    setEditingId(null);
     setFormData({
       question: '',
       answer: '',
-      display_order: 0,
-      is_active: true
+      category: 'General',
+      display_order: faqs.length + 1,
+      is_active: true,
     });
     setFormErrors({});
-    setEditingFAQ(null);
-    setShowForm(false);
+    setModalOpen(true);
   };
 
-  const handleEdit = (faq) => {
-    setEditingFAQ(faq);
+  const openEditModal = (faq) => {
+    setEditingId(faq.id);
     setFormData({
-      question: faq.question,
-      answer: faq.answer,
-      display_order: faq.display_order,
-      is_active: faq.is_active
+      question: faq.question || '',
+      answer: faq.answer || '',
+      category: faq.category || 'General',
+      display_order: faq.display_order ?? 0,
+      is_active: Boolean(faq.is_active),
     });
-    setShowForm(true);
+    setFormErrors({});
+    setModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this FAQ? This action cannot be undone.')) {
-      try {
-        await deleteFAQ(id);
-        fetchFAQs();
-      } catch (err) {
-        alert('Failed to delete FAQ');
-      }
-    }
-  };
+  const handleToggleStatus = async (faq, nextStatus) => {
+    const oldFaqs = [...faqs];
+    setFaqs((prev) =>
+      prev.map((f) => (f.id === faq.id ? { ...f, is_active: nextStatus ? 1 : 0 } : f))
+    );
 
-  const handleToggleStatus = async (id) => {
     try {
-      await toggleFAQStatus(id);
-      fetchFAQs();
-    } catch (err) {
-      alert('Failed to update FAQ status');
-    }
-  };
-
-  // Bulk Actions
-  const handleBulkSelect = (id) => {
-    setBulkActions(prev => {
-      const newSelectedIds = prev.selectedIds.includes(id)
-        ? prev.selectedIds.filter(selectedId => selectedId !== id)
-        : [...prev.selectedIds, id];
-      
-      return {
-        ...prev,
-        selectedIds: newSelectedIds,
-        allSelected: newSelectedIds.length === filteredFAQs.length && filteredFAQs.length > 0
-      };
-    });
-  };
-
-  const handleSelectAll = () => {
-    if (bulkActions.allSelected) {
-      setBulkActions({ selectedIds: [], allSelected: false });
-    } else {
-      setBulkActions({
-        selectedIds: filteredFAQs.map(faq => faq.id),
-        allSelected: true
-      });
-    }
-  };
-
-  const handleBulkDelete = async () => {
-    if (bulkActions.selectedIds.length === 0) {
-      alert('Please select FAQs to delete');
-      return;
-    }
-    
-    if (window.confirm(`Are you sure you want to delete ${bulkActions.selectedIds.length} FAQ(s)? This action cannot be undone.`)) {
-      try {
-        const deletePromises = bulkActions.selectedIds.map(id => deleteFAQ(id));
-        await Promise.all(deletePromises);
-        setBulkActions({ selectedIds: [], allSelected: false });
-        fetchFAQs();
-      } catch (err) {
-        alert('Failed to delete selected FAQs');
-      }
-    }
-  };
-
-  const handleBulkStatusToggle = async (status) => {
-    if (bulkActions.selectedIds.length === 0) {
-      alert('Please select FAQs to update');
-      return;
-    }
-    
-    try {
-      const togglePromises = bulkActions.selectedIds.map(id =>
-        axios.put(`${APIPath}/api/faqs/${id}`, { is_active: status }, { withCredentials: true })
+      await axios.put(
+        `${APIPath}/api/faqs/${faq.id}/toggle`,
+        { is_active: nextStatus },
+        { withCredentials: true, headers: { 'x-khudii-surface': 'admin' } }
       );
-      await Promise.all(togglePromises);
-      setBulkActions({ selectedIds: [], allSelected: false });
-      fetchFAQs();
-      alert(`${bulkActions.selectedIds.length} FAQ(s) ${status ? 'activated' : 'deactivated'} successfully!`);
-    } catch (err) {
-      alert('Failed to Update Selected FAQs');
-    }
-  };
-
-  // Sorting and Filtering
-  const filteredFAQs = faqs
-    .filter(faq => {
-      const matchesSearch = faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           faq.answer.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      if (filterActive === 'active') return matchesSearch && faq.is_active;
-      if (filterActive === 'inactive') return matchesSearch && !faq.is_active;
-      return matchesSearch;
-    })
-    .sort((a, b) => {
-      let comparison = 0;
-      
-      if (sortBy === 'display_order') {
-        comparison = a.display_order - b.display_order;
-      } else if (sortBy === 'created_at') {
-        comparison = new Date(a.created_at) - new Date(b.created_at);
-      } else if (sortBy === 'question') {
-        comparison = a.question.localeCompare(b.question);
+      showToast(`FAQ set to ${nextStatus ? 'Published' : 'Draft'}`);
+    } catch {
+      // Fallback to updateFAQ
+      try {
+        await axios.put(
+          `${APIPath}/api/faqs/${faq.id}`,
+          { ...faq, is_active: nextStatus ? 1 : 0 },
+          { withCredentials: true, headers: { 'x-khudii-surface': 'admin' } }
+        );
+        showToast(`FAQ set to ${nextStatus ? 'Published' : 'Draft'}`);
+      } catch (err) {
+        setFaqs(oldFaqs);
+        showToast('Failed to update FAQ status.', 'error');
       }
-      
-      return sortOrder === 'desc' ? -comparison : comparison;
+    }
+  };
+
+  const handleDuplicate = async (faq) => {
+    const ok = await confirmDialog({
+      title: 'Duplicate FAQ?',
+      text: `Create an unpublished copy of "${faq.question}"?`,
+      status: 'warning',
+      confirmText: 'Duplicate',
     });
-
-  const handleSort = (column) => {
-    if (sortBy === column) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortBy(column);
-      setSortOrder('asc');
-    }
-  };
-
-  // Drag and Drop for display order
-  const handleDragStart = (e, id) => {
-    e.dataTransfer.setData('text/plain', id.toString());
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = async (e, targetId) => {
-    e.preventDefault();
-    const sourceId = e.dataTransfer.getData('text/plain');
-    
-    if (sourceId === targetId) return;
-    
-    // Reorder locally
-    const sourceIndex = filteredFAQs.findIndex(f => f.id.toString() === sourceId);
-    const targetIndex = filteredFAQs.findIndex(f => f.id.toString() === targetId);
-    
-    if (sourceIndex === -1 || targetIndex === -1) return;
-    
-    const updatedFAQs = [...filteredFAQs];
-    const [movedFAQ] = updatedFAQs.splice(sourceIndex, 1);
-    updatedFAQs.splice(targetIndex, 0, movedFAQ);
-    
-    // Update display order
-    const reorderedFAQs = updatedFAQs.map((faq, index) => ({
-      ...faq,
-      display_order: index + 1
-    }));
-    
-    // Update local state
-    setFaqs(prev => prev.map(faq => {
-      const updated = reorderedFAQs.find(f => f.id === faq.id);
-      return updated || faq;
-    }));
-    
-    // Update in database
+    if (!ok) return;
     try {
-      const faqsForUpdate = reorderedFAQs.map((faq, index) => ({
-        id: faq.id,
-        display_order: index + 1
-      }));
-      await updateDisplayOrderBulk(faqsForUpdate);
-    } catch (err) {
-      console.error('Failed to update display order:', err);
-      // Revert on error
-      fetchFAQs();
+      const payload = {
+        question: `${faq.question} (Copy)`,
+        answer: faq.answer,
+        category: faq.category || 'General',
+        display_order: faqs.length + 1,
+        is_active: false,
+      };
+      const res = await axios.post(`${APIPath}/api/faqs`, payload, {
+        withCredentials: true,
+        headers: { 'x-khudii-surface': 'admin' },
+      });
+      if (res.data.success) {
+        showSuccess('FAQ duplicated as draft');
+        await fetchFAQs();
+      }
+    } catch {
+      showError('Failed to duplicate FAQ');
     }
   };
 
-  // Toggle FAQ expansion in preview mode
-  const toggleFAQExpansion = (id) => {
-    setExpandedFAQs(prev =>
-      prev.includes(id)
-        ? prev.filter(faqId => faqId !== id)
-        : [...prev, id]
-    );
+  const handleDelete = async (faq) => {
+    if (!await confirmDelete(`FAQ "${faq.question}"`)) return;
+    try {
+      await axios.delete(`${APIPath}/api/faqs/${faq.id}`, {
+        withCredentials: true,
+        headers: { 'x-khudii-surface': 'admin' },
+      });
+      setFaqs((prev) => prev.filter((f) => f.id !== faq.id));
+      showSuccess('FAQ deleted successfully');
+    } catch {
+      showError('Failed to delete FAQ');
+    }
   };
 
-  // Export FAQs
-  const exportFAQs = () => {
-    const dataStr = JSON.stringify(filteredFAQs, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-    
-    const exportFileDefaultName = `faqs_${new Date().toISOString().split('T')[0]}.json`;
-    
-    const linkElement = document.createElement('a');
-    linkElement.setAttribute('href', dataUri);
-    linkElement.setAttribute('download', exportFileDefaultName);
-    linkElement.click();
-  };
-// console.log(loading)
-  // Render loading state
-  if (loading && faqs.length === 0) {
-    return (
-      <div className="flex justify-center items-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading FAQs...</p>
-        </div>
-      </div>
-    );
-  }
+  const handleSaveModal = async (e) => {
+    e.preventDefault();
+    const errors = {};
+    if (!formData.question.trim()) errors.question = 'Question is required';
+    if (!formData.answer.trim()) errors.answer = 'Answer is required';
 
-  // Render error state
-  if (error && faqs.length === 0) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 max-w-md w-full">
-          <div className="text-red-500 text-5xl mb-4 text-center">⚠️</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2 text-center">Error Loading FAQs</h2>
-          <p className="text-gray-600 mb-6 text-center">{error}</p>
-          <div className="flex justify-center">
-            <button
-              onClick={fetchFAQs}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Retry
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const payload = {
+        question: formData.question.trim(),
+        answer: formData.answer.trim(),
+        category: formData.category?.trim() || 'General',
+        display_order: Number(formData.display_order || 0),
+        is_active: Boolean(formData.is_active),
+      };
+
+      if (editingId) {
+        await axios.put(`${APIPath}/api/faqs/${editingId}`, payload, {
+          withCredentials: true,
+          headers: { 'x-khudii-surface': 'admin' },
+        });
+        showToast('FAQ updated successfully');
+      } else {
+        await axios.post(`${APIPath}/api/faqs`, payload, {
+          withCredentials: true,
+          headers: { 'x-khudii-surface': 'admin' },
+        });
+        showToast('FAQ created successfully');
+      }
+
+      setModalOpen(false);
+      await fetchFAQs();
+    } catch (err) {
+      showToast(err.response?.data?.message || 'Failed to save FAQ.', 'error');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleMove = async (fromIdx, toIdx) => {
+    if (toIdx < 0 || toIdx >= faqs.length || reordering) return;
+    const reordered = [...faqs];
+    const [moved] = reordered.splice(fromIdx, 1);
+    reordered.splice(toIdx, 0, moved);
+
+    // Update display_order
+    const updatedWithOrder = reordered.map((f, i) => ({
+      ...f,
+      display_order: i + 1,
+    }));
+    setFaqs(updatedWithOrder);
+    setReordering(true);
+
+    try {
+      await axios.put(
+        `${APIPath}/api/faqs/display-order/update`,
+        {
+          faq_orders: updatedWithOrder.map((f) => ({
+            id: f.id,
+            display_order: f.display_order,
+          })),
+        },
+        { withCredentials: true, headers: { 'x-khudii-surface': 'admin' } }
+      );
+      showToast('FAQ order saved');
+    } catch {
+      showToast('Failed to save display order.', 'error');
+      await fetchFAQs();
+    } finally {
+      setReordering(false);
+    }
+  };
+
+  const stats = useMemo(() => {
+    let published = 0;
+    let draft = 0;
+    faqs.forEach((f) => {
+      if (f.is_active) published++;
+      else draft++;
+    });
+    return { total: faqs.length, published, draft };
+  }, [faqs]);
+
+  const filteredFaqs = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return faqs.filter((f) => {
+      const matchSearch =
+        !q ||
+        (f.question || '').toLowerCase().includes(q) ||
+        (f.answer || '').toLowerCase().includes(q) ||
+        (f.category || '').toLowerCase().includes(q);
+      const matchStatus =
+        statusFilter === 'all' ||
+        (statusFilter === 'published' ? Boolean(f.is_active) : !f.is_active);
+      return matchSearch && matchStatus;
+    });
+  }, [faqs, search, statusFilter]);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">FAQ Management</h1>
-              <p className="text-gray-600 mt-1">
-                Manage Frequently Asked Questions for your organization
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={() => setPreviewMode(!previewMode)}
-                className="cursor-pointer px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                {previewMode ? 'Back to List' : 'Preview Mode'}
-              </button>
-              <button
-                onClick={exportFAQs}
-                className="cursor-pointer px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-              >
-                Export FAQs
-              </button>
-              <button
-                onClick={() => {
-                  resetForm();
-                  setShowForm(true);
-                }}
-                className="cursor-pointer px-6 py-2 bg-[#02236e] text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                </svg>
-                Add New FAQ
-              </button>
-            </div>
+    <div className="space-y-6">
+      <Toast toast={toast} onClose={() => setToast(null)} />
+      <ConfirmModal config={confirmConfig} onClose={() => setConfirmConfig(null)} />
+
+      {/* Top Header Controls (khudii Standard) */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <CircleHelp className="w-6 h-6 text-[#02236E]" />
+            <h1 className="text-2xl md:text-3xl font-bold text-[#02236E] m-0">FAQ Management</h1>
           </div>
+          <p className="text-xs md:text-sm text-slate-500 mt-1 mb-0">
+            Create, edit, organize and publish frequently asked questions for public pages.
+          </p>
         </div>
 
-        {/* Search and Filter Bar */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1">
-              <div className="relative">
-                <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <input
-                  type="text"
-                  placeholder="Search FAQs..."
-                  value={(searchTerm) ?? ''}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-              </div>
-            </div>
-            <div className="flex gap-3">
-              <select
-                value={(filterActive) ?? ''}
-                onChange={(e) => setFilterActive(e.target.value)}
-                className="cursor-pointer px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="all">All Status</option>
-                <option value="active">Active Only</option>
-                <option value="inactive">Inactive Only</option>
-              </select>
-              <select
-                value={(sortBy) ?? ''}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="cursor-pointer px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="display_order">Sort by Order</option>
-                <option value="question">Sort by Question</option>
-                <option value="created_at">Sort by Date</option>
-              </select>
-            </div>
-          </div>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => setSeoModalOpen(true)}
+            className="inline-flex items-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-100 shadow-xs transition"
+          >
+            <Sliders size={14} />
+            SEO Center
+          </button>
+          <ReloadButton onClick={fetchFAQs} loading={loading} size="sm">
+            Refresh
+          </ReloadButton>
+          <AddButton onClick={openCreateModal} size="sm">
+            Add New FAQ
+          </AddButton>
+        </div>
+      </div>
+
+      {/* Quick Stats Badges Strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
+          <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Total FAQs</div>
+          <div className="text-2xl font-black text-[#02236E] mt-1">{stats.total}</div>
+        </div>
+        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 shadow-xs">
+          <div className="text-xs font-bold uppercase tracking-wider text-emerald-700">Published / Active</div>
+          <div className="text-2xl font-black text-emerald-800 mt-1">{stats.published}</div>
+        </div>
+        <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-4 shadow-xs col-span-2 sm:col-span-1">
+          <div className="text-xs font-bold uppercase tracking-wider text-amber-700">Drafts / Inactive</div>
+          <div className="text-2xl font-black text-amber-800 mt-1">{stats.draft}</div>
+        </div>
+      </div>
+
+      {/* Filter / Search Bar */}
+      <div className="bg-white rounded-2xl p-4 border border-slate-200 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+        <div className="relative flex-1 min-w-[240px] max-w-md">
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="search"
+            placeholder="Search FAQs by question, answer or category..."
+            value={search ?? ''}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-xs outline-none focus:border-[#02236E] focus:ring-2 focus:ring-blue-100"
+          />
         </div>
 
-        {/* Bulk Actions Bar */}
-        {bulkActions.selectedIds.length > 0 && (
-          <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <span className="text-[#02236e] text-lg font-medium">
-                  {bulkActions.selectedIds.length} FAQ(s) Selected
-                </span>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => handleBulkStatusToggle(true)}
-                  className="cursor-pointer px-4 py-2 bg-green-100 text-[#1c5e20] rounded-lg hover:bg-green-200 transition-colors text-sm"
-                >
-                  Activate Selected
-                </button>
-                <button
-                  onClick={() => handleBulkStatusToggle(false)}
-                  className="cursor-pointer px-4 py-2 bg-yellow-100 text-yellow-600 rounded-lg hover:bg-yellow-200 transition-colors text-sm"
-                >
-                  Deactivate Selected
-                </button>
-                <button
-                  onClick={handleBulkDelete}
-                  className="cursor-pointer px-4 py-2 bg-red-100 text-[#e7001e] rounded-lg hover:bg-red-200 transition-colors text-sm"
-                >
-                  Delete Selected
-                </button>
-                <button
-                  onClick={() => setBulkActions({ selectedIds: [], allSelected: false })}
-                  className="cursor-pointer px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
-                >
-                  Clear Selection
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold text-slate-500">Status:</span>
+          <select
+            value={statusFilter ?? 'all'}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-3 py-2 rounded-xl border border-slate-200 text-xs bg-white outline-none focus:border-[#02236E]"
+          >
+            <option value="all">All FAQs</option>
+            <option value="published">Published</option>
+            <option value="draft">Drafts</option>
+          </select>
+        </div>
+      </div>
 
-        {/* FAQ Form */}
-        {showForm && (
-          <div ref={formRef} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              {editingFAQ ? 'Edit FAQ' : 'Create New FAQ'}
-            </h2>
-            
-            <form onSubmit={handleSubmit} className="space-y-6">
+      {/* FAQs List Table (khudii Architecture) */}
+      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-xs">
+        <table className="w-full min-w-[780px] text-left text-sm">
+          <thead className="bg-slate-50 text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200">
+            <tr>
+              <th className="p-4 w-14 text-center">Order</th>
+              <th className="p-4">Question &amp; Answer</th>
+              <th className="p-4 w-32">Category</th>
+              <th className="p-4 w-40">Status</th>
+              <th className="p-4 w-32 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {loading ? (
+              <tr>
+                <td colSpan={5} className="p-12 text-center text-slate-400">
+                  <RefreshCw className="w-6 h-6 mx-auto animate-spin mb-2 text-[#02236E]" />
+                  Loading FAQs...
+                </td>
+              </tr>
+            ) : filteredFaqs.length > 0 ? (
+              filteredFaqs.map((faq, index) => (
+                <tr key={faq.id} className="hover:bg-blue-50/30 transition-colors">
+                  {/* Order & Move Buttons */}
+                  <td className="p-4 text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <button
+                        type="button"
+                        disabled={index === 0 || reordering}
+                        onClick={() => handleMove(index, index - 1)}
+                        className="p-1 rounded text-slate-400 hover:text-slate-700 disabled:opacity-20"
+                        title="Move Up"
+                      >
+                        <ArrowUp size={13} />
+                      </button>
+                      <span className="text-xs font-bold text-slate-500 w-4">
+                        {faq.display_order ?? index + 1}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={index === filteredFaqs.length - 1 || reordering}
+                        onClick={() => handleMove(index, index + 1)}
+                        className="p-1 rounded text-slate-400 hover:text-slate-700 disabled:opacity-20"
+                        title="Move Down"
+                      >
+                        <ArrowDown size={13} />
+                      </button>
+                    </div>
+                  </td>
+
+                  {/* Question & Answer Preview */}
+                  <td className="p-4">
+                    <div className="font-bold text-[#02236E] text-sm">{faq.question}</div>
+                    <div className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                      {String(faq.answer || '').replace(/<[^>]*>/g, '')}
+                    </div>
+                  </td>
+
+                  {/* Category Badge */}
+                  <td className="p-4">
+                    <span className="inline-block rounded-md bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-700">
+                      {faq.category || 'General'}
+                    </span>
+                  </td>
+
+                  {/* Status Toggle Switch */}
+                  <td className="p-4">
+                    <div className="flex items-center gap-2">
+                      <AdminPublishSwitch
+                        checked={Boolean(faq.is_active)}
+                        onChange={(checked) => handleToggleStatus(faq, checked)}
+                        label={faq.is_active ? 'Published' : 'Draft'}
+                      />
+                      <span
+                        className={`text-xs font-bold px-2 py-0.5 rounded-full ${faq.is_active
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : 'bg-amber-100 text-amber-800'
+                          }`}
+                      >
+                        {faq.is_active ? 'Live' : 'Draft'}
+                      </span>
+                    </div>
+                  </td>
+
+                  {/* Actions */}
+                  <td className="p-4 text-right">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <EditButton onClick={() => openEditModal(faq)} label={faq.question} size="sm" />
+                      <DuplicateButton onClick={() => handleDuplicate(faq)} label={faq.question} size="sm" />
+                      <DeleteButton onClick={() => handleDelete(faq)} label={faq.question} size="sm" />
+                    </div>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={5} className="p-12 text-center text-slate-400">
+                  No FAQs found. Click &quot;Add New FAQ&quot; to create one.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Clean Structured Create / Edit Modal (No raw alerts) */}
+      {modalOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in-50 duration-150"
+          onClick={() => setModalOpen(false)}
+        >
+          <div
+            className="w-full max-w-xl bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-2xl space-y-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <h3 className="text-xl font-bold text-[#02236E] m-0">
+                {editingId ? 'Edit FAQ' : 'Create New FAQ'}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveModal} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Question *
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Question <span className="text-[#ed0026]">*</span>
                 </label>
                 <input
                   type="text"
-                  name="question"
-                  value={(formData.question) ?? ''}
-                  onChange={handleFormChange}
-                  placeholder="e.g., What is your organization's mission?"
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    formErrors.question ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  placeholder="e.g. How can I contribute a story to Khudii?"
+                  value={formData.question ?? ''}
+                  onChange={(e) => setFormData((f) => ({ ...f, question: e.target.value }))}
+                  className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 outline-none focus:border-[#02236E] focus:ring-2 focus:ring-blue-100"
                 />
                 {formErrors.question && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.question}</p>
+                  <p className="text-xs text-[#ed0026] mt-1">{formErrors.question}</p>
                 )}
-                <p className="text-xs text-gray-500 mt-1">
-                  Make it clear and concise. Minimum 10 characters.
-                </p>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Answer *
+                <label className="block text-xs font-bold text-slate-700 mb-1">
+                  Answer <span className="text-[#ed0026]">*</span>
                 </label>
                 <textarea
-                  name="answer"
-                  value={(formData.answer) ?? ''}
-                  onChange={handleFormChange}
-                  placeholder="Provide a detailed and helpful answer..."
-                  rows={6}
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    formErrors.answer ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  rows={4}
+                  placeholder="Provide a clear, detailed answer..."
+                  value={formData.answer ?? ''}
+                  onChange={(e) => setFormData((f) => ({ ...f, answer: e.target.value }))}
+                  className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 outline-none focus:border-[#02236E] focus:ring-2 focus:ring-blue-100"
                 />
                 {formErrors.answer && (
-                  <p className="mt-1 text-sm text-red-600">{formErrors.answer}</p>
+                  <p className="text-xs text-[#ed0026] mt-1">{formErrors.answer}</p>
                 )}
-                <p className="text-xs text-gray-500 mt-1">
-                  Minimum 20 characters. You can use basic HTML tags like &lt;strong&gt;, &lt;em&gt;, &lt;a&gt;
-                </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Display Order
-                  </label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Category</label>
+                  <input
+                    type="text"
+                    placeholder="General / Donors / Volunteers"
+                    value={formData.category ?? ''}
+                    onChange={(e) => setFormData((f) => ({ ...f, category: e.target.value }))}
+                    className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 outline-none focus:border-[#02236E]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 mb-1">Display Order</label>
                   <input
                     type="number"
-                    name="display_order"
-                    value={(formData.display_order) ?? ''}
-                    onChange={handleFormChange}
-                    className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                      formErrors.display_order ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    min="0"
+                    value={formData.display_order ?? 0}
+                    onChange={(e) =>
+                      setFormData((f) => ({ ...f, display_order: Number(e.target.value) }))
+                    }
+                    className="w-full px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 outline-none focus:border-[#02236E]"
                   />
-                  {formErrors.display_order && (
-                    <p className="mt-1 text-sm text-red-600">{formErrors.display_order}</p>
-                  )}
-                  <p className="text-xs text-gray-500 mt-1">
-                    Lower numbers appear first. Leave as 0 for auto-ordering.
-                  </p>
-                </div>
-
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="is_active"
-                    id="is_active"
-                    checked={formData.is_active}
-                    onChange={handleFormChange}
-                    className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                  <label htmlFor="is_active" className="ml-3 block text-sm text-gray-700">
-                    <span className="font-medium">Active</span>
-                    <p className="text-gray-500">Visible to website visitors</p>
-                  </label>
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-4 pt-6 border-t">
-                <button
-                  type="button"
-                  onClick={resetForm}
-                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                disabled={loading}
-                  type="submit"
-                  className={` cursor-pointer px-6 py-2 text-white rounded-lg transition-colors font-medium  ${loading? 'bg-blue-300 hover:bg-blue-300':' bg-green-600  hover:bg-green-700'}`}
-                >
-                  {editingFAQ ? 'Update FAQ' : 'Create FAQ'}
-                </button>
+              <div className="flex items-center gap-3 pt-2">
+                <input
+                  type="checkbox"
+                  id="faq_is_active"
+                  checked={formData.is_active}
+                  onChange={(e) => setFormData((f) => ({ ...f, is_active: e.target.checked }))}
+                  className="h-4 w-4 accent-[#02236E] rounded"
+                />
+                <label htmlFor="faq_is_active" className="text-sm font-semibold text-slate-700 cursor-pointer">
+                  Publish FAQ immediately on website
+                </label>
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <CancelButton onClick={() => setModalOpen(false)} size="sm" />
+                {editingId ? (
+                  <UpdateButton type="submit" loading={saving} disabled={saving} size="sm">
+                    Update FAQ
+                  </UpdateButton>
+                ) : (
+                  <CreateButton type="submit" loading={saving} disabled={saving} size="sm">
+                    Create FAQ
+                  </CreateButton>
+                )}
               </div>
             </form>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Content Area - Preview or List */}
-        {previewMode ? (
-          // Preview Mode
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">FAQ Preview</h2>
-            <div className="space-y-4">
-              {filteredFAQs.length === 0 ? (
-                <div className="text-center py-12">
-                  <p className="text-gray-500">No FAQs to preview</p>
-                </div>
-              ) : (
-                filteredFAQs.map((faq) => (
-                  <div
-                    key={faq.id}
-                    className="border border-gray-200 rounded-lg overflow-hidden"
-                  >
-                    <button
-                      onClick={() => toggleFAQExpansion(faq.id)}
-                      className="w-full p-4 text-left bg-gray-50 hover:bg-gray-100 transition-colors flex justify-between items-center"
-                    >
-                      <h3 className="text-lg font-medium text-gray-900">{faq.question}</h3>
-                      <svg
-                        className={`w-5 h-5 text-gray-500 transform transition-transform ${
-                          expandedFAQs.includes(faq.id) ? 'rotate-180' : ''
-                        }`}
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                    {expandedFAQs.includes(faq.id) && (
-                      <div className="p-4 border-t border-gray-200">
-                        <div
-                          className="prose max-w-none text-gray-600"
-                          dangerouslySetInnerHTML={{ __html: faq.answer }}
-                        />
-                        <div className="mt-4 pt-4 border-t border-gray-200 text-sm text-gray-500">
-                          <div className="flex justify-between">
-                            <span>Status: {faq.is_active ? 'Active' : 'Inactive'}</span>
-                            <span>Order: {faq.display_order}</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        ) : (
-          // List Mode
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-            {/* Table Header */}
-            <div className="px-6 py-3 bg-[#cedcff] border-b border-[#cedcff]">
-              <div className="flex items-center">
-                <div className="w-12">
-                  <input
-                    type="checkbox"
-                    checked={bulkActions.allSelected}
-                    onChange={handleSelectAll}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                  />
-                </div>
-                <div className="flex-1 grid grid-cols-12 gap-4">
-                  <div className="col-span-1 font-medium text-[#222222] text-sm">Order</div>
-                  <div className="col-span-4 font-medium text-[#222222] text-sm">Question</div>
-                  <div className="col-span-3 font-medium text-[#222222] text-sm">Status</div>
-                  <div className="col-span-2 font-medium text-[#222222] text-sm">Created</div>
-                  <div className="col-span-2 font-medium text-[#222222] text-sm text-right">Actions</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Table Body */}
-            <div className="divide-y divide-gray-200">
-              {filteredFAQs.length === 0 ? (
-                <div className="px-6 py-12 text-center">
-                  <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No FAQs found</h3>
-                  <p className="mt-1 text-sm text-gray-500">
-                    {searchTerm || filterActive !== 'all'
-                      ? 'Try adjusting your search or filter'
-                      : 'Get started by creating a new FAQ'}
-                  </p>
-                  {!searchTerm && filterActive === 'all' && (
-                    <button
-                      onClick={() => {
-                        resetForm();
-                        setShowForm(true);
-                      }}
-                      className="mt-4 inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                    >
-                      <svg className="-ml-1 mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                      New FAQ
-                    </button>
-                  )}
-                </div>
-              ) : (
-                filteredFAQs.map((faq) => (
-                  <div
-                    key={faq.id}
-                    draggable
-                    onDragStart={(e) => handleDragStart(e, faq.id)}
-                    onDragOver={handleDragOver}
-                    onDrop={(e) => handleDrop(e, faq.id)}
-                    className="px-6 py-4 hover:bg-gray-50 transition-colors group cursor-move"
-                  >
-                    <div className="flex items-center">
-                      <div className="w-12">
-                        <input
-                          type="checkbox"
-                          checked={bulkActions.selectedIds.includes(faq.id)}
-                          onChange={() => handleBulkSelect(faq.id)}
-                          className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                        />
-                      </div>
-                      <div className="flex-1 grid grid-cols-12 gap-4 items-center">
-                        <div className="col-span-1">
-                          <div className="flex items-center gap-2">
-                            <svg className="w-4 h-4 text-gray-400 group-hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                            <span className="text-sm text-gray-600">{faq.display_order}</span>
-                          </div>
-                        </div>
-                        <div className="col-span-4">
-                          <div className="font-medium text-gray-900 truncate">{faq.question}</div>
-                          <div className="text-xs text-gray-500 truncate mt-1">
-                            {faq.answer.replace(/<[^>]*>/g, '').substring(0, 80)}...
-                          </div>
-                        </div>
-                        <div className="col-span-3">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              faq.is_active
-                                ? 'bg-green-100 text-green-800'
-                                : 'bg-red-100 text-red-800'
-                            }`}
-                          >
-                            {faq.is_active ? (
-                              <>
-                                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                </svg>
-                                Active
-                              </>
-                            ) : (
-                              <>
-                                <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                                </svg>
-                                Inactive
-                              </>
-                            )}
-                          </span>
-                        </div>
-                        <div className="col-span-2 text-sm text-gray-500">
-                          {new Date(faq.created_at).toLocaleDateString()}
-                        </div>
-                        <div className="col-span-2">
-                          <div className="flex justify-end space-x-2">
-                            <button
-                              onClick={() => handleEdit(faq)}
-                              className="p-1.5 text-[#02236e] hover:text-blue-900 hover:bg-blue-50 rounded transition-colors"
-                              title="Edit"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                              </svg>
-                            </button>
-                            <button
-                              onClick={() => handleToggleStatus(faq.id)}
-                              className="p-1.5 text-[#fcdd2d] hover:text-yellow-900 hover:bg-yellow-50 rounded transition-colors"
-                              title={faq.is_active ? 'Deactivate' : 'Activate'}
-                            >
-                              {faq.is_active ? (
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L6.59 6.59m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                                </svg>
-                              ) : (
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                </svg>
-                              )}
-                            </button>
-                            <button
-                              onClick={() => handleDelete(faq.id)}
-                              className="p-1.5 text-[#e7001e] hover:text-red-900 hover:bg-red-50 rounded transition-colors"
-                              title="Delete"
-                            >
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* Table Footer */}
-            {filteredFAQs.length > 0 && (
-              <div className="px-6 py-3 bg-gray-50 border-t border-gray-200">
-                <div className="flex justify-between items-center">
-                  <div className="text-sm text-gray-500">
-                    Showing {filteredFAQs.length} of {faqs.length} FAQ(s)
-                  </div>
-                  <div className="text-sm text-gray-500">
-                    Drag and drop rows to reorder
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Stats Card */}
-        {!previewMode && (
-          <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 bg-blue-100 p-3 rounded-lg">
-                  <svg className="w-6 h-6 text-[#02236e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Total FAQs</p>
-                  <p className="text-2xl font-semibold text-gray-900">{faqs.length}</p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 bg-green-100 p-3 rounded-lg">
-                  <svg className="w-6 h-6 text-[#1c5e20]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Active FAQs</p>
-                  <p className="text-2xl font-semibold text-gray-900">
-                    {faqs.filter(f => f.is_active).length}
-                  </p>
-                </div>
-              </div>
-            </div>
-            
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center">
-                <div className="flex-shrink-0 bg-yellow-100 p-3 rounded-lg">
-                  <svg className="w-6 h-6 text-[#fcdd2d]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="ml-4">
-                  <p className="text-sm font-medium text-gray-600">Last Updated</p>
-                  <p className="text-lg font-semibold text-gray-900">
-                    {faqs.length > 0 
-                      ? new Date(Math.max(...faqs.map(f => new Date(f.updated_at).getTime()))).toLocaleDateString()
-                      : 'Never'}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      {seoModalOpen && (
+        <SeoCenterModal
+          isOpen={seoModalOpen}
+          onClose={() => setSeoModalOpen(false)}
+          pageData={{
+            id: '/faqs',
+            slug: 'faqs',
+            path: '/faqs',
+            title: 'Frequently Asked Questions',
+            entityType: 'faqs',
+          }}
+          onSaveSuccess={() => {
+            showToast('FAQs SEO Center data updated!');
+          }}
+        />
+      )}
     </div>
   );
-};
-
-export default FAQManager;
+}

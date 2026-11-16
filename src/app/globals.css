@@ -11,3 +11,182 @@ body {
 *::after {
   box-sizing: border-box;
 }
+html{scroll-behavior:smooth;scroll-padding-top:6.5rem}
+.kh-dynamic-header .kh-dynamic-children{display:none}
+.kh-dynamic-header .kh-dynamic-children.kh-dynamic-open{display:block}
+@media(min-width:1024px){.kh-dynamic-item[data-depth="0"]>.kh-dynamic-children{position:absolute;top:100%;left:0;z-index:70}.kh-dynamic-item[data-depth="0"]:hover>.kh-dynamic-children,.kh-dynamic-item[data-depth="0"]:focus-within>.kh-dynamic-children{display:block}.kh-dynamic-item[data-depth]:not([data-depth="0"])>.kh-dynamic-children{position:absolute;left:100%;top:0;z-index:80}.kh-dynamic-item[data-depth]:not([data-depth="0"]):hover>.kh-dynamic-children,.kh-dynamic-item[data-depth]:not([data-depth="0"]):focus-within>.kh-dynamic-children{display:block}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{scroll-animation-duration:0.01ms!important;animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+
+/* Header Desktop / Mobile Viewport Action Enforcement */
+@media (min-width: 768px) {
+  .kh-header-desktop-actions {
+    display: flex !important;
+    align-items: center !important;
+  }
+  .kh-header-mobile-toggle {
+    display: none !important;
+  }
+}
+
+@media (max-width: 767px) {
+  .kh-header-desktop-actions {
+    display: none !important;
+  }
+  .kh-header-mobile-toggle {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+/* ==========================================================================
+   Centralized Premium Confirmation & Alert Styles (Status-Based)
+   Success > Emerald (#10b981)
+   Warning > Amber   (#f59e0b)
+   Error   > Red     (#ed0026)
+   ========================================================================== */
+
+.kh-swal-card {
+  border-radius: 1.5rem !important;
+  padding: 2rem 1.75rem !important;
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
+  font-family: inherit !important;
+  max-width: 28rem !important;
+}
+
+.kh-swal-title {
+  font-size: 1.35rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  margin-top: 0.75rem !important;
+  margin-bottom: 0.35rem !important;
+  letter-spacing: -0.02em !important;
+}
+
+.kh-swal-text {
+  font-size: 0.925rem !important;
+  color: #64748b !important;
+  line-height: 1.55 !important;
+  margin-top: 0.25rem !important;
+}
+
+.kh-swal-actions {
+  margin-top: 1.5rem !important;
+  gap: 0.625rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+.kh-swal-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 700 !important;
+  font-size: 0.875rem !important;
+  border-radius: 0.75rem !important;
+  padding: 0.65rem 1.4rem !important;
+  transition: all 0.15s ease !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+.kh-swal-btn:active {
+  transform: scale(0.96) !important;
+}
+
+/* 1. Success > Emerald */
+.kh-btn-emerald {
+  background-color: #059669 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.25) !important;
+  border: none !important;
+}
+.kh-btn-emerald:hover {
+  background-color: #047857 !important;
+}
+
+/* 2. Warning > Amber */
+.kh-btn-amber {
+  background-color: #d97706 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 6px -1px rgba(217, 119, 6, 0.25) !important;
+  border: none !important;
+}
+.kh-btn-amber:hover {
+  background-color: #b45309 !important;
+}
+
+/* 3. Error > Red */
+.kh-btn-red {
+  background-color: #ed0026 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 6px -1px rgba(237, 0, 38, 0.25) !important;
+  border: none !important;
+}
+.kh-btn-red:hover {
+  background-color: #c40019 !important;
+}
+
+/* Navy & Cancel */
+.kh-btn-navy {
+  background-color: #02236E !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 6px -1px rgba(2, 35, 110, 0.25) !important;
+  border: none !important;
+}
+.kh-btn-navy:hover {
+  background-color: #033096 !important;
+}
+
+.kh-btn-cancel {
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+.kh-btn-cancel:hover {
+  background-color: #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+/* Global SweetAlert2 Status Icon Enhancements */
+.swal2-icon.swal2-success {
+  border-color: #10b981 !important;
+  color: #10b981 !important;
+}
+.swal2-icon.swal2-success [class^='swal2-success-line'] {
+  background-color: #10b981 !important;
+}
+.swal2-icon.swal2-success .swal2-success-ring {
+  border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+.swal2-icon.swal2-warning {
+  border-color: #f59e0b !important;
+  color: #f59e0b !important;
+}
+
+.swal2-icon.swal2-error {
+  border-color: #ed0026 !important;
+  color: #ed0026 !important;
+}
+.swal2-icon.swal2-error [class^='swal2-x-mark-line'] {
+  background-color: #ed0026 !important;
+}
+
+/* Toast Enhancements */
+.kh-swal-toast {
+  border-radius: 1rem !important;
+  padding: 0.75rem 1rem !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.15) !important;
+  border: 1px solid #e2e8f0 !important;
+}
+.kh-swal-toast-title {
+  font-size: 0.875rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+}
+
+

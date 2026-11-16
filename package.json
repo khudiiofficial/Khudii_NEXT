@@ -4,11 +4,11 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run check:deployment && next build --webpack",
     "start": "next start",
     "lint": "eslint .",
     "check:server": "node scripts/check-server.mjs",
@@ -16,7 +16,7 @@
     "check:assets": "node scripts/check-assets.mjs",
     "check:routes": "node scripts/check-routes.mjs",
     "check:imports": "node scripts/check-imports.mjs",
-    "verify:static": "npm run check:server && npm run check:router && npm run check:syntax && npm run check:html && npm run check:controlled && npm run check:routes && npm run check:parity && npm run check:api-contract && npm run check:database && npm run check:packages && npm run check:environment && npm run check:secrets && npm run check:imports && npm run check:assets && npm run check:migration",
+    "verify:static": "npm run check:server && npm run check:router && npm run check:syntax && npm run check:html && npm run check:controlled && npm run check:routes && npm run check:parity && npm run check:api-contract && npm run check:database && npm run check:packages && npm run check:environment && npm run check:secrets && npm run check:imports && npm run check:assets && npm run check:migration && npm run check:audit && npm run check:forms && npm run check:deployment && npm run check:cms-v2",
     "verify": "npm run verify:static && npm run build",
     "check:migration": "node scripts/check-migration.mjs",
     "seed:admin": "node scripts/seed-admin.mjs",
@@ -29,7 +29,16 @@
     "check:secrets": "node scripts/check-secrets.mjs",
     "check:html": "node scripts/check-html-nesting.mjs",
     "check:controlled": "node scripts/check-controlled-values.mjs",
-    "check:router": "node scripts/check-router-compat.mjs"
+    "check:router": "node scripts/check-router-compat.mjs",
+    "check:cms": "node scripts/check-cms-layout.mjs",
+    "check:audit": "node scripts/check-audit-regressions.mjs",
+    "check:deployment": "node scripts/check-vercel-deployment.mjs",
+    "check:forms": "node scripts/check-forms-management.mjs",
+    "bootstrap:cms-admin": "node scripts/bootstrap-cms-admin.mjs",
+    "check:cms-v2": "node scripts/test-cms-v2.mjs",
+    "check:rca": "node scripts/test-2026-admin-rca.mjs",
+    "check:admin-migration": "node scripts/check-admin-migration.mjs",
+    "check:video-admin": "node scripts/check-kingtravel-video-ui.mjs"
   },
   "dependencies": {
     "@tiptap/extension-link": "^3.29.2",
@@ -47,11 +56,13 @@
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.544.0",
     "mysql2": "^3.23.2",
-    "next": "^16.3.2",
+    "next": "^16.4.6",
     "nodemailer": "^9.0.4",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
     "react-hook-form": "^7.71.2",
+    "recharts": "^3.10.1",
+    "sharp": "^0.35.5",
     "sweetalert2": "^11.26.17",
     "sweetalert2-react-content": "^5.1.1"
   },

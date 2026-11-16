@@ -1,3 +1,4 @@
+import { adminConfirm } from '@/lib/admin-dialogs';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AdminStories.css';
@@ -58,7 +59,7 @@ const AdminStories = () => {
   };
 
   const deleteStory = async (id) => {
-    if (!confirm('Are you sure you want to delete this story?')) return;
+    if (!(await adminConfirm('Are you sure you want to delete this story?'))) return;
 
     try {
       await axios.delete(`${API_URL}/admin/stories/${id}`, {

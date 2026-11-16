@@ -44,7 +44,7 @@
   align-items: center;
   margin-bottom: 25px;
   padding-bottom: 15px;
-  border-bottom: 3px solid #02236e !important;
+  border-bottom: 3px solid #2563eb !important;
 }
 
 .section-header h2 {
@@ -200,7 +200,7 @@
 
 .search-box input:focus {
   outline: none;
-  border-color: #02236e !important;
+  border-color: #2563eb !important;
   background: white;
   box-shadow: 0 0 0 3px rgba(231, 0, 30, 0.1);
 }

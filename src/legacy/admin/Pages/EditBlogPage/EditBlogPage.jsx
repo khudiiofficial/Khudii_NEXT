@@ -12,17 +12,17 @@
 //     conclusion: "",
 //     image_path: "",
 //     image_base64: "",
-    
+
 //     // Documentarr sections
 //     sections: [],
-    
+
 //     // NGO data
 //     ngos: {
 //       intro: "",
 //       categories: []
 //     }
 //   });
-  
+
 //   const [loading, setLoading] = useState(true);
 //   const [saving, setSaving] = useState(false);
 //   const [error, setError] = useState(null);
@@ -35,7 +35,7 @@
 //     try {
 //       setLoading(true);
 //       const res = await axios.get(`${APIPath}/api/blogs/${id}`,{withCredentials:true});
-      
+
 //       setForm({
 //         Name: res.data.Name || "",
 //         intro: res.data.intro || "",
@@ -45,7 +45,7 @@
 //         sections: res.data.sections || [],
 //         ngos: res.data.ngos || { intro: "", categories: [] }
 //       });
-      
+
 //       setError(null);
 //     } catch (err) {
 //       console.error("Error fetching blog:", err);
@@ -245,7 +245,7 @@
 //     e.preventDefault();
 //     setSaving(true);
 //     console.log(form)
-    
+
 //     try {
 //       // Here you would make a PUT request to update the blog
 //     const res=  await axios.put(`${APIPath}/api/blogs/${id}`, form,{withCredentials:true});
@@ -295,7 +295,7 @@
 
 //   return (
 //     <div className=" bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-//       <div className="max-w-6xl mx-auto">
+//       <div className="max-w-7xl mx-auto">
 //         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 //           {/* Header */}
 //           <div className="flex items-center justify-between mb-8">
@@ -315,7 +315,7 @@
 //             {/* Main Document Section */}
 //             <div className="space-y-6 p-6 bg-blue-50 rounded-xl">
 //               <h2 className="text-2xl font-semibold text-gray-800">Main Blog Content</h2>
-              
+
 //               <div>
 //                 <label className="block text-sm font-medium text-gray-700 mb-2">
 //                   Blog Title *
@@ -592,6 +592,7 @@
 // }
 
 
+import {Trash2} from 'lucide-react';
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from '@/lib/router-compat';
@@ -600,7 +601,7 @@ const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
 export default function EditBlogPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [cap,setcap]=useState('')
+  const [cap, setcap] = useState('')
   const [form, setForm] = useState({
     // Document table fields
     Name: "",
@@ -608,23 +609,23 @@ export default function EditBlogPage() {
     conclusion: "",
     image_path: "",
     image_base64: "",
-    
+
     // SEO fields
     slug: "",
     meta_title: "",
     meta_description: "",
     meta_keywords: "",
-    
+
     // Documentarr sections
     sections: [],
-    
+
     // NGO data
     ngos: {
       intro: "",
       categories: []
     }
   });
-  
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -637,8 +638,8 @@ export default function EditBlogPage() {
   const fetchBlogData = async () => {
     try {
       setLoading(true);
-      const res = await axios.get(`${APIPath}/api/blogs/${id}`,{withCredentials:true});
-      
+      const res = await axios.get(`${APIPath}/api/blogs/${id}`, { withCredentials: true });
+
       setForm({
         Name: res.data.Name || "",
         intro: res.data.intro || "",
@@ -652,7 +653,7 @@ export default function EditBlogPage() {
         sections: res.data.sections || [],
         ngos: res.data.ngos || { intro: "", categories: [] }
       });
-      
+
       setError(null);
     } catch (err) {
       console.error("Error fetching blog:", err);
@@ -892,8 +893,8 @@ export default function EditBlogPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-   
-    if(cap){
+
+    if (cap) {
       console.log('bot detected')
       setcap('')
       return
@@ -905,10 +906,10 @@ export default function EditBlogPage() {
 
     setSaving(true);
     console.log(form)
-    
+
     try {
-      const res = await axios.put(`${APIPath}/api/blogs/${id}`, form,{withCredentials:true});
-      if(res.status===200){
+      const res = await axios.put(`${APIPath}/api/blogs/${id}`, form, { withCredentials: true });
+      if (res.status === 200) {
         console.log("Form data to submit:", form);
         alert("✅ Blog updated successfully!");
         navigate("/admin-app/dashboard/BlogPage");
@@ -957,11 +958,11 @@ export default function EditBlogPage() {
   }
 
   return (
-    <div className=" bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div className="kh-video-editor-wrap">
+      <div className="kh-video-editor-wrap">
+        <div className="kh-video-editor-content">
           {/* Header */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="kh-video-editor-header">
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Edit Blog</h1>
               <p className="text-gray-600 mt-2">Update your blog content and details</p>
@@ -974,12 +975,12 @@ export default function EditBlogPage() {
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="kh-video-editor-form kh-video-editor-blog">
             {/* Main Document Section */}
-            <input type="hidden" onChange={(e)=>{setcap(e.target.value)}} />
+            <input type="hidden" onChange={(e) => { setcap(e.target.value) }} />
             <div className="space-y-6 p-6 bg-blue-50 rounded-xl">
               <h2 className="text-2xl font-semibold text-gray-800">Main Blog Content</h2>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Blog Title *
@@ -992,9 +993,8 @@ export default function EditBlogPage() {
                     // Auto-generate slug from title
                     handleSeoChange("slug", generateSlug(e.target.value));
                   }}
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.Name ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.Name ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   required
                 />
                 {errors.Name && <p className="text-red-600 text-sm mt-1">{errors.Name}</p>}
@@ -1008,9 +1008,8 @@ export default function EditBlogPage() {
                   type="text"
                   value={(form.slug) ?? ''}
                   onChange={(e) => handleSeoChange("slug", e.target.value)}
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.slug ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.slug ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   required
                 />
                 <p className="text-xs text-gray-500 mt-1">
@@ -1027,9 +1026,8 @@ export default function EditBlogPage() {
                   value={(form.intro) ?? ''}
                   onChange={(e) => handleDocumentChange("intro", e.target.value)}
                   rows={4}
-                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
-                    errors.intro ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  className={`w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${errors.intro ? 'border-red-500' : 'border-gray-300'
+                    }`}
                   required
                 />
                 {errors.intro && <p className="text-red-600 text-sm mt-1">{errors.intro}</p>}
@@ -1075,7 +1073,7 @@ export default function EditBlogPage() {
             {/* SEO Section */}
             <div className="space-y-6 p-6 bg-yellow-50 rounded-xl">
               <h2 className="text-2xl font-semibold text-gray-800">SEO Information</h2>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Meta Title
@@ -1147,9 +1145,10 @@ export default function EditBlogPage() {
                     <button
                       type="button"
                       onClick={() => removeSection(sectionIndex)}
+                      title="Remove section" aria-label="Remove section"
                       className="text-red-600 hover:text-red-800"
                     >
-                      Remove
+                      <Trash2 size={16}/>
                     </button>
                   </div>
 
@@ -1208,9 +1207,10 @@ export default function EditBlogPage() {
                           <button
                             type="button"
                             onClick={() => removeBullet(sectionIndex, bulletIndex)}
+                            title="Remove bullet" aria-label="Remove bullet"
                             className="text-red-600 hover:text-red-800 px-2"
                           >
-                            ✕
+                            <Trash2 size={15}/>
                           </button>
                         </div>
                       ))}
@@ -1262,9 +1262,10 @@ export default function EditBlogPage() {
                     <button
                       type="button"
                       onClick={() => removeCategory(categoryIndex)}
+                      title="Remove category" aria-label="Remove category"
                       className="text-red-600 hover:text-red-800"
                     >
-                      Remove
+                      <Trash2 size={16}/>
                     </button>
                   </div>
 
@@ -1303,9 +1304,10 @@ export default function EditBlogPage() {
                           <button
                             type="button"
                             onClick={() => removeCategoryValue(categoryIndex, valueIndex)}
+                            title="Remove value" aria-label="Remove value"
                             className="text-red-600 hover:text-red-800 px-2"
                           >
-                            ✕
+                            <Trash2 size={15}/>
                           </button>
                         </div>
                       ))}
@@ -1316,7 +1318,7 @@ export default function EditBlogPage() {
             </div>
 
             {/* Submit Button */}
-            <div className="flex gap-4 pt-6 border-t">
+            <div className="kh-form-actions">
               <button
                 type="submit"
                 disabled={saving}

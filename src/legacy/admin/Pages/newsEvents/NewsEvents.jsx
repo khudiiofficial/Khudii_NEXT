@@ -1,3 +1,4 @@
+import { adminConfirm } from '@/lib/admin-dialogs';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 const API_BASE_URL = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
@@ -7,7 +8,7 @@ const EventsAdminPanel = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-   const [cap,setcap]=useState('')
+  const [cap, setcap] = useState('')
 
   // Form states - following the exact schema
   const [formData, setFormData] = useState({
@@ -52,10 +53,10 @@ const EventsAdminPanel = () => {
   const getVideoPreviewUrl = (url, videoId) => {
 
     if (videoId) {
-     
+
       return `https://www.youtube.com/embed/${videoId}`;
     }
-    
+
     // // Try to extract from URL if no videoId provided
     // if (url) {
     //   const regex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/;
@@ -65,7 +66,7 @@ const EventsAdminPanel = () => {
     //   }
     //   return url; // Return the URL as is if it's already an embed URL
     // }
-    
+
     // return '';
   };
 
@@ -102,9 +103,9 @@ const EventsAdminPanel = () => {
   // Create or Update event
   const handleSubmit = async (e) => {
     e.preventDefault();
- if(cap){
+    if (cap) {
       console.log('bot detected')
-setcap('')
+      setcap('')
       return
     }
     if (!formData.title || !formData.url || !formData.videoId) {
@@ -140,7 +141,7 @@ setcap('')
         // Create new event
         const response = await api.post('/events', formData);
         if (response.data.success) {
-          alert('Event created successfully!');
+          alert('Event Created Successfully!');
           fetchEvents();
           resetForm();
         }
@@ -166,7 +167,7 @@ setcap('')
 
   // Delete event
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this event?')) {
+    if ((await adminConfirm('Are you sure you want to delete this event?'))) {
       try {
         const response = await api.delete(`/events/${id}`);
         if (response.data.success) {
@@ -191,10 +192,10 @@ setcap('')
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         height: '100vh',
         fontSize: '18px',
         color: '#666'
@@ -205,28 +206,28 @@ setcap('')
   }
 
   return (
-    <div style={{ 
-      maxWidth: '1240px', 
-      margin: '0 auto', 
+    <div style={{
+      maxWidth: '1240px',
+      margin: '0 auto',
       padding: '20px',
       fontFamily: 'Arial, sans-serif'
     }}>
       {/* Header */}
-      <header style={{ 
-        textAlign: 'center', 
+      <header style={{
+        textAlign: 'center',
         marginBottom: '40px',
         borderBottom: '2px solid #009dc8',
         paddingBottom: '20px'
       }}>
-        <h1 style={{ 
-          color: '#333', 
+        <h1 style={{
+          color: '#333',
           margin: 0,
           fontSize: '2.5rem'
         }}>
           Events Admin Panel
         </h1>
-        <p style={{ 
-          color: '#666', 
+        <p style={{
+          color: '#666',
           marginTop: '10px',
           fontSize: '1.1rem'
         }}>
@@ -256,7 +257,7 @@ setcap('')
         marginBottom: '40px',
         boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
       }}>
-        <h2 style={{ 
+        <h2 style={{
           color: '#333',
           marginBottom: '25px',
           borderBottom: '2px solid #009dc8',
@@ -264,10 +265,10 @@ setcap('')
         }}>
           {editingId ? 'Edit Event' : 'Add New Event'}
         </h2>
-        
+
         <form onSubmit={handleSubmit}>
-          
-    <input type="hidden" onChange={(e)=>{setcap(e.target.value)}} />
+
+          <input type="hidden" onChange={(e) => { setcap(e.target.value) }} />
 
 
           <div style={{ marginBottom: '20px' }}>
@@ -300,7 +301,7 @@ setcap('')
               {formData.title.length}/500 characters
             </div>
           </div>
-          
+
           <div style={{ marginBottom: '20px' }}>
             <label style={{
               display: 'block',
@@ -331,7 +332,7 @@ setcap('')
               {formData.url.length}/500 characters
             </div>
           </div>
-          
+
           <div style={{ marginBottom: '25px' }}>
             <label style={{
               display: 'block',
@@ -403,13 +404,13 @@ setcap('')
               </p>
             </div>
           )}
-          
+
           <div style={{ display: 'flex', gap: '10px' }}>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={isSubmitting}
               style={{
-                background: '#02236e',
+                background: '#2563eb',
                 color: 'white',
                 padding: '12px 25px',
                 border: 'none',
@@ -422,10 +423,10 @@ setcap('')
             >
               {isSubmitting ? 'Saving...' : (editingId ? 'Update Event' : 'Create Event')}
             </button>
-            
+
             {editingId && (
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={handleCancel}
                 style={{
                   background: '#6c757d',
@@ -447,7 +448,7 @@ setcap('')
 
       {/* Events List */}
       <div>
-        <h2 style={{ 
+        <h2 style={{
           color: '#222222',
           marginBottom: '25px',
           borderBottom: '2px solid #007bff',
@@ -473,7 +474,7 @@ setcap('')
             gap: '25px'
           }}>
             {events.map((event) => (
-              <div 
+              <div
                 key={event.id}
                 style={{
                   border: '1px solid #ddd',
@@ -484,18 +485,18 @@ setcap('')
                   transition: 'transform 0.2s'
                 }}
               >
-                <h3 style={{ 
-                  color: '#02236e', 
+                <h3 style={{
+                  color: '#2563eb',
                   marginTop: 0,
                   marginBottom: '15px',
                   fontSize: '1.2rem',
                   fontWeight: '600',
                 }}
-                className="line-clamp-1"
+                  className="line-clamp-1"
                 >
                   {event.title}
                 </h3>
-                
+
                 {/* Video Embed */}
                 <div style={{
                   marginBottom: '15px',
@@ -514,12 +515,12 @@ setcap('')
                     allowFullScreen
                   ></iframe>
                 </div>
-                
+
                 <div style={{ marginBottom: '15px' }}>
-                  <strong>Video ID:</strong> 
-                  <span style={{ 
-                    background: '#e9ecef', 
-                    padding: '2px 8px', 
+                  <strong>Video ID:</strong>
+                  <span style={{
+                    background: '#e9ecef',
+                    padding: '2px 8px',
                     borderRadius: '5px',
                     marginLeft: '8px',
                     fontFamily: 'monospace'
@@ -527,10 +528,10 @@ setcap('')
                     {event.videoId}
                   </span>
                 </div>
-                
+
                 <div style={{ marginBottom: '15px' }}>
                   <strong>URL:</strong>
-                  <div style={{ 
+                  <div style={{
                     wordBreak: 'break-all',
                     color: '#666',
                     fontSize: '12px',
@@ -543,13 +544,13 @@ setcap('')
                     {event.url}
                   </div>
                 </div>
-                
+
                 <div style={{ marginBottom: '20px', color: '#e7001e', fontSize: '14px' }}>
                   <strong>Created:</strong> {new Date(event.created_at).toLocaleDateString()}
                 </div>
-                
+
                 <div style={{ display: 'flex', gap: '10px' }}>
-                  <button 
+                  <button
                     onClick={() => window.open(event.url, '_blank')}
                     style={{
                       background: '#31e700',
@@ -564,8 +565,8 @@ setcap('')
                   >
                     View Video
                   </button>
-                  
-                  <button 
+
+                  <button
                     onClick={() => handleEdit(event)}
                     style={{
                       background: '#ffe931',
@@ -580,8 +581,8 @@ setcap('')
                   >
                     Edit
                   </button>
-                  
-                  <button 
+
+                  <button
                     onClick={() => handleDelete(event.id)}
                     style={{
                       background: '#e7001e',
@@ -611,7 +612,7 @@ setcap('')
         borderTop: '2px solid #009dc8',
         color: '#222222'
       }}>
-        <p>Events Admin Panel &copy; 2025</p>
+        <p>Events Admin Panel &copy; 2026</p>
       </footer>
     </div>
   );

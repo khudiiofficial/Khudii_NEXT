@@ -1,5 +1,5 @@
-'use client';
-import dynamic from 'next/dynamic';
-import PublicPage from '@/components/PublicPage';
-const Component = dynamic(() => import('@/legacy/public/pages/AuthCalBack/AuthCallBack'), { ssr: true });
-export default function Page() { return <PublicPage component={Component} seoPath="" passSeo={false} />; }
+import ClientPage from './page.client';
+import {generateKhudiiPageMetadata} from '@/server/seo-intelligence';
+export const dynamic='force-dynamic';
+export async function generateMetadata(){return {title:'Authentication callback',robots:{index:false,follow:false}};}
+export default function Page(){return <ClientPage/>;}

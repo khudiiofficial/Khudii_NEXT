@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import React, { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
@@ -144,6 +145,7 @@ const [val,setval]=useState('')
         url={`${url}/volunteer`}
         type="website"
       />
+    <CmsPageLayout slug="/volunteer">
      <PageHeader 
                     title="Volunteer"
                     breadcrumbs={[
@@ -402,6 +404,7 @@ const [val,setval]=useState('')
         </div>
       )}
     </section>
-     </>
+     </CmsPageLayout>
+</>
   );
 }

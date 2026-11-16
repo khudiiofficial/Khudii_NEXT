@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import React, { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
@@ -144,6 +145,7 @@ const [val,setval]=useState('')
         url={`${url}/jobs`}
         type="website"
       />
+    <CmsPageLayout slug="/jobs">
 
  <PageHeader 
                 title="Jobs"
@@ -435,6 +437,7 @@ const [val,setval]=useState('')
         </div>
       )}
     </section>
-    </>
+    </CmsPageLayout>
+</>
   );
 }

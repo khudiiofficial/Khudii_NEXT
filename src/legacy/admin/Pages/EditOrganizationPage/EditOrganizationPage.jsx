@@ -1688,10 +1688,10 @@ export default function EditOrganizationPage() {
     );
   }
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between mb-6">
+    <div className="kh-video-editor-wrap">
+      <div className="kh-video-editor-wrap">
+        <div className="kh-video-editor-content">
+          <div className="kh-video-editor-header">
             <div>
               <h1 className="text-3xl font-bold text-[#222222] mb-2">Edit Organization</h1>
               <p className="text-[#222222] font-medium">Update the Details of Your Organization</p>
@@ -1704,7 +1704,7 @@ export default function EditOrganizationPage() {
             </button>
           </div>
           
-          <form onSubmit={handleSubmit} className="space-y-8">
+          <form onSubmit={handleSubmit} className="kh-video-editor-form kh-video-editor-org">
             {/* Basic Fields */}
             <input type="hidden" onChange={(e) => { setcap(e.target.value) }} />
             <div className="space-y-4">

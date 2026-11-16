@@ -19,10 +19,13 @@ async function handler(request, context) {
 
   // Public read endpoints are requested repeatedly by the shell and page sections.
   // Cache them briefly so navigation does not hit MySQL again for unchanged content.
-  if (!isAdmin && request.method === 'GET' && response?.headers) {
-    response.headers.set('Cache-Control', 'public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+  if (!isAdmin && request.method === 'GET' && !originalPath.startsWith('/cms/v2/') && response?.headers && response.status >= 200 && response.status < 300) {
+    response.headers.set('Cache-Control', 'no-store, max-age=0, must-revalidate');
   }
 
+  if (!isAdmin && request.method === 'GET' && response?.headers && response.status >= 400) {
+    response.headers.set('Cache-Control', 'no-store');
+  }
   return response;
 }
 

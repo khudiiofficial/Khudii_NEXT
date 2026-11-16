@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import React from 'react'
 import PageHeader from '../../componets/PageHeader/PageHeader'
 import ClientFeedbacks from '../../componets/TestimonialComponents/TestimonialComponent'
@@ -12,6 +13,7 @@ const Testimonial = ({con,url}) => {
         url={`${url}/testimonials`}
         type="website"
       />
+    <CmsPageLayout slug="/testimonials">
        <PageHeader 
             title="Testimonial"
             breadcrumbs={[
@@ -21,7 +23,8 @@ const Testimonial = ({con,url}) => {
           />
 
           <ClientFeedbacks/>
-    </>
+    </CmsPageLayout>
+</>
   )
 }
 

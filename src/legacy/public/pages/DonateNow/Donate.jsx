@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import React from 'react'
 import PageHeader from '../../componets/PageHeader/PageHeader'
 // import DonateNow from '../../componets/DonatePageComponents/DonateForm'
@@ -13,6 +14,7 @@ const Donate = ({con,url}) => {
         url={`${url}/donate-now`}
         type="website"
       />
+    <CmsPageLayout slug="/donate-now">
       <PageHeader 
                     title="Donate"
                     breadcrumbs={[
@@ -22,7 +24,8 @@ const Donate = ({con,url}) => {
                   />
                    {/* <DonateNow/> */}
     <DonationForm/>
-    </>
+    </CmsPageLayout>
+</>
   )
 }
 

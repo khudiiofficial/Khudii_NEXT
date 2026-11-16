@@ -77,7 +77,7 @@
   text-align: left;
 }
 
-:global(strong) {
+.aboutUs :global(strong) {
   color: #02236e;
   font-weight: 600;
 }

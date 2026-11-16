@@ -1,3 +1,4 @@
+import { adminConfirm } from '@/lib/admin-dialogs';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AdminContacts.css';
@@ -58,7 +59,7 @@ const AdminContacts = () => {
   };
 
   const deleteMessage = async (id) => {
-    if (!confirm('Are you sure you want to delete this contact message?')) return;
+    if (!(await adminConfirm('Are you sure you want to delete this contact message?'))) return;
 
     try {
       await axios.delete(`${API_URL}/admin/contact-messages/${id}`, {

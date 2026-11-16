@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import React from 'react'
 import PageHeader from '../../componets/PageHeader/PageHeader'
 import FacebookPage from '../../componets/facebookCom/Facebook'
@@ -13,6 +14,7 @@ const SocialMedai = ({con,url}) => {
         url={`${url}/social-media`}
         type="website"
       />
+    <CmsPageLayout slug="/social-media">
 
    <PageHeader 
           title="Social Media"
@@ -23,7 +25,8 @@ const SocialMedai = ({con,url}) => {
         />
        <LogoCarousel/>
         <FacebookPage/>
-  </>
+  </CmsPageLayout>
+</>
 
   )
 }

@@ -17,7 +17,7 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState(''); // 'success' or 'error'
-  const [cap,setcap]=useState('')
+  const [cap, setcap] = useState('')
 
   useEffect(() => {
     fetchProfile();
@@ -25,13 +25,13 @@ const Profile = () => {
 
   const fetchProfile = async () => {
     try {
-      
+
       const response = await axios.get(`${APIPath}/api/profile`, {
-       withCredentials:true
+        withCredentials: true
       });
       //  console.log(response)
       if (response.data.success) {
-      
+
         const userData = response.data.user;
         setuser(userData);
         setFormData(prev => ({
@@ -57,7 +57,7 @@ const Profile = () => {
     setLoading(true);
     setMessage('');
 
- if(cap){
+    if (cap) {
       console.log('bot detected')
       setcap('')
       return
@@ -90,11 +90,11 @@ const Profile = () => {
       }
 
       const response = await axios.put(`${APIPath}/api/profile`, updateData, {
-     withCredentials:true
+        withCredentials: true
       });
       // console.log(response)
-      if (response.status===200) {
-       
+      if (response.status === 200) {
+
         setUser(response.data.user)
         // Clear password fields
         setFormData(prev => ({
@@ -128,27 +128,26 @@ const Profile = () => {
           <p className="text-gray-600 mb-8">Manage your account information and password</p>
 
           {message && (
-            <div className={`mb-6 p-4 rounded-lg ${
-              messageType === 'success' 
-                ? 'bg-green-100 text-[#1c5e20] border border-green-200' 
+            <div className={`mb-6 p-4 rounded-lg ${messageType === 'success'
+                ? 'bg-green-100 text-[#1c5e20] border border-green-200'
                 : 'bg-red-100 text-[#e7001e] border border-red-200'
-            }`}>
+              }`}>
               {message}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Personal Information */}
-            
-    <input type="hidden" onChange={(e)=>{setcap(e.target.value)}} />
+
+            <input type="hidden" onChange={(e) => { setcap(e.target.value) }} />
 
 
             <div className="space-y-4">
               <h3 className="text-xl font-semibold text-gray-700 border-b pb-2">
                 Personal Information
               </h3>
-              
-          
+
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email Address
@@ -158,7 +157,7 @@ const Profile = () => {
                   name="email"
                   value={(formData.email) ?? ''}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#02236e] focus:border-[#02236e] transition-colors"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#02236E] focus:border-[#02236E] transition-colors"
                   placeholder="Enter your email address"
                   required
                 />
@@ -170,7 +169,7 @@ const Profile = () => {
               <h3 className="text-xl font-semibold text-gray-700 border-b pb-2">
                 Change Password
               </h3>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Current Password
@@ -180,7 +179,7 @@ const Profile = () => {
                   name="currentPassword"
                   value={(formData.currentPassword) ?? ''}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#02236e] focus:border-[#02236e] transition-colors"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#02236E] focus:border-[#02236E] transition-colors"
                   placeholder="Enter current password"
                 />
               </div>
@@ -194,7 +193,7 @@ const Profile = () => {
                   name="newPassword"
                   value={(formData.newPassword) ?? ''}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#02236e] focus:border-[#02236e] transition-colors"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#02236E] focus:border-[#02236E] transition-colors"
                   placeholder="Enter new password (min 6 characters)"
                 />
               </div>
@@ -208,7 +207,7 @@ const Profile = () => {
                   name="confirmPassword"
                   value={(formData.confirmPassword) ?? ''}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#02236e] focus:border-[#02236e] transition-colors"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#02236E] focus:border-[#02236E] transition-colors"
                   placeholder="Confirm new password"
                 />
               </div>
@@ -217,11 +216,10 @@ const Profile = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`cursor-pointer w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors ${
-                loading
+              className={`cursor-pointer w-full py-3 px-4 rounded-lg font-semibold text-white transition-colors ${loading
                   ? 'bg-gray-400 cursor-not-allowed'
-                  : 'bg-[#02236e] hover:bg-blue-600 focus:ring-2 focus:ring-[#02236e] focus:ring-offset-2'
-              }`}
+                  : 'bg-[#02236E] hover:bg-blue-600 focus:ring-2 focus:ring-[#02236E] focus:ring-offset-2'
+                }`}
             >
               {loading ? 'Updating...' : 'Update Profile'}
             </button>

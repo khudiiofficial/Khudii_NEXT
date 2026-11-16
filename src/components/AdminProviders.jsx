@@ -1,6 +1,7 @@
 'use client';
 
 import axios from 'axios';
+import { adminNotify } from '@/lib/admin-dialogs';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { AdminAuthProvider, useAdminAuth } from '@/lib/admin-auth';
@@ -11,7 +12,7 @@ import { installLargePayloadUploadInterceptor } from '@/lib/large-payload-upload
 axios.defaults.headers.common['x-khudii-surface'] = 'admin';
 axios.defaults.withCredentials = true;
 
-const ADMIN_LOGIN_PATH = '/admin-app/Login';
+const ADMIN_LOGIN_PATH = '/letskhudii';
 const ADMIN_DASHBOARD_PATH = '/admin-app/dashboard';
 
 function SessionGuard({ children }) {
@@ -34,14 +35,14 @@ function SessionGuard({ children }) {
           setUser({ auth: true });
         }
         // Redirect away from login page once authenticated
-        if (pathname.toLowerCase().startsWith('/admin-app/login')) {
+        if (pathname === ADMIN_LOGIN_PATH) {
           router.replace(ADMIN_DASHBOARD_PATH);
         }
       } catch (error) {
         if (!active || error?.response?.status !== 401) return;
         resetUser();
         // Redirect to admin login when session expires / invalid
-        if (!pathname.toLowerCase().startsWith('/admin-app/login')) {
+        if (pathname !== ADMIN_LOGIN_PATH) {
           router.replace(ADMIN_LOGIN_PATH);
         }
       }
@@ -60,6 +61,9 @@ function SessionGuard({ children }) {
 
 export default function AdminProviders({ children }) {
   useEffect(() => installLargePayloadUploadInterceptor(), []);
+  // Compatibility bridge for old admin screens that still call native alert().
+  // Delete confirmations are converted to asynchronous SweetAlert dialogs in-place.
+  useEffect(() => {const original=window.alert;window.alert=(message)=>{adminNotify(message,/(error|failed|invalid|fix|unable|❌)/i.test(String(message))?'error':'success');};return()=>{window.alert=original;};}, []);
 
   return (
     <AdminAuthProvider>

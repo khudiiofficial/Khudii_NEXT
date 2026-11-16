@@ -61,38 +61,65 @@ const Crousel = ({setloader}) => {
           {/* Main slider */}
           <div className={styles["main-slider"]}>
             <img
-              src={org.images[activeIndex]}
+              src={org.images[activeIndex] || "/siteicon.png"}
               alt={`slide-${activeIndex}`}
               className={styles["fade-in"]}
+              onError={(e) => {
+                const target = e.currentTarget;
+                const activeSrc = org.images[activeIndex];
+                if (!target.dataset.retried && activeSrc?.includes('media.khudii.com')) {
+                  target.dataset.retried = 'true';
+                  target.src = activeSrc.includes('?') ? `${activeSrc}&t=${Date.now()}` : `${activeSrc}?t=${Date.now()}`;
+                } else {
+                  target.onerror = null;
+                  target.src = '/siteicon.png';
+                }
+              }}
             />
-            <button
-              className={`${styles.arrow} ${styles.left}`}
-              onClick={goPrev}
-            >
-              ‹
-            </button>
-            <button
-              className={`${styles.arrow} ${styles.right}`}
-              onClick={goNext}
-            >
-              ›
-            </button>
+            {org.images.length > 1 && (
+              <>
+                <button
+                  className={`${styles.arrow} ${styles.left}`}
+                  onClick={goPrev}
+                >
+                  ‹
+                </button>
+                <button
+                  className={`${styles.arrow} ${styles.right}`}
+                  onClick={goNext}
+                >
+                  ›
+                </button>
+              </>
+            )}
           </div>
 
           {/* Thumbnails */}
-          <div className={styles["thumbnail-slider"]}>
-            {org.images.map((src, i) => (
-              <img
-                key={i}
-                src={src}
-                alt={`thumb-${i}`}
-                className={`${styles.thumb} ${
-                  i === activeIndex ? styles.active : ""
-                }`}
-                onClick={() => setActiveIndex(i)}
-              />
-            ))}
-          </div>
+          {org.images.length > 1 && (
+            <div className={styles["thumbnail-slider"]}>
+              {org.images.map((src, i) => (
+                <img
+                  key={i}
+                  src={src || "/siteicon.png"}
+                  alt={`thumb-${i}`}
+                  className={`${styles.thumb} ${
+                    i === activeIndex ? styles.active : ""
+                  }`}
+                  onClick={() => setActiveIndex(i)}
+                  onError={(e) => {
+                    const target = e.currentTarget;
+                    if (!target.dataset.retried && src?.includes('media.khudii.com')) {
+                      target.dataset.retried = 'true';
+                      target.src = src.includes('?') ? `${src}&t=${Date.now()}` : `${src}?t=${Date.now()}`;
+                    } else {
+                      target.onerror = null;
+                      target.src = '/siteicon.png';
+                    }
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </div>
       )}
 {/* <br /> */}

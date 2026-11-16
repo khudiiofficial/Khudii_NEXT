@@ -10,7 +10,7 @@
   color: #222222;
   margin-bottom: 30px;
   text-align: center;
-  border-bottom: 2px solid #02236e;
+  border-bottom: 2px solid #2563eb;
   padding-bottom: 10px;
 }
 
@@ -110,7 +110,7 @@
 
 .submit-btn {
   width: 100%;
-  background: #02236e;
+  background: #2563eb;
   color: white;
   border: none;
   padding: 15px;

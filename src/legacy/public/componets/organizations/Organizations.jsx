@@ -37,7 +37,7 @@
 //     </span>
 //   </div>
 
- 
+
 //   <div className="flex-1 text-center">
 //     <h2 className="text-2xl sm:text-3xl font-bold text-[#022279] p-4 md:p-8 lg:p-10">
 //       Organizations
@@ -64,7 +64,7 @@
 //   </div>
 // </div>
 
-        
+
 //         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
 //           {organizations.length > 0 ? (
 //             organizations.map((org, idx) => (
@@ -75,7 +75,7 @@
 //                 role="article"
 //                 aria-labelledby={`org-title-${org.id || idx}`}
 //               >
-             
+
 //                 <div className="w-full overflow-hidden bg-white rounded-t-xl">
 //   <img
 //     src={org.introductory_image_path || '/placeholder-org.webp'}
@@ -89,7 +89,7 @@
 //   />
 // </div>
 
-            
+
 //                 <div className="p-5 sm:p-6">
 //                   <h3
 //                     id={`org-title-${org.id || idx}`}
@@ -125,7 +125,7 @@
 //         </div>
 //       </div>
 
-    
+
 //       <style jsx>{`
 //         .line-clamp-3 {
 //           display: -webkit-box;
@@ -191,8 +191,8 @@ function OrganizationsSection() {
 
           {/* Centered heading */}
           <div className="flex-1 text-center">
-            <h2 
-              className="text-2xl sm:text-3xl font-bold text-[#0033A0] p-4 md:p-8 lg:p-10"
+            <h2
+              className="text-2xl sm:text-3xl font-bold text-[#02236E] p-4 md:p-8 lg:p-10"
               id="organizations-heading"
             >
               Organizations
@@ -224,7 +224,7 @@ function OrganizationsSection() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
           {loading ? (
             // Loading state with ARIA announcement
-            <div 
+            <div
               className="col-span-full text-center py-10"
               role="status"
               aria-live="polite"
@@ -243,16 +243,25 @@ function OrganizationsSection() {
                 onKeyPress={(e) => handleKeyPress(e, org)}
                 tabIndex={0}
               >
-                {/* Image with improved accessibility */}
-                <div className="w-full overflow-hidden bg-white rounded-t-xl">
+                {/* Image with improved accessibility & smooth loading */}
+                <div className="w-full h-48 overflow-hidden bg-white rounded-t-xl relativew-full h-auto overflow-hidden bg-gray-100 rounded-t-xl relative">
                   <img
                     src={org.introductory_image_path || '/placeholder-org.webp'}
                     alt={`${org.name || 'Organization'} logo`}
-                    className="w-full h-full object-cover duration-500"
+                    className="w-full h-full object-contain duration-500 transition-all hover:scale-105"
                     loading="lazy"
                     onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = '/fallback-org.png';
+                      const target = e.currentTarget;
+                      if (!target.dataset.retried && org.introductory_image_path?.includes('media.khudii.com')) {
+                        target.dataset.retried = 'true';
+                        // Add cache-bust query param to retry once without immediate fallback
+                        target.src = org.introductory_image_path.includes('?')
+                          ? `${org.introductory_image_path}&t=${Date.now()}`
+                          : `${org.introductory_image_path}?t=${Date.now()}`;
+                      } else {
+                        target.onerror = null;
+                        target.src = '/fallback-org.png';
+                      }
                     }}
                   />
                 </div>
@@ -261,7 +270,7 @@ function OrganizationsSection() {
                 <div className="p-5 sm:p-6">
                   <h3
                     id={`org-title-${org.id || idx}`}
-                    className="h-[50px] text-lg sm:text-xl font-semibold text-[#0033A0] mb-2 transition-colors line-clamp-2"
+                    className="h-[50px] text-lg sm:text-xl font-semibold text-[#02236E] mb-2 transition-colors line-clamp-2"
                   >
                     {org.name}
                   </h3>
@@ -269,8 +278,8 @@ function OrganizationsSection() {
                   <p className="text-gray-600 text-sm leading-relaxed mb-4 line-clamp-3">
                     {org.description
                       ? org.description
-                          .replace(/<[^>]*>/g, '')
-                          .substring(0, 120) + (org.description.length > 120 ? '...' : '')
+                        .replace(/<[^>]*>/g, '')
+                        .substring(0, 120) + (org.description.length > 120 ? '...' : '')
                       : 'Empowering communities through sustainable initiatives.'}
                   </p>
 
@@ -291,7 +300,7 @@ function OrganizationsSection() {
             ))
           ) : (
             // Empty state with ARIA announcement
-            <div 
+            <div
               className="col-span-full text-center py-10"
               role="status"
               aria-live="polite"

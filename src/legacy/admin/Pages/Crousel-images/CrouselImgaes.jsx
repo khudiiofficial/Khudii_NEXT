@@ -628,7 +628,7 @@ const CarouselAdmin = () => {
       confirmButtonText: 'Yes, Update Carousel',
       cancelButtonText: 'Cancel',
       icon: 'question',
-      iconColor: '#02236e',
+      iconColor: '#2563eb',
     });
 
     if (!confirmed) return;
@@ -939,7 +939,7 @@ const CarouselAdmin = () => {
             <input
               type="text"
               id="carouselSharedSlug"
-              value={sharedLink.description}
+              value={sharedLink.description ?? ''}
               onChange={(event) =>
                 setSharedLink((current) => ({
                   ...current,
@@ -1022,7 +1022,7 @@ const CarouselAdmin = () => {
                   <input
                     type="text"
                     id="editDescription"
-                    value={editForm.description}
+                    value={editForm.description ?? ''}
                     onChange={(event) =>
                       setEditForm((current) => ({
                         ...current,

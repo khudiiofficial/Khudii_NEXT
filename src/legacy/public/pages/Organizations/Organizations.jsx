@@ -1,3 +1,4 @@
+import CmsPageLayout from '@/components/CmsPageLayout';
 import React from 'react'
 import PageHeader from '../../componets/PageHeader/PageHeader'
 import DifferentOrganizations from '../../componets/DifferentOrganizations/DifferentOrganizations'
@@ -11,6 +12,7 @@ const Organizations = ({con,url}) => {
         keywords={con?.meta_keywords||"welfare organizations pakistan, verified charities, partner organizations, health NGOs, education charities, orphanages pakistan, disability support, community development, donor verification, khudii partners"}
         url={url}
       />
+    <CmsPageLayout slug="/organizations">
          <PageHeader 
         title="Organizations"
         breadcrumbs={[
@@ -20,7 +22,8 @@ const Organizations = ({con,url}) => {
       />
 
       <DifferentOrganizations/>
-      </>
+      </CmsPageLayout>
+</>
   )
 }
 

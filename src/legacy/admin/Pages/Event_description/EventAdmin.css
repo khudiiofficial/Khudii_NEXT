@@ -123,9 +123,9 @@
 
 .file-input-label {
   padding: 10px 20px;
-  background: #02236e;
+  background: #2563eb;
   color: white !important;
-  border: 1px solid #02236e;
+  border: 1px solid #2563eb;
   border-radius: 4px;
   cursor: pointer;
   font-size: 14px;
@@ -135,8 +135,8 @@
 }
 
 .file-input-label:hover {
-  background: #032f95;
-  border-color: #032f95;
+  background: #1d4ed8;
+  border-color: #1d4ed8;
 }
 
 .file-name {

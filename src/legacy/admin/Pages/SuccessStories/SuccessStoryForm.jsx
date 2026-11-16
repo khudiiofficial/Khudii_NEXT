@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import AdminPublishSwitch from '@/components/AdminPublishSwitch';
 import { youtubeVideoId, slugifyContent } from '@/server/shared/youtube';
 import { normalizeSuccessStoryLink } from '@/lib/success-story-link';
+import { Sliders } from 'lucide-react';
+import SeoCenterModal from '@/components/admin/SeoCenterModal';
+
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app');
 const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -16,7 +19,8 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [cap,setcap]=useState('')
+  const [cap, setcap] = useState('');
+  const [seoCenterOpen, setSeoCenterOpen] = useState(false);
 
   useEffect(() => {
     if (story) {
@@ -27,29 +31,30 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
         youtube_id: story.youtube_id || '',
         description: story.description || '',
         slug: slugifyContent(story.slug ?? ''),
-        is_published: story.is_published!==0,
-        meta_title: story.meta_title||'', meta_description: story.meta_description||'', meta_keywords: story.meta_keywords||''
+        is_published: story.is_published !== 0,
+        meta_title: story.meta_title || '', meta_description: story.meta_description || '', meta_keywords: story.meta_keywords || ''
       });
     }
   }, [story]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev =>{
-      if(name==="title"){
+    setFormData(prev => {
+      if (name === "title") {
         return {
           ...prev,
-        title:value,
-        slug: (story && prev.slug) ? prev.slug : slugifyContent(value)
+          title: value,
+          slug: (story && prev.slug) ? prev.slug : slugifyContent(value)
 
         }
       }
 
-     return  {
-      ...prev,
-      [name]: value
-    }});
-    
+      return {
+        ...prev,
+        [name]: value
+      }
+    });
+
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
@@ -61,11 +66,11 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.title.trim()) {
       newErrors.title = 'Title is required';
     }
-    
+
     if (!youtubeVideoId(formData.youtube_id)) {
       newErrors.youtube_id = 'Enter a valid 11-character YouTube video ID or YouTube URL';
     }
@@ -74,14 +79,14 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
     if (!normalizedSlug || normalizedSlug.length > 200) newErrors.slug = 'Enter a valid slug (up to 200 characters)';
     const checkedLink = normalizeSuccessStoryLink(formData.link);
     if (checkedLink.error) newErrors.link = checkedLink.error;
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-     if(cap){
+    if (cap) {
       console.log('bot detected')
       setcap('')
       return
@@ -96,10 +101,10 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
     setLoading(true);
 
     try {
-      const url = story 
+      const url = story
         ? `${APIPath}/api/success-stories/${story.id}`
         : `${APIPath}/api/success-stories`;
-      
+
       const method = story ? 'PUT' : 'POST';
 
       const checkedLink = normalizeSuccessStoryLink(formData.link);
@@ -142,8 +147,8 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
 
       <form onSubmit={handleSubmit} className="space-y-6" data-khudii-editor="success-stories">
         {/* Title */}
-        
-    <input type="hidden" onChange={(e)=>{setcap(e.target.value)}} />
+
+        <input type="hidden" onChange={(e) => { setcap(e.target.value) }} />
 
 
         <div>
@@ -158,9 +163,8 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
             maxLength={255}
             value={(formData.title) ?? ''}
             onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent ${
-              errors.title ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#02236E] focus:border-transparent ${errors.title ? 'border-red-500' : 'border-gray-300'
+              }`}
             placeholder="Enter Success Story Title"
           />
           {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title}</p>}
@@ -177,12 +181,12 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
             name="urdu_title"
             value={(formData.urdu_title) ?? ''}
             onChange={handleChange}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#02236E] focus:border-transparent"
             placeholder="Enter Title in Urdu (Optional)"
           />
         </div>
-{/* slug */}
-   <div>
+        {/* slug */}
+        <div>
           <label htmlFor="slug" className="block text-sm font-medium text-gray-700 mb-2">
             Slug
           </label>
@@ -192,7 +196,7 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
             value={(formData.slug) ?? ''}
             onChange={handleChange}
             onBlur={() => setFormData(prev => ({ ...prev, slug: slugifyContent(prev.slug || prev.title) }))}
-            className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent ${errors.slug ? 'border-red-500' : 'border-gray-300'}`}
+            className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#02236E] focus:border-transparent ${errors.slug ? 'border-red-500' : 'border-gray-300'}`}
             placeholder="Auto-generated from title, e.g. demo"
           />
           <p className="mt-1 text-xs text-slate-500">Enter demo or /demo. The story URL uses /success-stories/demo.</p>
@@ -212,9 +216,8 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
             maxLength={2048}
             value={(formData.youtube_id) ?? ''}
             onChange={handleChange}
-            className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent ${
-              errors.youtube_id ? 'border-red-500' : 'border-gray-300'
-            }`}
+            className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#02236E] focus:border-transparent ${errors.youtube_id ? 'border-red-500' : 'border-gray-300'
+              }`}
             placeholder="Enter YouTube Video ID (e.g., vCLNTJyC60I)"
           />
           {errors.youtube_id && <p className="mt-1 text-sm text-red-600">{errors.youtube_id}</p>}
@@ -232,14 +235,14 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
             type="text"
             id="link"
             name="link"
-         
+
             value={(formData.link) ?? ''}
             onChange={handleChange}
             onBlur={() => {
               const checked = normalizeSuccessStoryLink(formData.link);
               if (!checked.error) setFormData(prev => ({ ...prev, link: checked.link }));
             }}
-            className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent ${errors.link ? 'border-red-500' : 'border-gray-300'}`}
+            className={`w-full px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#02236E] focus:border-transparent ${errors.link ? 'border-red-500' : 'border-gray-300'}`}
             placeholder="/internal-page or https://www.youtube.com/watch?v=..."
           />
           <p className="mt-1 text-xs text-slate-500">Optional. Internal links get / automatically; YouTube and other https:// links are accepted.</p>
@@ -257,7 +260,7 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
             value={(formData.description) ?? ''}
             onChange={handleChange}
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#2563eb] focus:border-transparent"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#02236E] focus:border-transparent"
             placeholder="Enter Story Description (Optional)"
           />
         </div>
@@ -282,15 +285,28 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
         )}
 
         <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3"><h3 className="text-lg font-bold text-slate-900">Publishing & SEO</h3><AdminPublishSwitch checked={formData.is_published} onChange={v=>setFormData(p=>({...p,is_published:v}))} label={formData.is_published?'Published':'Draft'}/></div>
-          {[['meta_title','SEO title',120],['meta_description','Meta description',320],['meta_keywords','SEO keywords',500]].map(([key,label,max])=><label key={key} className="mb-4 block text-sm font-semibold text-slate-700">{label}<span className="float-right text-xs font-normal text-slate-400">{(formData[key] ?? '').length}/{max}</span>{key==='meta_description'?<textarea rows={3} maxLength={max} className="mt-2 w-full rounded-xl border border-slate-200 p-3 text-sm" value={formData[key] ?? ''} onChange={handleChange} name={key}/>:<input maxLength={max} className="mt-2 w-full rounded-xl border border-slate-200 p-3 text-sm" value={formData[key] ?? ''} onChange={handleChange} name={key}/>}</label>)}
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h3 className="text-lg font-bold text-[#02236E]">Publishing &amp; SEO</h3>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSeoCenterOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-800 hover:bg-emerald-100 transition"
+              >
+                <Sliders size={13} />
+                Open SEO Center
+              </button>
+              <AdminPublishSwitch checked={formData.is_published} onChange={v => setFormData(p => ({ ...p, is_published: v }))} label={formData.is_published ? 'Published' : 'Draft'} />
+            </div>
+          </div>
+          {[['meta_title', 'SEO title', 120], ['meta_description', 'Meta description', 320], ['meta_keywords', 'SEO keywords', 500]].map(([key, label, max]) => <label key={key} className="mb-4 block text-sm font-semibold text-slate-700">{label}<span className="float-right text-xs font-normal text-slate-400">{(formData[key] ?? '').length}/{max}</span>{key === 'meta_description' ? <textarea rows={3} maxLength={max} className="mt-2 w-full rounded-xl border border-slate-200 p-3 text-sm" value={formData[key] ?? ''} onChange={handleChange} name={key} /> : <input maxLength={max} className="mt-2 w-full rounded-xl border border-slate-200 p-3 text-sm" value={formData[key] ?? ''} onChange={handleChange} name={key} />}</label>)}
         </div>
         {/* Buttons */}
         <div className="flex justify-end space-x-3 pt-4">
           <button
             type="button"
             onClick={onCancel}
-            className="bg-[#e7001e] btn border-[#f80120] hover:bg-[#f80120] text-white ml-3 rounded-xl"
+            className="btn min-h-10 border border-slate-200 bg-white px-4 py-3 text-slate-600 hover:bg-slate-50 rounded-xl"
             disabled={loading}
           >
             Cancel
@@ -298,7 +314,7 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
           <button
             type="submit"
             disabled={loading}
-            className="bg-[#2563eb] btn hover:bg-[#1d4ed8] text-white rounded-xl"
+            className="btn min-h-10 bg-[#02236E] px-5 py-3 hover:bg-[#1d4ed8] text-white rounded-xl"
           >
             {loading && (
               <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
@@ -310,6 +326,32 @@ const SuccessStoryForm = ({ story, onSubmit, onCancel }) => {
           </button>
         </div>
       </form>
+
+      {seoCenterOpen && (
+        <SeoCenterModal
+          isOpen={seoCenterOpen}
+          onClose={() => setSeoCenterOpen(false)}
+          pageData={{
+            id: story?.id || formData.slug || 'story',
+            slug: formData.slug || (story ? `story-${story.id}` : 'story'),
+            title: formData.title || 'Success Story',
+            meta_title: formData.meta_title,
+            meta_description: formData.meta_description,
+            meta_keywords: formData.meta_keywords,
+            entityType: 'stories',
+          }}
+          onSaveSuccess={(updated) => {
+            if (updated) {
+              setFormData((prev) => ({
+                ...prev,
+                meta_title: updated.meta_title || prev.meta_title,
+                meta_description: updated.meta_description || prev.meta_description,
+                meta_keywords: updated.meta_keywords || prev.meta_keywords,
+              }));
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

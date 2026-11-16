@@ -444,6 +444,17 @@ const Navbar = () => {
   const [counter, setcounter] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [footer, setFooterData] = useState({});
+  const [publicNav, setPublicNav] = useState([]);
+  const [brandLogo, setBrandLogo] = useState('');
+  const navConfig = key => publicNav.find(item=>item.key===key);
+  const navHref = (key,fallback) => navConfig(key)?.href || fallback;
+  const navText = (key,fallback) => navConfig(key)?.label || fallback;
+  const navDisplay = key => navConfig(key)?.visible===false?{display:'none'}:undefined;
+  useEffect(()=>{
+    let active=true;
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app'}/cms/public-settings`).then(r=>r.ok?r.json():null).then(j=>{if(active&&j){if(Array.isArray(j.navigation))setPublicNav(j.navigation);if(j.logo)setBrandLogo(j.logo);}}).catch(()=>{});
+    return ()=>{active=false;};
+  },[]);
   const [load, setload] = useState(false);
   const nav = useNavigate();
   const [err, seterr] = useState("");
@@ -523,7 +534,7 @@ const Navbar = () => {
             <Link to={"/"}>
               {" "}
               <img
-                src={`${footer.logoimage || "/Khudii.webp"} `}
+                src={`${brandLogo || footer.logoimage || "/Khudii.webp"} `}
                 className={`${styles.khudii_logo}`}
                 width="223"
                 height="79"
@@ -535,18 +546,10 @@ const Navbar = () => {
 
           {/* Links */}
           <div className={`${styles.query} text-gray-700`}>
-            <Link to="/" className="hover:text-gray-900">
-              Home
-            </Link>
-            <Link to="/about-khudii/" className="hover:text-gray-900">
-              About
-            </Link>
-            <Link to="/organizations/" className="hover:text-gray-900">
-              Organizations
-            </Link>
-            <Link to="/golden-people/" className="hover:text-gray-900">
-              Golden People
-            </Link>
+            <Link to={navHref("home", "/")} className="hover:text-gray-900" style={navDisplay("home")}>{navText("home", "Home")}</Link>
+            <Link to={navHref("about", "/about-khudii/")} className="hover:text-gray-900" style={navDisplay("about")}>{navText("about", "About")}</Link>
+            <Link to={navHref("organizations", "/organizations/")} className="hover:text-gray-900" style={navDisplay("organizations")}>{navText("organizations", "Organizations")}</Link>
+            <Link to={navHref("golden", "/golden-people/")} className="hover:text-gray-900" style={navDisplay("golden")}>{navText("golden", "Golden People")}</Link>
 
             {/* Media Dropdown */}
             <span className={styles.gpos}>
@@ -564,6 +567,10 @@ const Navbar = () => {
                 <hr />
                 <li>
                   <Link to={"/videos/"}>Videos</Link>
+                </li>
+                <hr />
+                <li>
+                  <Link to={"/podcast/"}>Podcast</Link>
                 </li>
                 <hr />
                 <li>
@@ -605,9 +612,7 @@ const Navbar = () => {
               </div>
             </span>
 
-            <Link to="/contact/" className="hover:text-gray-900">
-              Contact
-            </Link>
+            <Link to={navHref("contact", "/contact/")} className="hover:text-gray-900" style={navDisplay("contact")}>{navText("contact", "Contact")}</Link>
           </div>
 
           {/* Right side (search + donate + mobile menu) */}
@@ -859,38 +864,30 @@ const Navbar = () => {
                 onClick={() => {
                   setOpen(!open);
                 }}
-                to="/"
+                to={navHref("home", "/")} style={navDisplay("home")}
                 className="mobile-menu-link"
-              >
-                Home
-              </Link>
+              >{navText("home", "Home")}</Link>
               <Link
                 onClick={() => {
                   setOpen(!open);
                 }}
-                to="/about-khudii/"
+                to={navHref("about", "/about-khudii/")} style={navDisplay("about")}
                 className="mobile-menu-link"
-              >
-                About
-              </Link>
+              >{navText("about", "About")}</Link>
               <Link
                 onClick={() => {
                   setOpen(!open);
                 }}
-                to="/organizations/"
+                to={navHref("organizations", "/organizations/")} style={navDisplay("organizations")}
                 className="mobile-menu-link"
-              >
-                Organizations
-              </Link>
+              >{navText("organizations", "Organizations")}</Link>
               <Link
                 onClick={() => {
                   setOpen(!open);
                 }}
-                to="/golden-people/"
+                to={navHref("golden", "/golden-people/")} style={navDisplay("golden")}
                 className="mobile-menu-link"
-              >
-                Golden People
-              </Link>
+              >{navText("golden", "Golden People")}</Link>
 
               {/* Media */}
               <div className="mobile-menu-dropdown">
@@ -928,6 +925,9 @@ const Navbar = () => {
                     >
                       Videos
                     </Link>
+                  </li>
+                  <li>
+                    <Link onClick={() => setOpen(!open)} to="/podcast/" className="mobile-menu-dropdown-link">Podcast</Link>
                   </li>
                   <li>
                     <Link
@@ -1017,11 +1017,9 @@ const Navbar = () => {
                 onClick={() => {
                   setOpen(!open);
                 }}
-                to="/contact/"
+                to={navHref("contact", "/contact/")} style={navDisplay("contact")}
                 className="mobile-menu-link"
-              >
-                Contact
-              </Link>
+              >{navText("contact", "Contact")}</Link>
             </div>
           </div>
         )}

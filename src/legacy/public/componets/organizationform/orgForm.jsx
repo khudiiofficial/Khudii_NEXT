@@ -4,6 +4,7 @@ import './OrganizationForm.css';
 import SEO from '../Helmet/Helmet';
 import { useGoogleLogin} from "@/lib/google-oauth";
 import { useNavigate } from '@/lib/router-compat';
+import { confirmDialog } from '@/lib/dialogs';
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
 const OrganizationForm = () => {
   const [loading, setLoading] = useState(false);
@@ -245,8 +246,15 @@ const OrganizationForm = () => {
   };
 
   // Clear form
-  const handleClearForm = () => {
-    if (window.confirm('Are you sure you want to clear the form?')) {
+  const handleClearForm = async () => {
+    const ok = await confirmDialog({
+      title: 'Clear Form',
+      text: 'Are you sure you want to clear the form? All unsaved data will be reset.',
+      status: 'warning',
+      confirmText: 'Clear',
+      cancelText: 'Cancel',
+    });
+    if (ok) {
       setLogoFile(null);
       setLogoPreview(null);
       setSupportingDocs([]);

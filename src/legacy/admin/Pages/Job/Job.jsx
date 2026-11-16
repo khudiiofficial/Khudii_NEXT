@@ -1,3 +1,4 @@
+import { adminConfirm } from '@/lib/admin-dialogs';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './AdminJobs.css';
@@ -58,7 +59,7 @@ const AdminJobs = () => {
   };
 
   const deleteApplication = async (id) => {
-    if (!confirm('Are you sure you want to delete this job application?')) return;
+    if (!(await adminConfirm('Are you sure you want to delete this job application?'))) return;
 
     try {
       await axios.delete(`${API_URL}/admin/job-applications/${id}`, {

@@ -55,6 +55,11 @@ export function validateFormSettings(input){
     perForm[form]={subject,intro};
   }
   doc.emailConfigs={formRoutingRules};
-  doc.emailTemplate={heading:String(emailTemplate.heading||'New Khudii submission').slice(0,180),footer:String(emailTemplate.footer||'Khudii Welfare Organization').slice(0,500),accent:'#2563eb',perForm};
+  const html=String(emailTemplate.html||'');
+  if(html.length>120000)throw Error('Email HTML template is too long (maximum 120,000 characters)');
+  if(/<(script|iframe|object|embed|form|input|svg|math|base)\b/i.test(html))throw Error('Email template contains unsupported executable tags (e.g. script or iframe)');
+  if(/javascript:|data:text\/html/i.test(html))throw Error('Email template contains unsafe URL schemes');
+  const accent = typeof emailTemplate.accent === 'string' && /^#[0-9a-fA-F]{3,8}$/.test(emailTemplate.accent) ? emailTemplate.accent : '#2563eb';
+  doc.emailTemplate={html,footer:String(emailTemplate.footer||'Khudii Welfare Organization').slice(0,500),accent,perForm};
   return doc;
 }
