@@ -40,13 +40,15 @@ const LEVEL_COLORS = [
 async function api(path, options = {}) {
   const method = options.method || 'GET';
   const body = options.body;
+  const requestHeaders = {
+    'x-khudii-surface': 'admin',
+    ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+    ...(options.headers || {}),
+  };
   const response = await fetch(`${BASE}${path}`, {
     method,
     credentials: 'include',
-    headers: {
-      ...headers,
-      ...(options.headers || {}),
-    },
+    headers: requestHeaders,
     ...(body !== undefined ? { body } : {}),
     cache: 'no-store',
   });
@@ -204,8 +206,11 @@ export default function KhudiiMenuTreeEditor({ location = 'header' }) {
         .replace(/[^a-z0-9_-]/g, '-');
 
       let targetUrl = draft.url ? draft.url.trim() : null;
-      if (draft.link_type === 'internal' && targetUrl && !targetUrl.startsWith('/') && !targetUrl.startsWith('#')) {
-        targetUrl = `/${targetUrl}`;
+      if (draft.link_type === 'internal' && targetUrl) {
+        if (!targetUrl.startsWith('/') && !targetUrl.startsWith('#')) {
+          targetUrl = `/${targetUrl}`;
+        }
+        targetUrl = targetUrl.toLowerCase();
       }
 
       const payloadData = {
@@ -238,6 +243,7 @@ export default function KhudiiMenuTreeEditor({ location = 'header' }) {
 
       setEditing(null);
       await refresh();
+      window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { dirty: false } }));
       await showSuccess(
         isNew ? 'Menu link added' : 'Changes saved',
         `"${payloadData.label}" has been successfully saved.`
@@ -286,6 +292,14 @@ export default function KhudiiMenuTreeEditor({ location = 'header' }) {
         });
         delete duplicatePayload.revision;
         delete duplicatePayload.id;
+        if (duplicatePayload.link_type === 'group') {
+          duplicatePayload.url = null;
+          duplicatePayload.page_id = null;
+        } else if (duplicatePayload.link_type === 'page') {
+          duplicatePayload.url = null;
+        } else {
+          duplicatePayload.page_id = null;
+        }
 
         await api('', {
           method: 'POST',
@@ -294,6 +308,7 @@ export default function KhudiiMenuTreeEditor({ location = 'header' }) {
       }
 
       await refresh();
+      window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { dirty: false } }));
       toastNotice({
         title:
           operation === 'duplicate'
@@ -329,6 +344,7 @@ export default function KhudiiMenuTreeEditor({ location = 'header' }) {
       setSaving(true);
       await api('/reorder', { method: 'PUT', body: JSON.stringify({ ids: siblings }) });
       await refresh();
+      window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { dirty: false } }));
     } catch (e) {
       setError(e.message);
     } finally {

@@ -686,8 +686,20 @@ function SettingsPageInner() {
     finally { setSaving(false); }
   };
 
-  useEffect(() => { const handler = e => { e.preventDefault(); if (dirty && !saving) save(); }; window.addEventListener('khudii:save-request', handler); return () => window.removeEventListener('khudii:save-request', handler); }, [dirty, saving, save]);
-  useEffect(() => { window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { source: 'settings', dirty } })); return () => window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { source: 'settings', dirty: false } })); }, [dirty]);
+  useEffect(() => {
+    const handler = e => {
+      if (['site', 'header', 'footer'].includes(tab)) return;
+      e.preventDefault();
+      if (dirty && !saving) save();
+    };
+    window.addEventListener('khudii:save-request', handler);
+    return () => window.removeEventListener('khudii:save-request', handler);
+  }, [dirty, saving, save, tab]);
+  useEffect(() => {
+    const isAnyDirty = Boolean(dirty || siteDirty);
+    window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { source: 'settings', dirty: isAnyDirty } }));
+    return () => window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { source: 'settings', dirty: false } }));
+  }, [dirty, siteDirty]);
   useEffect(() => { const warn = e => { if (dirty || siteDirty) { e.preventDefault(); e.returnValue = 'Save settings before leaving.'; } }; window.addEventListener('beforeunload', warn); return () => window.removeEventListener('beforeunload', warn); }, [dirty, siteDirty]);
   if (loading) {
     return (

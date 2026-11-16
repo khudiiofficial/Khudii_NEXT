@@ -142,6 +142,9 @@ export const deleteV2 = safeHandler(async(req,res)=>{
   const resource=req.params.resource,def=collection(resource);await permitted(req,def.write);originCheck(req);
   const id=idValue(req.params.id,false),conn=await pool.getConnection();let before;
   try{await conn.beginTransaction();before=await recordById(conn,def,id,true);if(!before)fail(404,'not_found','Record not found');
+    if(resource==='navigation') {
+      await query(conn, `UPDATE ${def.table} SET parent_id=? WHERE parent_id=? AND deleted_at IS NULL`, [before.parent_id || null, id]);
+    }
     await query(conn,`UPDATE ${def.table} SET deleted_at=CURRENT_TIMESTAMP WHERE id=?`,[id]);
     await audit(conn,req,resource,id,'delete',before,null);await conn.commit();
   }catch(error){await conn.rollback();throw error;}finally{conn.release();}

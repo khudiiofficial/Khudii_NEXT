@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ImagePlus, Loader2, Plus, Save, X } from 'lucide-react';
+import { ImagePlus, Loader2, Plus, Save, Trash2, X } from 'lucide-react';
 import KhudiiMenuTreeEditor from '@/components/KhudiiMenuTreeEditor';
 import { confirmDialog, alertNotice } from '@/lib/dialogs';
 import { AppButton, SaveButton } from '@/components/ui/AppButton';
@@ -11,7 +11,17 @@ const CLASS = 'w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 te
 const MAX_FILE = 8 * 1024 * 1024;
 
 async function api(path, method = 'GET', body) {
-  const response = await fetch(`${API}${path}`, { method, credentials: 'include', headers: { 'Content-Type': 'application/json', 'x-khudii-surface': 'admin' }, ...(body === undefined ? {} : { body: JSON.stringify(body) }), cache: 'no-store' });
+  const headers = {
+    'x-khudii-surface': 'admin',
+    ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
+  };
+  const response = await fetch(`${API}${path}`, {
+    method,
+    credentials: 'include',
+    headers,
+    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+    cache: 'no-store'
+  });
   const json = await response.json().catch(() => ({}));
   if (!response.ok || json.success === false) throw new Error(json.message || json.error || `Request failed (${response.status})`);
   return json;
@@ -59,13 +69,26 @@ function HeaderEditor({ onDirty }) {
     if (!draft.trim()) return notify('Header message is required', 'error');
     if (!await confirm(editing === null ? 'Create header message?' : 'Update header message?', 'Changes appear on the live frontend after saving.')) return;
     setBusy(true);
-    try { await api(editing === null ? '/api/topbar' : `/api/topbar/${editing}`, editing === null ? 'POST' : 'PUT', { text: draft.trim() }); setEditing(null); setDraft(''); onDirty('message', false); await load(); await notify('Header message saved'); }
+    try {
+      await api(editing === null ? '/api/topbar' : `/api/topbar/${editing}`, editing === null ? 'POST' : 'PUT', { text: draft.trim() });
+      setEditing(null);
+      setDraft('');
+      onDirty('message', false);
+      window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { dirty: false } }));
+      await load();
+      await notify('Header message saved');
+    }
     catch (e) { await notify('Could not save header message', 'error', e.message); } finally { setBusy(false); }
   }
   async function remove(item) {
     if (!await confirm('Delete header message?', 'This permanently removes the selected message.')) return;
     setBusy(true);
-    try { await api(`/api/topbar/${item.id}`, 'DELETE'); await load(); await notify('Header message deleted'); }
+    try {
+      await api(`/api/topbar/${item.id}`, 'DELETE');
+      window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { dirty: false } }));
+      await load();
+      await notify('Header message deleted');
+    }
     catch (e) { await notify('Delete failed', 'error', e.message); } finally { setBusy(false); }
   }
   async function saveTelephone(e) {
@@ -73,7 +96,12 @@ function HeaderEditor({ onDirty }) {
     if (!telephone.phone_number?.trim() || !telephone.icon_name?.trim()) return notify('Both telephone fields are required', 'error');
     if (!await confirm('Save header phone details?', 'The telephone number and icon will update on the public site.')) return;
     setBusy(true);
-    try { await api('/api/telephone', 'PUT', { phone_number: telephone.phone_number.trim(), icon_name: telephone.icon_name.trim() }); onDirty('telephone', false); await notify('Header phone details updated'); }
+    try {
+      await api('/api/telephone', 'PUT', { phone_number: telephone.phone_number.trim(), icon_name: telephone.icon_name.trim() });
+      onDirty('telephone', false);
+      window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { dirty: false } }));
+      await notify('Header phone details updated');
+    }
     catch (e) { await notify('Could not save phone details', 'error', e.message); } finally { setBusy(false); }
   }
   async function saveHeaderActions(e) {
@@ -83,6 +111,7 @@ function HeaderEditor({ onDirty }) {
     try {
       await api('/api/header', 'PUT', headerActions);
       onDirty('headerActions', false);
+      window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { dirty: false } }));
       await notify('Header actions updated');
     } catch (e) {
       await notify('Could not save header actions', 'error', e.message);
@@ -296,10 +325,33 @@ function FooterEditor({ onDirty }) {
   async function save(e) {
     e.preventDefault(); if (data.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) return notify('Please enter a valid email address', 'error'); if (!await confirm('Save footer changes?', 'The public site will display the updated footer.', 'success')) return;
     setBusy(true);
-    try { const payload = Object.fromEntries(['footertext', 'email', 'location', 'locationinfo'].map(k => [k, data[k] || ''])); for (const key of ['logoimage', 'pageimage']) if (files[key]) payload[`${key}_base64`] = await asDataUrl(files[key]); await api('/api/footer', 'PUT', payload); setFiles({}); onDirty('footer', false); await load(); await notify('Footer updated'); }
+    try {
+      const payload = Object.fromEntries(['footertext', 'email', 'location', 'locationinfo'].map(k => [k, data[k] || '']));
+      for (const key of ['logoimage', 'pageimage']) if (files[key]) payload[`${key}_base64`] = await asDataUrl(files[key]);
+      await api('/api/footer', 'PUT', payload);
+      setFiles({});
+      onDirty('footer', false);
+      window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { dirty: false } }));
+      await load();
+      await notify('Footer updated');
+    }
     catch (e) { await notify('Could not update footer', 'error', e.message); } finally { setBusy(false); }
   }
-  async function removeImage(key) { if (!await confirm('Remove footer image?', 'The image will no longer appear in the footer.', 'error')) return; setBusy(true); try { await api(`/api/footer/image/${key==='logoimage'?'logo':'page'}`, 'DELETE'); setFiles(p => ({ ...p, [key]: undefined })); await load(); await notify('Footer image removed'); } catch (e) { await notify('Could not remove image', 'error', e.message); } finally { setBusy(false); } }
+  async function removeImage(key) {
+    if (!await confirm('Remove footer image?', 'The image will no longer appear in the footer.', 'error')) return;
+    setBusy(true);
+    try {
+      await api(`/api/footer/image/${key==='logoimage'?'logo':'page'}`, 'DELETE');
+      setFiles(p => ({ ...p, [key]: undefined }));
+      window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { dirty: false } }));
+      await load();
+      await notify('Footer image removed');
+    } catch (e) {
+      await notify('Could not remove image', 'error', e.message);
+    } finally {
+      setBusy(false);
+    }
+  }
   if (loading) return <p className="flex items-center gap-2 text-slate-600"><Loader2 className="animate-spin" size={18} /> Loading footer settings...</p>;
   return <Section title="Footer content" description="Manage the logo, contact details, description, and media used by the Khudii public footer."><form className="grid gap-4 md:grid-cols-2" onSubmit={save}>
     <label className="md:col-span-2 text-sm font-semibold text-slate-700">Footer description<textarea rows={4} maxLength={15000} value={data.footertext || ''} onChange={e => change('footertext', e.target.value)} className={`${CLASS} mt-1.5`} /></label>
@@ -310,11 +362,44 @@ function FooterEditor({ onDirty }) {
   </form></Section>;
 }
 export default function SettingsSiteChrome({ onDirty = () => { }, mode }) {
-  const [sub, setSub] = useState(() => mode || (typeof window === 'undefined' ? 'header' : new URLSearchParams(window.location.search).get('sub') === 'footer' ? 'footer' : 'header'));
-  useEffect(() => { if (mode) setSub(mode); }, [mode]);
+  const [sub, setSub] = useState(() => (mode === 'footer' || (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('sub') === 'footer') ? 'footer' : 'header'));
+  useEffect(() => { if (mode) setSub(mode === 'footer' ? 'footer' : 'header'); }, [mode]);
   const [dirty, setDirty] = useState(false);
   const dirtySources = useRef(new Map());
   const markDirty = (source, value) => { dirtySources.current.set(source, Boolean(value)); const next = [...dirtySources.current.values()].some(Boolean); setDirty(next); onDirty(next); };
   const pick = value => { if (dirty) { notify('Unsaved changes', 'error', 'Save or discard your edits before switching sections.'); return; } setSub(value); const u = new URL(window.location.href); u.searchParams.set('sub', value); window.history.replaceState(window.history.state, '', u.pathname + u.search); };
-  return <div className="space-y-5">{!mode && <div className="flex gap-2">{[['header', 'Header'], ['footer', 'Footer']].map(([key, label]) => <button key={key} type="button" onClick={() => pick(key)} className={`rounded-xl px-4 py-2 text-sm font-bold ${sub === key ? 'bg-[#02236E]/10 text-[#02236E]' : 'text-slate-500 hover:bg-slate-100'}`}>{label}</button>)}</div>}{sub === 'header' ? <><HeaderEditor onDirty={markDirty} /><KhudiiMenuTreeEditor location="header" /></> : <><FooterEditor onDirty={markDirty} /><KhudiiMenuTreeEditor location="footer" /></>}</div>;
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap gap-2 border-b border-slate-100 pb-4">
+        {[
+          { id: 'header', label: 'Header Navigation & Topbar' },
+          { id: 'footer', label: 'Footer Settings & Links' },
+        ].map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            onClick={() => pick(t.id)}
+            className={`rounded-lg px-4 py-2 text-xs font-bold transition-all ${sub === t.id ? 'bg-[#02236E]/10 text-[#02236E]' : 'text-slate-500 hover:text-[#02236E] hover:bg-slate-50'}`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+      {sub === 'header' ? (
+        <>
+          <HeaderEditor onDirty={markDirty} />
+          <div className="pt-2">
+            <KhudiiMenuTreeEditor location="header" />
+          </div>
+        </>
+      ) : (
+        <>
+          <FooterEditor onDirty={markDirty} />
+          <div className="pt-2">
+            <KhudiiMenuTreeEditor location="footer" />
+          </div>
+        </>
+      )}
+    </div>
+  );
 }

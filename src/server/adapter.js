@@ -33,7 +33,6 @@ function queryObject(searchParams) {
 async function bodyFor(request) {
   if (request.method === 'GET' || request.method === 'HEAD') return {};
   const type = request.headers.get('content-type') || '';
-  if (type.includes('application/json')) return request.json();
   if (type.includes('multipart/form-data') || type.includes('application/x-www-form-urlencoded')) {
     const formData = await request.formData();
     const result = {};
@@ -44,7 +43,15 @@ async function bodyFor(request) {
     return result;
   }
   const text = await request.text();
-  return text ? { raw: text } : {};
+  if (!text || !text.trim()) return {};
+  if (type.includes('application/json')) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      throw new Error('Invalid JSON');
+    }
+  }
+  return { raw: text };
 }
 
 function serializeCookie(name, value, options = {}) {
