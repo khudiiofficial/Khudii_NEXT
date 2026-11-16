@@ -8,8 +8,8 @@ import { confirmDialog, showSuccess, showError } from '@/lib/dialogs';
 import { CMS_PAGES } from '@/lib/cms-registry';
 import { useAdminAuth } from '@/lib/admin-auth';
 import {
-  Activity, BarChart3, BellRing, BookOpen, Building2, ChevronDown, ChevronsLeft,
-  ChevronsRight, CircleHelp, ClipboardList, Contact, FileText, HeartHandshake,
+  Activity, BarChart3, BellRing, BookOpen, Building2, ChevronDown,
+  CircleHelp, ClipboardList, Contact, FileText, HeartHandshake,
   Image, Inbox, LayoutDashboard, LogOut, MessageCircle, Newspaper, Plus,
   Search, Settings, ShieldCheck, UserRound, Users, Video, Wallet, X,
   Layers, BadgeCheck, Target, Images, HandHeart, Menu, Globe,
@@ -31,26 +31,54 @@ export default function Sidebar({ mobileOpen = false, onClose = () => { } }) {
   const pathname = usePathname() || '';
   const router = useRouter();
   const { auth, user, resetUser } = useAdminAuth();
-  const [collapsed, setCollapsed] = useState(false);
   const [filter, setFilter] = useState('');
   const [closedGroups, setClosedGroups] = useState({});
+  const [siteLogo, setSiteLogo] = useState('');
+  const [siteName, setSiteName] = useState('KHUDII');
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem('khudii_sidebar_collapsed');
-      if (stored !== null) setCollapsed(stored === 'true');
+      const cachedLogo = localStorage.getItem('khudii_site_logo');
+      if (cachedLogo) setSiteLogo(cachedLogo);
+      const cachedName = localStorage.getItem('khudii_site_name');
+      if (cachedName) setSiteName(cachedName);
     } catch { }
-  }, []);
 
-  const toggleCollapsed = (nextVal) => {
-    setCollapsed((prev) => {
-      const next = typeof nextVal === 'boolean' ? nextVal : !prev;
-      try {
-        localStorage.setItem('khudii_sidebar_collapsed', String(next));
-      } catch { }
-      return next;
-    });
-  };
+    const fetchBranding = () => {
+      axios.get(`${APIPath}/cms/public-settings`).then((res) => {
+        const logo = res.data?.logo || res.data?.site_identity?.siteLogo;
+        const name = res.data?.site_name || res.data?.site_identity?.siteName;
+        if (logo) {
+          setSiteLogo(logo);
+          try { localStorage.setItem('khudii_site_logo', logo); } catch { }
+        }
+        if (name) {
+          setSiteName(name);
+          try { localStorage.setItem('khudii_site_name', name); } catch { }
+        }
+      }).catch(() => { });
+    };
+
+    fetchBranding();
+
+    const handleBrandingUpdate = (e) => {
+      if (e?.detail) {
+        if (e.detail.logo) {
+          setSiteLogo(e.detail.logo);
+          try { localStorage.setItem('khudii_site_logo', e.detail.logo); } catch { }
+        }
+        if (e.detail.siteName) {
+          setSiteName(e.detail.siteName);
+          try { localStorage.setItem('khudii_site_name', e.detail.siteName); } catch { }
+        }
+      } else {
+        fetchBranding();
+      }
+    };
+
+    window.addEventListener('khudii:branding-updated', handleBrandingUpdate);
+    return () => window.removeEventListener('khudii:branding-updated', handleBrandingUpdate);
+  }, []);
 
   const groups = useMemo(() => ADMIN_GROUPS.map((group) => ({
     ...group,
@@ -78,26 +106,31 @@ export default function Sidebar({ mobileOpen = false, onClose = () => { } }) {
   if (!auth) return null;
   return (
     <aside
-      className={`kh-side flex h-full flex-col text-[#02236E] transition-[width] duration-200 ${collapsed ? 'w-[72px] kh-side-collapsed' : 'w-[240px]'
-        } max-lg:w-[240px]`}
+      className="kh-side flex h-full w-[240px] flex-col text-[#02236E] max-lg:w-[240px]"
     >
       <div
-        className={`kh-side-brand flex h-[76px] shrink-0 items-center border-b border-white/10 ${collapsed ? 'justify-center px-0' : 'gap-3 px-5'
-          }`}
+        className="kh-side-brand flex h-[76px] shrink-0 items-center gap-3 px-5 border-b border-white/10"
       >
         <Link
           href={BASE}
           onClick={onClose}
-          title="Khudii Dashboard"
-          className="kh-brand-mark grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white text-xl font-black text-[#02236E] shadow-md transition-transform hover:scale-105"
+          title={`${siteName} Dashboard`}
+          className="kh-brand-mark grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white text-xl font-black text-[#02236E] shadow-md transition-transform hover:scale-105 overflow-hidden"
         >
-          K
+          {siteLogo ? (
+            <img
+              src={siteLogo}
+              alt="Site Logo"
+              className="h-full w-full object-contain p-1 rounded-2xl"
+            />
+          ) : (
+            (siteName?.[0] || 'K').toUpperCase()
+          )}
         </Link>
-        {!collapsed && (
-          <div className="min-w-0 flex-1">
-            <div className="text-base font-extrabold tracking-[.08em]">KHUDII</div><div className="text-[9px] uppercase tracking-[.15em] text-slate-400">Admin portal</div>
-          </div>
-        )}
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-base font-extrabold tracking-[.08em]">{siteName}</div>
+          <div className="text-[9px] uppercase tracking-[.15em] text-slate-400">Admin portal</div>
+        </div>
         <button
           type="button"
           className="cursor-pointer ml-auto rounded-lg p-2 text-[#02236E] hover:bg-blue/20 lg:hidden"
@@ -106,73 +139,41 @@ export default function Sidebar({ mobileOpen = false, onClose = () => { } }) {
         >
           <X size={20} />
         </button>
-        {!collapsed && (
-          <button
-            type="button"
-            className="cursor-pointer ml-auto hidden rounded-lg p-2 text-[#02236E] hover:bg-blue/20 lg:block"
-            onClick={() => toggleCollapsed(true)}
-            aria-label="Collapse sidebar"
-          >
-            <ChevronsLeft size={18} />
-          </button>
-        )}
       </div>
 
-      {!collapsed && (
-        <div className="px-4 pt-5">
-          <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-200" />
-            <input
-              aria-label="Search admin pages"
-              type="search"
-              value={filter ?? ''}
-              onChange={(e) => setFilter(e.target.value)}
-              placeholder="Search menu..."
-              className="kh-menu-search w-full rounded-xl border border-white/15 bg-white/10 py-2.5 pl-10 pr-3 text-sm text-white placeholder:text-blue-100/70 focus:outline-none focus:ring-2 focus:ring-white/30"
-            />
-          </div>
+      <div className="px-4 pt-5">
+        <div className="relative">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-200" />
+          <input
+            aria-label="Search admin pages"
+            type="search"
+            value={filter ?? ''}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Search menu..."
+            className="kh-menu-search w-full rounded-xl border border-white/15 bg-white/10 py-2.5 pl-10 pr-3 text-sm text-white placeholder:text-blue-100/70 focus:outline-none focus:ring-2 focus:ring-white/30"
+          />
         </div>
-      )}
+      </div>
 
       <nav
-        className={`kh-side-nav min-h-0 flex-1 overflow-y-auto ${collapsed ? 'px-2 py-3' : 'px-3 py-5'
-          }`}
+        className="kh-side-nav min-h-0 flex-1 overflow-y-auto px-3 py-5"
         aria-label="Admin navigation"
       >
-        {collapsed && (
-          <div className="mb-3 flex justify-center">
+        {groups.map((group) => (
+          <div key={group.name} className="mb-5">
             <button
               type="button"
-              onClick={() => toggleCollapsed(false)}
-              className="hidden lg:grid h-9 w-9 place-items-center rounded-xl text-blue-200 hover:bg-white/10 hover:text-white transition"
-              title="Expand sidebar"
-              aria-label="Expand sidebar"
+              onClick={() => setClosedGroups((s) => ({ ...s, [group.name]: !s[group.name] }))}
+              className="mb-2 flex w-full items-center justify-between px-3 text-left text-[10px] font-extrabold uppercase tracking-[.16em] text-blue-200/65"
             >
-              <ChevronsRight size={18} />
+              {group.name}
+              <ChevronDown
+                size={13}
+                className={`transition-transform ${closedGroups[group.name] ? '-rotate-90' : ''}`}
+              />
             </button>
-          </div>
-        )}
-
-        {groups.map((group, groupIdx) => (
-          <div key={group.name} className={collapsed ? 'flex flex-col items-center' : 'mb-5'}>
-            {collapsed && groupIdx > 0 && (
-              <div className="my-2 h-px w-8 bg-white/10" aria-hidden="true" />
-            )}
-            {!collapsed && (
-              <button
-                type="button"
-                onClick={() => setClosedGroups((s) => ({ ...s, [group.name]: !s[group.name] }))}
-                className="mb-2 flex w-full items-center justify-between px-3 text-left text-[10px] font-extrabold uppercase tracking-[.16em] text-blue-200/65"
-              >
-                {group.name}
-                <ChevronDown
-                  size={13}
-                  className={`transition-transform ${closedGroups[group.name] ? '-rotate-90' : ''}`}
-                />
-              </button>
-            )}
-            {(!closedGroups[group.name] || collapsed) && (
-              <div className={collapsed ? 'flex flex-col items-center gap-1.5 w-full' : 'space-y-1'}>
+            {!closedGroups[group.name] && (
+              <div className="space-y-1">
                 {group.pages.map(({ href, label, Icon }) => {
                   const target = href.split('?')[0];
                   const active =
@@ -184,24 +185,21 @@ export default function Sidebar({ mobileOpen = false, onClose = () => { } }) {
                   return (
                     <Link
                       href={href}
-                      title={collapsed ? label : undefined}
                       onClick={onClose}
                       key={href}
                       aria-current={active ? 'page' : undefined}
-                      className={`kh-side-link group flex items-center transition-all ${collapsed
-                        ? 'h-11 w-11 justify-center rounded-2xl'
-                        : 'gap-3 rounded-xl px-3 py-2.5 text-[13px] font-semibold'
-                        } ${active
+                      className={`kh-side-link group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-semibold transition-all ${
+                        active
                           ? 'kh-side-active'
                           : 'text-blue-100/85 hover:bg-white/10 hover:text-white'
-                        }`}
+                      }`}
                     >
                       <Icon
-                        size={collapsed ? 19 : 17}
+                        size={17}
                         className="shrink-0"
                         strokeWidth={active ? 2.4 : 1.9}
                       />
-                      {(!collapsed || mobileOpen) && <span className="truncate">{label}</span>}
+                      <span className="truncate">{label}</span>
                     </Link>
                   );
                 })}
@@ -211,36 +209,28 @@ export default function Sidebar({ mobileOpen = false, onClose = () => { } }) {
         ))}
       </nav>
 
-      <div
-        className={`border-t border-white/10 ${collapsed ? 'py-3 px-2 flex flex-col items-center gap-2' : 'p-3'
-          }`}
-      >
+      <div className="border-t border-white/10 p-3">
         <Link
           href={`${BASE}/Profile`}
           onClick={onClose}
-          title={collapsed ? (user?.email || 'My profile') : undefined}
-          className={`flex items-center rounded-xl transition hover:bg-white/10 ${collapsed ? 'h-11 w-11 justify-center' : 'gap-3 px-3 py-3'
-            }`}
+          title={user?.email || 'My profile'}
+          className="flex items-center gap-3 rounded-xl px-3 py-3 transition hover:bg-white/10"
         >
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/15 text-white">
             <UserRound size={17} />
           </span>
-          {!collapsed && (
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-xs font-bold">{user?.email || 'Administrator'}</span>
-              <span className="block text-[10px] text-blue-100/70">My profile</span>
-            </span>
-          )}
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-xs font-bold">{user?.email || 'Administrator'}</span>
+            <span className="block text-[10px] text-blue-100/70">My profile</span>
+          </span>
         </Link>
         <button
           type="button"
           onClick={logout}
-          title={collapsed ? 'Sign out' : undefined}
-          className={`cursor-pointer flex items-center rounded-xl text-white transition bg-[#e7001e] hover:bg-[#e7001e]/70 ${collapsed ? 'h-11 w-11 justify-center' : 'mt-2 w-full gap-3 px-3 py-2.5 text-left text-xs font-semibold'
-            }`}
+          className="cursor-pointer mt-2 flex w-full items-center gap-3 rounded-xl bg-[#e7001e] px-3 py-2.5 text-left text-xs font-semibold text-white transition hover:bg-[#e7001e]/70"
         >
           <LogOut size={17} />
-          {!collapsed && 'Sign out'}
+          Sign out
         </button>
       </div>
     </aside>

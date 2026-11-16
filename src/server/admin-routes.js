@@ -137,13 +137,22 @@ import {
   updateWelcomeSection,
 } from './admin-backend/controllers/mainController.js';
 import { auth } from './admin-backend/middleware/auth.js';
-import {cmsGetPage,cmsSavePage,cmsGetSettings,cmsSaveSettings,cmsGetHeaderSettings,cmsSaveHeaderSettings,cmsGetMedia,cmsUpdateMedia,cmsUploadMedia} from './cms-controller.js';
+import {cmsGetPage,cmsSavePage,cmsGetSettings,cmsSaveSettings,cmsGetHeaderSettings,cmsSaveHeaderSettings,cmsGetMedia,cmsUpdateMedia,cmsUploadMedia,cmsGetPublicSettings,cmsGetPublicAiChat,cmsQueryAiChat} from './cms-controller.js';
+import { listAdminSliders, createSlider, updateSlider, deleteSlider, reorderSliders } from './sliders-controller.js';
 
 const protectedRoute = (method, path, handler) => ({ method, path, handlers: [auth, requireLegacyRole, handler] });
 const openRoute = (method, path, handler) => ({ method, path, handlers: [handler] });
 
 export const routes = [
   ...adminCmsV2Routes,
+  openRoute('GET', '/cms/public-settings', cmsGetPublicSettings),
+  openRoute('GET', '/cms/public-ai-chat', cmsGetPublicAiChat),
+  openRoute('POST', '/cms/ai-chat/query', cmsQueryAiChat),
+  protectedRoute('GET', '/admin/sliders', listAdminSliders),
+  protectedRoute('POST', '/admin/sliders', createSlider),
+  protectedRoute('PUT', '/admin/sliders/order', reorderSliders),
+  protectedRoute('PUT', '/admin/sliders/:id', updateSlider),
+  protectedRoute('DELETE', '/admin/sliders/:id', deleteSlider),
   protectedRoute('GET','/api/header',cmsGetHeaderSettings),
   protectedRoute('PUT','/api/header',cmsSaveHeaderSettings),
   protectedRoute('GET','/admin/seo/intelligence',listSeoIntelligence),

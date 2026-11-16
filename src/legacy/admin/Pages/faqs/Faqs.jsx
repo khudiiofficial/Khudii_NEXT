@@ -15,6 +15,7 @@ import {
   Sliders
 } from 'lucide-react';
 import AdminPublishSwitch from '@/components/AdminPublishSwitch';
+import AdminIconAction from '@/components/AdminIconAction';
 import { confirmDialog, confirmDelete, showSuccess, showError, toastNotice } from '@/lib/dialogs';
 import { EditButton, DuplicateButton, DeleteButton } from '@/components/ui/CrudActions';
 import { AddButton, CancelButton, UpdateButton, CreateButton } from '@/components/ui/AppButton';
@@ -417,6 +418,11 @@ export default function FAQManager() {
                   {/* Status Toggle Switch */}
                   <td className="p-4">
                     <div className="flex items-center gap-2">
+                      <AdminIconAction
+                        action={faq.is_active ? 'hide' : 'show'}
+                        label={`${faq.is_active ? 'Hide' : 'Show'} ${faq.question}`}
+                        onClick={() => handleToggleStatus(faq, !faq.is_active)}
+                      />
                       <AdminPublishSwitch
                         checked={Boolean(faq.is_active)}
                         onChange={(checked) => handleToggleStatus(faq, checked)}
@@ -436,6 +442,11 @@ export default function FAQManager() {
                   {/* Actions */}
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1.5">
+                      <AdminIconAction
+                        action={faq.is_active ? 'hide' : 'show'}
+                        label={`${faq.is_active ? 'Hide' : 'Show'} ${faq.question}`}
+                        onClick={() => handleToggleStatus(faq, !faq.is_active)}
+                      />
                       <EditButton onClick={() => openEditModal(faq)} label={faq.question} size="sm" />
                       <DuplicateButton onClick={() => handleDuplicate(faq)} label={faq.question} size="sm" />
                       <DeleteButton onClick={() => handleDelete(faq)} label={faq.question} size="sm" />

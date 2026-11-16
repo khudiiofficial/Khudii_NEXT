@@ -2,7 +2,8 @@ import {publicCmsV2Routes} from './cms-v2/routes.js';
 import {publicResolveRedirect,recordPublic404} from './site-diagnostics.js';
 import { receivePublicAnalytics } from './admin-backend/controllers/analytics.js';
 import { getPublishedPodcasts } from './podcast-controller.js';
-import { cmsGetPublicPage, cmsGetPublicSettings, cmsGetHeaderSettings } from './cms-controller.js';
+import { cmsGetPublicPage, cmsGetPublicSettings, cmsGetHeaderSettings, cmsGetPublicAiChat, cmsQueryAiChat } from './cms-controller.js';
+import { listPublicSliders } from './sliders-controller.js';
 import {
   AddVolunteer,
   ApplyForJob,
@@ -51,6 +52,9 @@ export const routes = [
   route('GET', '/cms/page', cmsGetPublicPage),
   route('POST', '/api/analytics/event', receivePublicAnalytics),
   route('GET', '/cms/public-settings', cmsGetPublicSettings),
+  route('GET', '/cms/public-ai-chat', cmsGetPublicAiChat),
+  route('POST', '/cms/ai-chat/query', cmsQueryAiChat),
+  route('GET', '/api/public-sliders', listPublicSliders),
   route('GET', '/items', getAllorganization),
   route('GET', '/item/:slug', getSpecificItem),
   route('GET', '/icons/:id', getAllIcons),

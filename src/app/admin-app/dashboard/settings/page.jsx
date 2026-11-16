@@ -11,9 +11,13 @@ import KhudiiSeoIndexingSettings from '@/components/KhudiiSeoIndexingSettings';
 import CmsV2RoleManager from '@/components/CmsV2RoleManager';
 import UserManagementTab from '@/components/admin/UserManagementTab';
 import LoginAuthTab from '@/components/admin/LoginAuthTab';
+import SiteIdentityTab from '@/components/admin/SiteIdentityTab';
+import ShareToolsTab from '@/components/admin/ShareToolsTab';
+import AiChatSettingsTab from '@/components/admin/AiChatSettingsTab';
+import ImageUploadWidget from '@/components/admin/ImageUploadWidget';
 import {
   Settings, Globe, Mail, Shield, User, Palette, Search, Eye, EyeOff, Database,
-  ChevronRight, Check, AlertCircle, RefreshCw, Save, Loader2,
+  ChevronRight, Check, AlertCircle, RefreshCw, Save, Loader2, Sparkles,
 } from 'lucide-react';
 
 /* ─────────────────────────────────────────────
@@ -28,6 +32,7 @@ const TABS = [
   { id: 'seo', label: 'SEO Intelligence', icon: Search },
   { id: 'identity', label: 'Site Identity', icon: Globe },
   { id: 'share', label: 'Share Tools', icon: ChevronRight },
+  { id: 'ai-chat', label: 'Ask Khudii (AI)', icon: Sparkles },
   { id: 'users', label: 'Users', icon: User },
   { id: 'auth', label: 'Login Auth', icon: Shield },
   { id: 'popup', label: 'Disclaimer Popup', icon: AlertCircle },
@@ -572,16 +577,130 @@ function SecurityTab({ security, setSecurity }) {
   );
 }
 
-function ShareTab({ profile, setProfile }) {
-  const keys = [['WhatsApp', 'whatsapp'], ['Facebook', 'facebook_url'], ['Instagram', 'instagram_url'], ['YouTube', 'youtube_url'], ['LinkedIn', 'linkedin_url']];
-  return <Section title="Share tools & social channels" description="Public social URLs and contact channels. Changes are saved in site identity settings.">{keys.map(([label, key]) => <Field key={key} id={'share-' + key} label={label}><Input id={'share-' + key} value={profile[key] || ''} onChange={e => setProfile(p => ({ ...p, [key]: e.target.value }))} placeholder="https://" /></Field>)}<div className="sm:col-span-2 lg:col-span-3"><p className="text-sm text-slate-500">Share buttons can use these links; the built-in public Social Share component remains available.</p></div></Section>;
+function PopupTab({ popup, setPopup, onSave, saving }) {
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+        <div>
+          <h2 className="text-xl font-extrabold text-slate-900 m-0 flex items-center gap-2">
+            <span>🚩</span> Disclaimer Popup Settings
+          </h2>
+          <p className="text-xs text-slate-500 m-0 mt-0.5">
+            Configure the disclaimer popup that appears when visitors browse the public site.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={saving}
+          className="bg-[#02236E] text-white px-6 py-2.5 rounded-full text-xs font-extrabold hover:bg-[#02236E]/90 transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50 self-start sm:self-auto"
+        >
+          <Save className="w-3.5 h-3.5" />
+          <span>{saving ? 'Saving...' : 'Save Disclaimer Settings'}</span>
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        {/* Left Box: Disclaimer Image */}
+        <div className="flex flex-col gap-2 p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
+          <label className="block text-xs font-bold text-slate-800">Disclaimer Banner Image (Optional)</label>
+          <ImageUploadWidget
+            value={popup.image || ''}
+            onChange={(url) => setPopup((prev) => ({ ...prev, image: url }))}
+            subfolder="banners"
+            label="Disclaimer Image"
+          />
+          <span className="text-[10px] text-slate-500 mt-1">Select or upload an optional graphic for the announcement popup.</span>
+        </div>
+
+        {/* Right Box: Enable Switch & Fields */}
+        <div className="flex flex-col gap-4 p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
+          <div className="flex justify-between items-center p-3.5 rounded-xl bg-slate-50 border border-slate-100">
+            <div>
+              <div className="text-sm font-extrabold text-slate-900 mb-0.5">Enable Disclaimer Popup</div>
+              <div className="text-xs text-slate-500">Toggle whether the disclaimer popup is active on the site.</div>
+            </div>
+            <Toggle
+              id="popup-enabled"
+              checked={Boolean(popup.enabled)}
+              onChange={(e) => setPopup((prev) => ({ ...prev, enabled: e.target.checked }))}
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-800 mb-1.5">Popup Title</label>
+            <Input
+              id="popup-title"
+              maxLength={150}
+              value={popup.title || ''}
+              onChange={(e) => setPopup((prev) => ({ ...prev, title: e.target.value }))}
+              placeholder="Important Announcement"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-800 mb-1.5">Button Text</label>
+            <Input
+              id="popup-btn"
+              maxLength={80}
+              value={popup.button_text || ''}
+              onChange={(e) => setPopup((prev) => ({ ...prev, button_text: e.target.value }))}
+              placeholder="I Understand / Continue"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
+        <label className="block text-xs font-bold text-slate-800 mb-1.5">Popup Message</label>
+        <Textarea
+          id="popup-message"
+          rows={5}
+          value={popup.message || ''}
+          onChange={(e) => setPopup((prev) => ({ ...prev, message: e.target.value }))}
+          placeholder="Enter message displayed inside the disclaimer modal..."
+        />
+      </div>
+    </div>
+  );
 }
-function PopupTab({ popup, setPopup }) {
-  return <Section title="Disclaimer Popup" description="Show an optional announcement once per browser session on the public site."><div className="sm:col-span-2 lg:col-span-3"><Toggle id="popup-enabled" label="Enable disclaimer on public pages" checked={!!popup.enabled} onChange={e => setPopup(x => ({ ...x, enabled: e.target.checked }))} /></div><Field label="Popup title" id="popup-title"><Input id="popup-title" maxLength={150} value={popup.title || ''} onChange={e => setPopup(x => ({ ...x, title: e.target.value }))} /></Field><div className="sm:col-span-2 lg:col-span-3"><Field label="Popup message" id="popup-message"><Textarea id="popup-message" value={popup.message || ''} onChange={e => setPopup(x => ({ ...x, message: e.target.value }))} rows={5} /></Field></div><Field label="Button text" id="popup-btn"><Input id="popup-btn" maxLength={80} value={popup.button_text || ''} onChange={e => setPopup(x => ({ ...x, button_text: e.target.value }))} placeholder="Continue" /></Field></Section>;
+
+function CssTab({ css, setCss, onSave, saving }) {
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+        <div>
+          <h2 className="text-xl font-extrabold text-slate-900 m-0 flex items-center gap-2">
+            <span>🎨</span> Global CSS Overrides
+          </h2>
+          <p className="text-xs text-slate-500 m-0 mt-0.5">
+            Write custom CSS to override styles across the frontend. External imports and expressions are blocked for security.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={onSave}
+          disabled={saving}
+          className="bg-[#02236E] text-white px-6 py-2.5 rounded-full text-xs font-extrabold hover:bg-[#02236E]/90 transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50 self-start sm:self-auto"
+        >
+          <Save className="w-3.5 h-3.5" />
+          <span>{saving ? 'Saving...' : 'Save CSS Overrides'}</span>
+        </button>
+      </div>
+
+      <div className="rounded-2xl border border-slate-900 overflow-hidden shadow-xl bg-[#040817]">
+        <textarea
+          rows={16}
+          value={css.stylesheet || ''}
+          onChange={(e) => setCss((prev) => ({ ...prev, stylesheet: e.target.value }))}
+          className="w-full p-6 font-mono text-xs !text-white bg-transparent outline-none resize-y leading-relaxed border-none focus:ring-0"
+          placeholder="/* Add your custom CSS here */ body { /* overrides */ }"
+        />
+      </div>
+    </div>
+  );
 }
-function CssTab({ css, setCss }) {
-  return <Section title="Global CSS" description="Optional custom site CSS. External imports, URL references and executable CSS expressions are blocked on save."><div className="sm:col-span-2 lg:col-span-3"><Field label="Custom CSS (public site)" id="custom-css"><Textarea id="custom-css" value={css.stylesheet || ''} onChange={e => setCss(x => ({ ...x, stylesheet: e.target.value }))} rows={12} /></Field><p className="mt-2 text-xs text-slate-500">Changes may affect public page presentation. Preview on staging before enabling on production.</p></div></Section>;
-}
+
 // ──── Main Settings Page ─────────────────────
 function SettingsPageInner() {
   const params = useSearchParams();
@@ -612,9 +731,64 @@ function SettingsPageInner() {
     maintenanceScope: 'all',
     maintenancePaths: [],
   });
+  const [siteIdentity, setSiteIdentityRaw] = useState({
+    siteName: 'Khudii',
+    tagline: 'Connecting hearts, creating change',
+    siteLogo: '',
+    siteFavicon: '',
+    whatsappHeaderLabel: '',
+    whatsappHeaderText: '',
+    whatsappHeaderUrl: '',
+    whatsappFloatUrl: '',
+    whatsappFloatLabel: '',
+    tawkEnabled: false,
+    tawkWidgetId: '1hl3bf5qv',
+    tawkPropertyId: '65b3e5448d261e1b5f58510b',
+    tawkShowFloatingButton: true,
+    tawkButtonLabel: 'Live Chat Support',
+    tawkFloatingIcon: '',
+    tawkHideDefaultLauncher: true,
+    tawkDirectChatUrl: 'https://tawk.to/chat/65b3e5448d261e1b5f58510b/1hl3bf5qv',
+    tawkVoiceEnabled: true,
+    tawkAutoSpeak: false,
+    tawkVoiceLanguage: 'en-US',
+    tawkQuickPrompts: [],
+  });
+  const [shareData, setShareDataRaw] = useState({
+    enabled: true,
+    iconStyle: 'rounded-square',
+    iconSize: 40,
+    colorScheme: 'brand-colors',
+    customBgColor: '#02236E',
+    customTextColor: '#ffffff',
+    gapFromEdge: 20,
+    verticalPosition: 'center',
+    sidebarEdge: 'right',
+    activeNetworks: ['whatsapp', 'facebook', 'twitter', 'linkedin', 'copy'],
+  });
+  const [aiChat, setAiChatRaw] = useState({
+    enabled: true,
+    title: 'Ask Khudii',
+    subtitle: '24/7 Support',
+    headerTitle: 'AI Assistant',
+    headerSubtitle: 'Type a message below',
+    inputPlaceholder: 'How can I help you today?',
+    welcomeMessage: 'Hello! Welcome to Khudii. How can I help you today?',
+    fallbackMessage: "I'm sorry, I don't have enough information on that topic yet. Please contact our support team at info@khudii.com or explore our verified welfare organizations.",
+    systemPrompt: "Khudii is Pakistan's premier digital welfare platform uniting donors, volunteers, and welfare organizations across healthcare, education, special needs, orphan care, and community development. We facilitate direct welfare connections, verified NGO profiles, volunteer registration, and transparent community impact.",
+    quickPrompts: [
+      { id: '1', question: 'What is Khudii?', answer: "Khudii is Pakistan's largest digital welfare network connecting verified welfare organizations, donors, and volunteers to create sustainable social impact.", category: 'General', keywords: 'what, khudii, about, platform, mission' },
+      { id: '2', question: 'How can I donate?', answer: "You can donate directly to verified welfare organizations on Khudii. Visit our 'Donate Now' page or browse our Organizations directory to find causes that align with your heart.", category: 'Donations', keywords: 'donate, payment, money, contribution, bank, sadqah, zakat' },
+      { id: '3', question: 'How to volunteer?', answer: "Volunteering is easy! Go to our 'Volunteer' page, fill out your registration form with your skills and preferred sector, and our partner organizations will reach out to you.", category: 'Volunteers', keywords: 'volunteer, join, help, participate, signup, work' },
+      { id: '4', question: 'Are organizations verified?', answer: "Yes! Every NGO and welfare organization on Khudii undergoes strict administrative review, documentation checks, and background verification before being listed in our public directory.", category: 'Trust', keywords: 'verified, trust, authentic, safe, legal, check' },
+      { id: '5', question: 'Contact support', answer: "You can reach the Khudii team via our Contact page, email us at info@khudii.com, or message us on WhatsApp.", category: 'Support', keywords: 'contact, phone, email, whatsapp, support, help' },
+    ],
+    quickChips: ['What is Khudii?', 'How can I donate?', 'How to volunteer?', 'Verified NGOs', 'Contact Support'],
+  });
+
   const setForms = (updater) => { setFormsRaw(updater); setDirty(true); setSaved(false); };
-  const setPopup = updater => { setPopupRaw(updater); setDirty(true); setSaved(false); };
-  const setCss = updater => { setCssRaw(updater); setDirty(true); setSaved(false); };
+  const setPopup = (updater) => { setPopupRaw(updater); setDirty(true); setSaved(false); };
+  const setCss = (updater) => { setCssRaw(updater); setDirty(true); setSaved(false); };
   const [security, setSecurity] = useState({ current_password: '', new_password: '', confirm_password: '' });
 
   const makeUpdater = (setter) => (updater) => {
@@ -629,6 +803,9 @@ function SettingsPageInner() {
   const setAppearance = makeUpdater(setAppearanceRaw);
   const setSeo = makeUpdater(setSeoRaw);
   const setLoginAuth = makeUpdater(setLoginAuthRaw);
+  const setSiteIdentity = makeUpdater(setSiteIdentityRaw);
+  const setShareData = makeUpdater(setShareDataRaw);
+  const setAiChat = makeUpdater(setAiChatRaw);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -656,6 +833,48 @@ function SettingsPageInner() {
         maintenanceScope: 'all',
         maintenancePaths: [],
       });
+      if (json.site_identity) {
+        setSiteIdentityRaw({
+          siteName: json.site_identity.siteName || json.profile?.name || 'Khudii',
+          tagline: json.site_identity.tagline || json.profile?.tagline || '',
+          siteLogo: json.site_identity.siteLogo || json.site_identity.logo || json.appearance?.logo_url || '',
+          siteFavicon: json.site_identity.siteFavicon || json.site_identity.favicon || json.appearance?.favicon_url || '',
+          whatsappHeaderLabel: json.site_identity.whatsappHeaderLabel || '',
+          whatsappHeaderText: json.site_identity.whatsappHeaderText || '',
+          whatsappHeaderUrl: json.site_identity.whatsappHeaderUrl || '',
+          whatsappFloatUrl: json.site_identity.whatsappFloatUrl || '',
+          whatsappFloatLabel: json.site_identity.whatsappFloatLabel || '',
+          tawkEnabled: json.site_identity.tawkEnabled !== false && json.site_identity.tawkEnabled !== undefined ? Boolean(json.site_identity.tawkEnabled) : false,
+          tawkWidgetId: json.site_identity.tawkWidgetId || '1hl3bf5qv',
+          tawkPropertyId: json.site_identity.tawkPropertyId || '65b3e5448d261e1b5f58510b',
+          tawkShowFloatingButton: json.site_identity.tawkShowFloatingButton !== false,
+          tawkButtonLabel: json.site_identity.tawkButtonLabel || 'Live Chat Support',
+          tawkFloatingIcon: json.site_identity.tawkFloatingIcon || '',
+          tawkHideDefaultLauncher: json.site_identity.tawkHideDefaultLauncher !== false,
+          tawkDirectChatUrl: json.site_identity.tawkDirectChatUrl || 'https://tawk.to/chat/65b3e5448d261e1b5f58510b/1hl3bf5qv',
+          tawkVoiceEnabled: json.site_identity.tawkVoiceEnabled !== false,
+          tawkAutoSpeak: json.site_identity.tawkAutoSpeak === true,
+          tawkVoiceLanguage: json.site_identity.tawkVoiceLanguage || 'en-US',
+          tawkQuickPrompts: Array.isArray(json.site_identity.tawkQuickPrompts) ? json.site_identity.tawkQuickPrompts : [],
+        });
+      }
+      if (json.share_tools) {
+        setShareDataRaw({
+          enabled: json.share_tools.enabled !== false,
+          iconStyle: json.share_tools.iconStyle || 'rounded-square',
+          iconSize: json.share_tools.iconSize || 40,
+          colorScheme: json.share_tools.colorScheme || 'brand-colors',
+          customBgColor: json.share_tools.customBgColor || '#02236E',
+          customTextColor: json.share_tools.customTextColor || '#ffffff',
+          gapFromEdge: json.share_tools.gapFromEdge ?? 20,
+          verticalPosition: json.share_tools.verticalPosition || 'center',
+          sidebarEdge: json.share_tools.sidebarEdge || 'right',
+          activeNetworks: Array.isArray(json.share_tools.activeNetworks) ? json.share_tools.activeNetworks : ['whatsapp', 'facebook', 'twitter', 'linkedin', 'copy'],
+        });
+      }
+      if (json.ai_chat) {
+        setAiChatRaw(json.ai_chat);
+      }
       setDirty(false);
     } catch (e) { setLoadError(e.message || 'Could not load settings'); }
     finally { setLoading(false); }
@@ -670,18 +889,65 @@ function SettingsPageInner() {
     if (!await confirmAction('Save settings?', 'Apply your changes to the Khudii configuration?')) return;
     setSaving(true); setSaved(false); setSaveError('');
     try {
+      const payloadAppearance = {
+        ...appearance,
+        logo_url: siteIdentity.siteLogo || siteIdentity.logo || appearance.logo_url || '',
+        favicon_url: siteIdentity.siteFavicon || siteIdentity.favicon || appearance.favicon_url || '',
+      };
+      const payloadProfile = {
+        ...profile,
+        name: siteIdentity.siteName || profile.name || 'Khudii',
+        tagline: siteIdentity.tagline || profile.tagline || '',
+      };
+      const payloadSiteIdentity = {
+        ...siteIdentity,
+        logo: siteIdentity.siteLogo || siteIdentity.logo || '',
+        siteLogo: siteIdentity.siteLogo || siteIdentity.logo || '',
+        favicon: siteIdentity.siteFavicon || siteIdentity.favicon || '',
+        siteFavicon: siteIdentity.siteFavicon || siteIdentity.favicon || '',
+      };
+
       const r = await fetch(
         `${process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app'}/admin/settings`,
         {
           method: 'PUT',
           credentials: 'include',
           headers: { 'Content-Type': 'application/json', 'x-khudii-surface': 'admin' },
-          body: JSON.stringify({ profile, smtp, appearance, seo, forms, popup, css, login_auth: loginAuth }),
+          body: JSON.stringify({
+            profile: payloadProfile,
+            smtp,
+            appearance: payloadAppearance,
+            seo,
+            forms,
+            popup,
+            css,
+            login_auth: loginAuth,
+            site_identity: payloadSiteIdentity,
+            share_tools: shareData,
+            ai_chat: aiChat,
+          }),
         },
       );
       const j = await r.json();
       if (!r.ok) throw new Error(j.message || 'Save failed');
       setSaved(true); setDirty(false); settingsNotice('Settings saved');
+
+      // Update cached branding assets for immediate cross-tab reflection
+      if (payloadSiteIdentity.siteLogo) {
+        try { localStorage.setItem('khudii_site_logo', payloadSiteIdentity.siteLogo); } catch { }
+      }
+      if (payloadSiteIdentity.siteName) {
+        try { localStorage.setItem('khudii_site_name', payloadSiteIdentity.siteName); } catch { }
+      }
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('khudii:branding-updated', {
+          detail: {
+            logo: payloadSiteIdentity.siteLogo,
+            favicon: payloadSiteIdentity.siteFavicon,
+            siteName: payloadSiteIdentity.siteName,
+          }
+        }));
+      }
     } catch (e) { setSaveError(e.message); settingsNotice('Settings could not be saved', 'error', e.message); }
     finally { setSaving(false); }
   };
@@ -735,37 +1001,80 @@ function SettingsPageInner() {
         </ReloadButton>
       </div>
 
-      {/* Main tabs */}
-      <div className="kh-settings-tabs flex flex-wrap gap-1 rounded-2xl border border-slate-200 bg-slate-50 p-1.5">
+      {/* Main tabs - zero horizontal scrollbar */}
+      <div className="kh-settings-tabs flex flex-wrap gap-2 rounded-2xl border border-slate-100 bg-white p-3.5 shadow-xs overflow-x-hidden">
         {TABS.map(({ id, label, icon: Icon }) => (
           <button
             key={id}
-            onClick={() => { if (dirty || siteDirty) { setSaveError('Save or reload your changes before changing tabs.'); settingsNotice('Unsaved changes', 'error', 'Save settings first.'); return; } setTab(id); const u = new URL(window.location.href); u.searchParams.set('tab', id); u.searchParams.delete('sub'); window.history.replaceState(window.history.state, '', u.pathname + u.search); }}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all ${tab === id ? 'bg-white text-[#02236E] shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            type="button"
+            onClick={() => {
+              if (dirty || siteDirty) {
+                setSaveError('Save or reload your changes before changing tabs.');
+                settingsNotice('Unsaved changes', 'error', 'Save settings first.');
+                return;
+              }
+              setTab(id);
+              const u = new URL(window.location.href);
+              u.searchParams.set('tab', id);
+              u.searchParams.delete('sub');
+              window.history.replaceState(window.history.state, '', u.pathname + u.search);
+            }}
+            className={`px-3.5 py-2 rounded-full text-xs font-bold transition-all flex items-center gap-1.5 border cursor-pointer ${
+              tab === id
+                ? 'bg-[#02236E] text-white hover:text-white border-[#02236E] shadow-sm'
+                : 'bg-white text-slate-500 border-slate-200'
+            }`}
           >
-            <Icon size={15} />
-            {label}
+            <Icon size={14} />
+            <span>{label}</span>
           </button>
         ))}
       </div>
 
       {/* Tab content */}
       <div className="min-h-[320px]">
-        {tab === 'identity' && <GeneralTab key={`${tab}:${incomingSub}`} profile={profile} setProfile={setProfile} />}
+        {tab === 'identity' && (
+          <SiteIdentityTab
+            identityData={siteIdentity}
+            setIdentityData={setSiteIdentity}
+            onSave={save}
+            saving={saving}
+            dirty={dirty}
+          />
+        )}
+        {tab === 'share' && (
+          <ShareToolsTab
+            shareData={shareData}
+            setShareData={setShareData}
+            onSave={save}
+            saving={saving}
+            dirty={dirty}
+          />
+        )}
+        {tab === 'ai-chat' && (
+          <AiChatSettingsTab
+            aiChatData={aiChat}
+            setAiChatData={setAiChat}
+            onSave={save}
+            saving={saving}
+            dirty={dirty}
+          />
+        )}
         {tab === 'email' && <EmailTab key={`${tab}:${incomingSub}`} smtp={smtp} setSmtp={setSmtp} />}
-        {(tab === 'header' || tab === 'footer' || tab === 'site') && <SettingsSiteChrome key={`${tab}:${incomingSub}`} mode={tab === 'site' ? incomingSub : tab} onDirty={setSiteDirty} />}
+        {(tab === 'header' || tab === 'footer' || tab === 'site') && (
+          <SettingsSiteChrome key={`${tab}:${incomingSub}`} mode={tab === 'site' ? incomingSub : tab} onDirty={setSiteDirty} />
+        )}
         {tab === 'seo' && <KhudiiSeoIndexingSettings seo={seo} setSeo={setSeo} onSave={save} saving={saving} dirty={dirty} />}
         {tab === 'users' && <UserManagementTab />}
         {tab === 'auth' && <LoginAuthTab loginAuthData={loginAuth} setLoginAuthData={setLoginAuth} onSave={save} saving={saving} dirty={dirty} />}
-        {tab === 'share' && <ShareTab profile={profile} setProfile={setProfile} />}
-        {tab === 'popup' && <PopupTab popup={popup} setPopup={setPopup} />}
-        {tab === 'css' && <CssTab css={css} setCss={setCss} />}
+        {tab === 'popup' && <PopupTab popup={popup} setPopup={setPopup} onSave={save} saving={saving} />}
+        {tab === 'css' && <CssTab css={css} setCss={setCss} onSave={save} saving={saving} />}
         {tab === 'forms' && <KhudiiFormsManagement forms={forms} setForms={setForms} onSave={save} saving={saving} dirty={dirty} />}
         {tab === 'db' && <KhudiiDatabaseSettings />}
       </div>
 
-      {/* Save bar (not shown for Security—its own submit) */}
-      {tab !== 'auth' && tab !== 'db' && tab !== 'seo' && !(['header', 'footer'].includes(tab)) && (
+      {/* Save bar for tabs without their own top-right action buttons */}
+      {tab === 'email' && (
         <SaveBar saving={saving} saved={saved} error={saveError} onSave={save} dirty={dirty} />
       )}
     </div>

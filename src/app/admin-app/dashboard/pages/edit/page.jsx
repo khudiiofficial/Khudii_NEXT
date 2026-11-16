@@ -954,6 +954,256 @@ function PageEditor() {
                   </button>
                 </div>
 
+                {/* Connected Content Database Feed Banner (KingTravel Architecture) */}
+                {(['organizations', 'orgs', 'organization'].includes(activeSection.kind) || activeSection.source === 'organizations' || activeSection.source === 'directory') && (
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50/70 p-4 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-black text-emerald-800 uppercase tracking-wider">
+                            🏢 Organizations Database Feed
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                            Live DB Query
+                          </span>
+                        </div>
+                        <p className="text-xs text-emerald-900 mt-1 leading-relaxed">
+                          This section automatically queries active verified NGOs and charity organizations from the database table. When organizations are added, updated, or toggled (show/hide) in the Organizations module, they appear in this section automatically.
+                        </p>
+                      </div>
+                      <Link
+                        href="/admin-app/dashboard/OrganizationPage"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold shrink-0 transition-colors"
+                      >
+                        <ExternalLink size={12} /> Manage Organizations in Sidebar ↗
+                      </Link>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-emerald-200/80">
+                      <div>
+                        <label className="block text-[11px] font-bold text-emerald-900 mb-1">Max Display Limit</label>
+                        <select
+                          value={activeSection.data?.limit || '8'}
+                          onChange={(e) => updateSectionData(activeSection.id, 'limit', e.target.value)}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-emerald-300 bg-white"
+                        >
+                          <option value="4">4 Organizations</option>
+                          <option value="6">6 Organizations</option>
+                          <option value="8">8 Organizations</option>
+                          <option value="12">12 Organizations</option>
+                          <option value="all">All Verified</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-emerald-900 mb-1">Layout Presentation</label>
+                        <select
+                          value={activeSection.data?.layout || 'grid'}
+                          onChange={(e) => updateSectionData(activeSection.id, 'layout', e.target.value)}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-emerald-300 bg-white"
+                        >
+                          <option value="grid">Responsive Grid Cards</option>
+                          <option value="carousel">Horizontal Carousel</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {(['blogs', 'blog', 'blog-grid'].includes(activeSection.kind) || activeSection.source === 'blogs' || activeSection.source === 'listing') && (
+                  <div className="rounded-xl border border-blue-200 bg-blue-50/70 p-4 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-black text-blue-800 uppercase tracking-wider">
+                            📰 Blogs Database Feed
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-300">
+                            Live DB Query
+                          </span>
+                        </div>
+                        <p className="text-xs text-blue-900 mt-1 leading-relaxed">
+                          This section automatically queries published blogs from the database. When a blog is published, updated, or toggled in the Blogs module, it appears in this section automatically.
+                        </p>
+                      </div>
+                      <Link
+                        href="/admin-app/dashboard/BlogPage"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold shrink-0 transition-colors"
+                      >
+                        <ExternalLink size={12} /> Manage Blogs in Sidebar ↗
+                      </Link>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-blue-200/80">
+                      <div>
+                        <label className="block text-[11px] font-bold text-blue-900 mb-1">Max Display Limit</label>
+                        <select
+                          value={activeSection.data?.limit || '6'}
+                          onChange={(e) => updateSectionData(activeSection.id, 'limit', e.target.value)}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-blue-300 bg-white"
+                        >
+                          <option value="3">3 Recent Posts</option>
+                          <option value="6">6 Recent Posts</option>
+                          <option value="9">9 Recent Posts</option>
+                          <option value="12">12 Recent Posts</option>
+                          <option value="all">All Published</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-blue-900 mb-1">Layout Presentation</label>
+                        <select
+                          value={activeSection.data?.layout || 'grid'}
+                          onChange={(e) => updateSectionData(activeSection.id, 'layout', e.target.value)}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-blue-300 bg-white"
+                        >
+                          <option value="grid">Responsive Grid Cards</option>
+                          <option value="carousel">Horizontal Carousel</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {(['stories', 'story', 'stories-grid'].includes(activeSection.kind) || activeSection.source === 'stories') && (
+                  <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-black text-amber-800 uppercase tracking-wider">
+                            🌟 Success Stories Database Feed
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                            Live DB Query
+                          </span>
+                        </div>
+                        <p className="text-xs text-amber-900 mt-1 leading-relaxed">
+                          This section automatically queries published community success stories from the database. When an impact story is published or updated in the Success Stories module, it displays automatically here.
+                        </p>
+                      </div>
+                      <Link
+                        href="/admin-app/dashboard/SuccessStories"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold shrink-0 transition-colors"
+                      >
+                        <ExternalLink size={12} /> Manage Stories in Sidebar ↗
+                      </Link>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 pt-2 border-t border-amber-200/80">
+                      <div>
+                        <label className="block text-[11px] font-bold text-amber-900 mb-1">Max Display Limit</label>
+                        <select
+                          value={activeSection.data?.limit || '4'}
+                          onChange={(e) => updateSectionData(activeSection.id, 'limit', e.target.value)}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-amber-300 bg-white"
+                        >
+                          <option value="2">2 Stories</option>
+                          <option value="3">3 Stories</option>
+                          <option value="4">4 Stories</option>
+                          <option value="6">6 Stories</option>
+                          <option value="all">All Stories</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-bold text-amber-900 mb-1">Layout Presentation</label>
+                        <select
+                          value={activeSection.data?.layout || 'grid'}
+                          onChange={(e) => updateSectionData(activeSection.id, 'layout', e.target.value)}
+                          className="w-full px-2.5 py-1.5 text-xs rounded-lg border border-amber-300 bg-white"
+                        >
+                          <option value="grid">Responsive Grid Cards</option>
+                          <option value="featured">Featured Lead Card + Grid</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {(['podcast-grid', 'podcasts', 'podcast'].includes(activeSection.kind) || activeSection.source === 'episodes' || activeSection.source === 'podcast') && (
+                  <div className="rounded-xl border border-purple-200 bg-purple-50/70 p-4 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-black text-purple-800 uppercase tracking-wider">
+                            🎙️ Podcast Episodes Database Feed
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-300">
+                            Live DB Query
+                          </span>
+                        </div>
+                        <p className="text-xs text-purple-900 mt-1 leading-relaxed">
+                          This section automatically displays published YouTube podcast episodes from the database with click-to-play video modals and SEO detail routes.
+                        </p>
+                      </div>
+                      <Link
+                        href="/admin-app/dashboard/Podcast"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-purple-700 hover:bg-purple-800 text-white text-xs font-bold shrink-0 transition-colors"
+                      >
+                        <ExternalLink size={12} /> Manage Podcasts in Sidebar ↗
+                      </Link>
+                    </div>
+                  </div>
+                )}
+
+                {(['faq', 'faqs'].includes(activeSection.kind) || activeSection.source === 'faq-list' || activeSection.source === 'faqs') && (
+                  <div className="rounded-xl border border-teal-200 bg-teal-50/70 p-4 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-black text-teal-800 uppercase tracking-wider">
+                            ❓ FAQs Accordion Database Feed
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 border border-teal-300">
+                            Live DB Query
+                          </span>
+                        </div>
+                        <p className="text-xs text-teal-900 mt-1 leading-relaxed">
+                          This section queries active FAQs from the database table. When questions and answers are added, edited, or reordered in the FAQs module, they reflect here automatically.
+                        </p>
+                      </div>
+                      <Link
+                        href="/admin-app/dashboard/faqs"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold shrink-0 transition-colors"
+                      >
+                        <ExternalLink size={12} /> Manage FAQs in Sidebar ↗
+                      </Link>
+                    </div>
+                  </div>
+                )}
+
+                {(['carousel', 'sliders', 'slider'].includes(activeSection.kind) || activeSection.source === 'carousel') && (
+                  <div className="rounded-xl border border-sky-200 bg-sky-50/70 p-4 space-y-3">
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-xs font-black text-sky-800 uppercase tracking-wider">
+                            🖼️ Homepage Sliders / Hero Carousel Feed
+                          </span>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800 border border-sky-300">
+                            Live DB Query
+                          </span>
+                        </div>
+                        <p className="text-xs text-sky-900 mt-1 leading-relaxed">
+                          This section displays active hero banner slides from the database. Manage image banners, drag-and-drop ordering, fixed vs slider styles, and links centrally in Homepage Sliders.
+                        </p>
+                      </div>
+                      <Link
+                        href="/admin-app/dashboard/crousel-images"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-sky-700 hover:bg-sky-800 text-white text-xs font-bold shrink-0 transition-colors"
+                      >
+                        <ExternalLink size={12} /> Manage Sliders in Sidebar ↗
+                      </Link>
+                    </div>
+                  </div>
+                )}
+
                 {/* Section Title */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">Section Admin Label</label>

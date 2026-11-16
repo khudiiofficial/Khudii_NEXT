@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
@@ -19,6 +19,22 @@ export default function AdminLogin() {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [siteLogo, setSiteLogo] = useState('');
+
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem('khudii_site_logo');
+      if (cached) setSiteLogo(cached);
+    } catch { }
+
+    axios.get(`${APIPath}/cms/public-settings`).then((res) => {
+      const logo = res.data?.logo || res.data?.site_identity?.siteLogo;
+      if (logo) {
+        setSiteLogo(logo);
+        try { localStorage.setItem('khudii_site_logo', logo); } catch { }
+      }
+    }).catch(() => { });
+  }, []);
 
   async function login(e) {
     e.preventDefault();
@@ -54,7 +70,7 @@ export default function AdminLogin() {
           <div className="relative z-10">
             <Link href="/" className="inline-block">
               <img
-                src="/Khudii.webp"
+                src={siteLogo || "/Khudii.webp"}
                 alt="Khudii Logo"
                 className="h-12 w-auto max-w-[220px] rounded-2xl bg-white px-3.5 py-2 object-contain shadow-sm"
               />

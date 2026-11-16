@@ -1,9 +1,14 @@
 'use client';
 import React, { useEffect, useMemo, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { CMS_PAGES, defaultSections } from '@/lib/cms-registry';
 import { youtubeVideoId } from '@/server/shared/youtube.js';
 import { trackKhudiiEvent } from '@/lib/analytics-client';
 import PodcastCollection from '@/components/podcast/PodcastCollection';
+
+const Crousel = dynamic(() => import('@/legacy/public/componets/crousel/Crousel'), { ssr: false });
+const DifferentOrganizations = dynamic(() => import('@/legacy/public/componets/DifferentOrganizations/DifferentOrganizations'), { ssr: false });
+const Blogs = dynamic(() => import('@/legacy/public/componets/Blogs/Blogs'), { ssr: false });
 
 const base = process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app';
 function CmsVideo({ url, title, sectionId }) {
@@ -16,6 +21,9 @@ function CmsAddedSection({ item }) {
   const d = item.data || {}, items = Array.isArray(d.items) ? d.items : [];
   if (item.kind === 'divider') return <div data-khudii-section={item.id} aria-hidden="true" className="mx-auto my-10 max-w-7xl border-t border-slate-200" />;
   if (item.kind === 'podcast-grid') return <div data-khudii-section={item.id}><PodcastCollection heading={d.heading || 'Podcast episodes'} description={d.body || ''} /></div>;
+  if (item.kind === 'carousel') return <div data-khudii-section={item.id}><Crousel /></div>;
+  if (item.kind === 'organizations') return <div data-khudii-section={item.id}><DifferentOrganizations /></div>;
+  if (item.kind === 'blogs') return <div data-khudii-section={item.id}><Blogs /></div>;
   const hero = item.kind === 'hero', cta = ['cta', 'form-link', 'notice'].includes(item.kind);
   const gridTypes = ['cards', 'gallery', 'logos', 'testimonials', 'people', 'stats', 'steps', 'timeline', 'social-links', 'downloads', 'video-grid', 'faq'];
   const background = hero ? 'bg-[#02236E] text-white' : cta ? 'bg-blue-50 text-[#02236E]' : 'bg-white text-[#02236E]';

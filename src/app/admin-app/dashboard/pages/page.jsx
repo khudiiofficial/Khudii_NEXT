@@ -440,7 +440,6 @@ export default function PagesListPage() {
                           ) : (
                             <>
                               <Copy size={12} />
-                              <span>Copy URL</span>
                             </>
                           )}
                         </button>
@@ -485,16 +484,6 @@ export default function PagesListPage() {
                           <ExternalLink size={15} />
                         </a>
 
-                        {/* Edit: Navigates to dedicated /pages/edit page */}
-                        <Link
-                          href={`/admin-app/dashboard/pages/edit?id=${page.id}`}
-                          title="Edit page sections &amp; settings"
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-200 bg-blue-50 text-xs font-bold text-[#02236E] hover:bg-blue-100 transition-colors"
-                        >
-                          <Pencil size={13} />
-                          Edit
-                        </Link>
-
                         {/* SEO Center */}
                         <button
                           type="button"
@@ -511,17 +500,26 @@ export default function PagesListPage() {
                           type="button"
                           onClick={() => handleDuplicate(page)}
                           title="Duplicate page"
-                          className="grid h-9 w-9 place-items-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-[#02236E]"
+                          className="grid h-9 w-9 place-items-center rounded-xl border border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100 hover:text-amber-700"
                         >
                           <Copy size={14} />
                         </button>
+
+                        {/* Edit: Navigates to dedicated /pages/edit page */}
+                        <Link
+                          href={`/admin-app/dashboard/pages/edit?id=${page.id}`}
+                          title="Edit page sections &amp; settings"
+                          className="grid h-9 w-9 place-items-center rounded-xl border border-blue-200 bg-blue-50 text-xs font-bold text-[#02236E] hover:bg-blue-100 transition-colors"
+                        >
+                          <Pencil size={13} />
+                        </Link>
 
                         {/* Delete with ConfirmModal */}
                         <button
                           type="button"
                           onClick={() => handleDelete(page)}
                           title="Delete page"
-                          className="grid h-9 w-9 place-items-center rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-red-50 hover:text-[#ed0026]"
+                          className="grid h-9 w-9 place-items-center rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
                         >
                           <Trash2 size={14} />
                         </button>

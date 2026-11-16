@@ -9,6 +9,7 @@ import PublicFormPreferences from './PublicFormPreferences';
 import KhudiiAnalyticsTracker from './KhudiiAnalyticsTracker';
 import CmsPageLayout from './CmsPageLayout';
 import Topbar from '@/legacy/public/componets/Topbar/Topbar';
+import AskKhudiiChat from './AskKhudiiChat';
 
 import { useGoogleAnalytics } from '@/legacy/public/Hooks/GoogleAnalytics';
 import { installLargePayloadUploadInterceptor } from '@/lib/large-payload-upload';
@@ -135,6 +136,7 @@ export default function PublicShell({ children }) {
               <SocialShare />
             </Suspense>
           ) : null}
+          <AskKhudiiChat />
         </main>
       </PublicSeoContext.Provider>
     </GoogleOAuthProvider>

@@ -78,14 +78,85 @@ export async function cmsSavePage(req,res) {
     return res.status(409).json({message:'This page was updated in another session. Reload before editing it again.'});
   }catch(e){return err(res,e);}
 }
-const SETTINGS = ['profile','smtp','appearance','seo','email_templates','forms','popup','css','header','login_auth'];
+const SETTINGS = ['profile','smtp','appearance','seo','email_templates','forms','popup','css','header','login_auth','site_identity','share_tools','ai_chat'];
 export async function cmsGetSettings(req,res){
   try{await init();const [rows]=await sql.query('SELECT bucket,content FROM khudii_admin_settings'); const data=Object.fromEntries(rows.map(r=>[r.bucket,parse(r.content,{})]));
     // Owner data is the actual source of SMTP and admin contact used by Khudii email service.
     const [owners]=await sql.query('SELECT * FROM owners ORDER BY id ASC LIMIT 1');const owner=owners[0]||{};
     const smtp={smtp_host:owner.smtp_host||(owner.sender_email&&owner.sender_app_password?'smtp.gmail.com':''),smtp_port:owner.smtp_port||465,smtp_secure:String(owner.smtp_secure ?? 1),smtp_username:owner.smtp_username||owner.sender_email||'',smtp_from:owner.smtp_from||owner.sender_email||'',smtp_enabled:true,...(data.smtp||{})};
     delete smtp.smtp_password;
-    res.json({profile:{name:'Khudii',email:owner.email||'',...data.profile},smtp,appearance:data.appearance||{},seo:data.seo||{},email_templates:data.email_templates||{},forms:data.forms||{},popup:data.popup||{},css:data.css||{},header:data.header||{show_search:true,search_placeholder:'Search Organization',show_donate_button:true,donate_button_text:'Donate Now',donate_button_url:'/donate-now'},login_auth:data.login_auth||{backgroundImage:'',backgroundAlt:'',footerText:'© 2026 Khudii. All Rights Reserved. Powered by DKS.',mediaStorageMode:'ftp',maintenanceMode:false,maintenanceScope:'all',maintenancePaths:[]}});
+    const siteIdentityData = data.site_identity || {
+      siteName: data.profile?.name || 'Khudii',
+      tagline: data.profile?.tagline || 'Connecting hearts, creating change',
+      logo: data.appearance?.logo_url || '',
+      siteLogo: data.appearance?.logo_url || '',
+      favicon: data.appearance?.favicon_url || '',
+      siteFavicon: data.appearance?.favicon_url || '',
+      whatsappHeaderLabel: data.profile?.whatsappHeaderLabel || '',
+      whatsappHeaderText: data.profile?.whatsappHeaderText || '',
+      whatsappHeaderUrl: data.profile?.whatsappHeaderUrl || '',
+      whatsappFloatUrl: data.profile?.whatsappFloatUrl || '',
+      whatsappFloatLabel: data.profile?.whatsappFloatLabel || '',
+      tawkEnabled: false,
+      tawkWidgetId: '1hl3bf5qv',
+      tawkPropertyId: '65b3e5448d261e1b5f58510b',
+      tawkShowFloatingButton: true,
+      tawkButtonLabel: 'Live Chat Support',
+      tawkFloatingIcon: '',
+      tawkHideDefaultLauncher: true,
+      tawkDirectChatUrl: 'https://tawk.to/chat/65b3e5448d261e1b5f58510b/1hl3bf5qv',
+      tawkVoiceEnabled: true,
+      tawkAutoSpeak: false,
+      tawkVoiceLanguage: 'en-US',
+      tawkQuickPrompts: [],
+    };
+    const shareToolsData = data.share_tools || {
+      enabled: true,
+      iconStyle: 'rounded-square',
+      iconSize: 40,
+      colorScheme: 'brand-colors',
+      customBgColor: '#02236E',
+      customTextColor: '#ffffff',
+      gapFromEdge: 20,
+      verticalPosition: 'center',
+      sidebarEdge: 'right',
+      activeNetworks: ['whatsapp', 'facebook', 'twitter', 'linkedin', 'copy'],
+    };
+    const aiChatDefaults = {
+      enabled: true,
+      title: 'Ask Khudii',
+      subtitle: '24/7 Support',
+      headerTitle: 'AI Assistant',
+      headerSubtitle: 'Type a message below',
+      inputPlaceholder: 'How can I help you today?',
+      welcomeMessage: 'Hello! Welcome to Khudii. How can I help you today?',
+      fallbackMessage: "I'm sorry, I don't have enough information on that topic yet. You can contact our support team at info@khudii.com or explore our verified welfare organizations.",
+      systemPrompt: "Khudii is Pakistan's premier digital welfare platform uniting donors, volunteers, and welfare organizations across healthcare, education, special needs, orphan care, and community development. We facilitate direct welfare connections, verified NGO profiles, volunteer registration, and transparent community impact.",
+      quickPrompts: [
+        { id: '1', question: 'What is Khudii?', answer: "Khudii is Pakistan's largest digital welfare network connecting verified welfare organizations, donors, and volunteers to create sustainable social impact.", category: 'General', keywords: 'what, khudii, about, platform, mission' },
+        { id: '2', question: 'How can I donate?', answer: "You can donate directly to verified welfare organizations on Khudii. Visit our 'Donate Now' page or browse our Organizations directory to find causes that align with your heart.", category: 'Donations', keywords: 'donate, payment, money, contribution, bank, sadqah, zakat' },
+        { id: '3', question: 'How to volunteer?', answer: "Volunteering is easy! Go to our 'Volunteer' page, fill out your registration form with your skills and preferred sector, and our partner organizations will reach out to you.", category: 'Volunteers', keywords: 'volunteer, join, help, participate, signup, work' },
+        { id: '4', question: 'Are organizations verified?', answer: "Yes! Every NGO and welfare organization on Khudii undergoes strict administrative review, documentation checks, and background verification before being listed in our public directory.", category: 'Trust', keywords: 'verified, trust, authentic, safe, legal, check' },
+        { id: '5', question: 'Contact support', answer: "You can reach the Khudii team via our Contact page, email us at info@khudii.com, or message us on WhatsApp.", category: 'Support', keywords: 'contact, phone, email, whatsapp, support, help' },
+      ],
+      quickChips: ['What is Khudii?', 'How can I donate?', 'How to volunteer?', 'Verified NGOs', 'Contact Support'],
+    };
+    const aiChatData = data.ai_chat ? { ...aiChatDefaults, ...data.ai_chat } : aiChatDefaults;
+    res.json({
+      profile:{name:'Khudii',email:owner.email||'',...data.profile},
+      smtp,
+      appearance:data.appearance||{},
+      seo:data.seo||{},
+      email_templates:data.email_templates||{},
+      forms:data.forms||{},
+      popup:data.popup||{},
+      css:data.css||{},
+      header:data.header||{show_search:true,search_placeholder:'Search Organization',show_donate_button:true,donate_button_text:'Donate Now',donate_button_url:'/donate-now'},
+      login_auth:data.login_auth||{backgroundImage:'',backgroundAlt:'',footerText:'© 2026 Khudii. All Rights Reserved. Powered by DKS.',mediaStorageMode:'ftp',maintenanceMode:false,maintenanceScope:'all',maintenancePaths:[]},
+      site_identity: siteIdentityData,
+      share_tools: shareToolsData,
+      ai_chat: aiChatData,
+    });
   }catch(e){return err(res,e);}
 }
 export async function cmsGetHeaderSettings(req,res){
@@ -120,13 +191,27 @@ export async function cmsSaveHeaderSettings(req,res){
   }catch(e){return err(res,e);}
 }
 export async function cmsGetPublicSettings(req,res){
-  try {await init();const [rows]=await sql.query("SELECT bucket,content FROM khudii_admin_settings WHERE bucket IN ('appearance','profile','seo','forms','popup','css','header')");
+  try {await init();const [rows]=await sql.query("SELECT bucket,content FROM khudii_admin_settings WHERE bucket IN ('appearance','profile','seo','forms','popup','css','header','site_identity','share_tools','ai_chat')");
     const cfg=Object.fromEntries(rows.map(r=>[r.bucket,parse(r.content,{})]));
     const publicForms=Object.fromEntries(Object.entries(cfg.forms||{}).filter(([key])=>['contact','inquiry','donate','volunteer','jobs','story','organization'].includes(key)).map(([key,value])=>[key,{fields:value?.fields||{}}]));
     const socials=Object.fromEntries(['facebook_url','instagram_url','youtube_url','twitter_url','linkedin_url','tiktok_url','whatsapp_url'].map(key => [key, /^https:\/\//i.test(String(cfg.profile?.[key]||'')) ? String(cfg.profile[key]).slice(0,1000) : '']));
     const headerDefaults = { show_search: true, search_placeholder: 'Search Organization', search_areas: ['organizations', 'blogs', 'categories', 'stories'], show_donate_button: true, donate_button_text: 'Donate Now', donate_button_url: '/donate-now' };
     const header = cfg.header ? { ...headerDefaults, ...cfg.header } : headerDefaults;
-    return res.json({forms:publicForms,social:socials,navigation:Array.isArray(cfg.appearance?.navigation)?cfg.appearance.navigation:[],logo:cleanUrl(cfg.appearance?.logo_url),favicon:cleanUrl(cfg.appearance?.favicon_url),primaryColor:/^#[0-9a-f]{6}$/i.test(cfg.appearance?.primary_color)?cfg.appearance.primary_color:'#2563eb',popup:cfg.popup||{},css:cfg.css||{},header});
+    const logoUrl = cleanUrl(cfg.site_identity?.siteLogo || cfg.site_identity?.logo || cfg.appearance?.logo_url);
+    const faviconUrl = cleanUrl(cfg.site_identity?.siteFavicon || cfg.site_identity?.favicon || cfg.appearance?.favicon_url);
+    const siteName = cleanString(cfg.site_identity?.siteName || cfg.profile?.name || 'Khudii', 100);
+    const aiChat = cfg.ai_chat || {
+      enabled: true,
+      title: 'Ask Khudii',
+      subtitle: '24/7 Support',
+      headerTitle: 'AI Assistant',
+      headerSubtitle: 'Type a message below',
+      inputPlaceholder: 'How can I help you today?',
+      welcomeMessage: 'Hello! Welcome to Khudii. How can I help you today?',
+      fallbackMessage: "I'm sorry, I don't have enough information on that topic yet. Please contact our support team at info@khudii.com or explore our verified welfare organizations.",
+      quickChips: ['What is Khudii?', 'How can I donate?', 'How to volunteer?', 'Verified NGOs', 'Contact Support'],
+    };
+    return res.json({forms:publicForms,social:socials,navigation:Array.isArray(cfg.appearance?.navigation)?cfg.appearance.navigation:[],logo:logoUrl,favicon:faviconUrl,site_name:siteName,site_identity:cfg.site_identity||{},share_tools:cfg.share_tools||{},primaryColor:/^#[0-9a-f]{6}$/i.test(cfg.appearance?.primary_color)?cfg.appearance.primary_color:'#2563eb',popup:cfg.popup||{},css:cfg.css||{},header,ai_chat:aiChat});
   } catch(e){return err(res,e);}
 }
 export async function cmsSaveSettings(req,res){
@@ -185,6 +270,66 @@ export async function cmsSaveSettings(req,res){
         doc.maintenanceScope=doc.maintenanceScope==='selected'?'selected':'all';
         doc.maintenancePaths=Array.isArray(doc.maintenancePaths)?doc.maintenancePaths.slice(0,50).map(p=>cleanString(p,150)):[];
       }
+      if(bucket==='site_identity'){
+        doc.siteName=cleanString(doc.siteName||'',100);
+        doc.tagline=cleanString(doc.tagline||'',255);
+        doc.logo=cleanUrl(doc.siteLogo||doc.logo||'');
+        doc.siteLogo=doc.logo;
+        doc.favicon=cleanUrl(doc.siteFavicon||doc.favicon||'');
+        doc.siteFavicon=doc.favicon;
+        doc.whatsappHeaderLabel=cleanString(doc.whatsappHeaderLabel||'',100);
+        doc.whatsappHeaderText=cleanString(doc.whatsappHeaderText||'',50);
+        doc.whatsappHeaderUrl=cleanUrl(doc.whatsappHeaderUrl||'');
+        doc.whatsappFloatUrl=cleanUrl(doc.whatsappFloatUrl||'');
+        doc.whatsappFloatLabel=cleanString(doc.whatsappFloatLabel||'',100);
+        doc.tawkEnabled=Boolean(doc.tawkEnabled);
+        doc.tawkWidgetId=cleanString(doc.tawkWidgetId||'',100);
+        doc.tawkPropertyId=cleanString(doc.tawkPropertyId||'',100);
+        doc.tawkDirectChatUrl=cleanUrl(doc.tawkDirectChatUrl||'');
+        doc.tawkShowFloatingButton=doc.tawkShowFloatingButton!==false;
+        doc.tawkButtonLabel=cleanString(doc.tawkButtonLabel||'Live Chat Support',100);
+        doc.tawkFloatingIcon=cleanUrl(doc.tawkFloatingIcon||'');
+        doc.tawkHideDefaultLauncher=doc.tawkHideDefaultLauncher!==false;
+        doc.tawkVoiceEnabled=doc.tawkVoiceEnabled!==false;
+        doc.tawkAutoSpeak=Boolean(doc.tawkAutoSpeak);
+        doc.tawkVoiceLanguage=cleanString(doc.tawkVoiceLanguage||'en-US',20);
+        doc.tawkQuickPrompts=Array.isArray(doc.tawkQuickPrompts)?doc.tawkQuickPrompts.slice(0,50):[];
+      }
+      if(bucket==='share_tools'){
+        doc.enabled=doc.enabled!==false;
+        doc.iconStyle=['rounded-square','circle','flat','minimal'].includes(doc.iconStyle)?doc.iconStyle:'rounded-square';
+        doc.iconSize=Number(doc.iconSize)>=20&&Number(doc.iconSize)<=80?Number(doc.iconSize):40;
+        doc.colorScheme=['brand-colors','monochrome','custom'].includes(doc.colorScheme)?doc.colorScheme:'brand-colors';
+        doc.customBgColor=cleanString(doc.customBgColor||'#02236E',20);
+        doc.customTextColor=cleanString(doc.customTextColor||'#ffffff',20);
+        doc.gapFromEdge=Number(doc.gapFromEdge)>=0?Number(doc.gapFromEdge):20;
+        doc.verticalPosition=['top','center','bottom'].includes(doc.verticalPosition)?doc.verticalPosition:'center';
+        doc.sidebarEdge=['left','right'].includes(doc.sidebarEdge)?doc.sidebarEdge:'right';
+        doc.activeNetworks=Array.isArray(doc.activeNetworks)?doc.activeNetworks.slice(0,10).map(s=>cleanString(s,30)):['whatsapp','facebook','twitter','linkedin','copy'];
+      }
+      if(bucket==='ai_chat'){
+        doc.enabled=doc.enabled!==false;
+        doc.title=cleanString(doc.title||'Ask Khudii',60);
+        doc.subtitle=cleanString(doc.subtitle||'24/7 Support',60);
+        doc.headerTitle=cleanString(doc.headerTitle||'AI Assistant',60);
+        doc.headerSubtitle=cleanString(doc.headerSubtitle||'Type a message below',100);
+        doc.inputPlaceholder=cleanString(doc.inputPlaceholder||'How can I help you today?',100);
+        doc.welcomeMessage=cleanString(doc.welcomeMessage||'',500);
+        doc.fallbackMessage=cleanString(doc.fallbackMessage||'',1000);
+        doc.systemPrompt=cleanString(doc.systemPrompt||'',10000);
+        doc.quickPrompts=Array.isArray(doc.quickPrompts)
+          ? doc.quickPrompts.slice(0,100).map((p,idx)=>({
+              id:cleanString(p?.id||String(idx+1),50),
+              question:cleanString(p?.question||'',300),
+              answer:cleanString(p?.answer||'',2000),
+              category:cleanString(p?.category||'General',50),
+              keywords:cleanString(p?.keywords||'',500),
+            }))
+          : [];
+        doc.quickChips=Array.isArray(doc.quickChips)
+          ? doc.quickChips.slice(0,20).map(c=>cleanString(c,100))
+          : [];
+      }
       if(bucket==='smtp')delete doc.smtp_password;
       const encoded=JSON.stringify(doc);
       if(encoded.length>100000)return res.status(413).json({message:`${bucket} settings exceed maximum size`});
@@ -203,6 +348,24 @@ export async function cmsSaveSettings(req,res){
           const updates={smtp_host:cleanString(original.smtp_host,255),smtp_port:Number(original.smtp_port||465),smtp_secure:String(original.smtp_secure)==='1'?1:0,smtp_username:cleanString(original.smtp_username,255),smtp_from:cleanString(original.smtp_from,255)};
           if(original.smtp_password)updates.smtp_password=cleanString(original.smtp_password,512);
           await connection.query(`UPDATE owners SET ${Object.keys(updates).map(key=>`${key}=?`).join(',')} WHERE id=?`,[...Object.values(updates),ownerId]);
+        }
+        if(bucket==='site_identity'){
+          if(doc.logo || doc.favicon || doc.siteLogo || doc.siteFavicon){
+            const [appRows]=await connection.query("SELECT content FROM khudii_admin_settings WHERE bucket = 'appearance'");
+            const app=appRows.length ? parse(appRows[0].content,{}) : {};
+            const logoToSync = doc.siteLogo || doc.logo;
+            const faviconToSync = doc.siteFavicon || doc.favicon;
+            if(logoToSync) app.logo_url=cleanUrl(logoToSync);
+            if(faviconToSync) app.favicon_url=cleanUrl(faviconToSync);
+            await connection.query("INSERT INTO khudii_admin_settings (bucket,content) VALUES ('appearance',?) ON DUPLICATE KEY UPDATE content=VALUES(content)",[JSON.stringify(app)]);
+          }
+          if(doc.siteName){
+            const [profRows]=await connection.query("SELECT content FROM khudii_admin_settings WHERE bucket = 'profile'");
+            const prof=profRows.length ? parse(profRows[0].content,{}) : {};
+            prof.name=cleanString(doc.siteName,100);
+            if(doc.tagline) prof.tagline=cleanString(doc.tagline,255);
+            await connection.query("INSERT INTO khudii_admin_settings (bucket,content) VALUES ('profile',?) ON DUPLICATE KEY UPDATE content=VALUES(content)",[JSON.stringify(prof)]);
+          }
         }
         await connection.query('INSERT INTO khudii_admin_settings (bucket,content) VALUES (?,?) ON DUPLICATE KEY UPDATE content=VALUES(content)',[bucket,encoded]);
       }
@@ -288,4 +451,144 @@ export async function cmsUploadMedia(req,res){
     await sql.query('INSERT INTO khudii_media_metadata(url,title,alt_text,caption,tags,trashed) VALUES (?,?,?,?,?,0) ON DUPLICATE KEY UPDATE title=VALUES(title)',[url,cleanString(name,255),'','','']);
     return res.status(201).json({success:true,url});
   }catch(e){console.error('[media upload]',e?.code||e?.message);return res.status(503).json({success:false,message:'Upload failed. Verify FTP storage and database access.'});}
+}
+
+export async function cmsGetPublicAiChat(req,res){
+  try {
+    await init();
+    const [rows]=await sql.query("SELECT content FROM khudii_admin_settings WHERE bucket = 'ai_chat'");
+    const defaults = {
+      enabled: true,
+      title: 'Ask Khudii',
+      subtitle: '24/7 Support',
+      headerTitle: 'AI Assistant',
+      headerSubtitle: 'Type a message below',
+      inputPlaceholder: 'How can I help you today?',
+      welcomeMessage: 'Hello! Welcome to Khudii. How can I help you today?',
+      fallbackMessage: "I'm sorry, I don't have enough information on that topic yet. You can contact our support team at info@khudii.com or explore our verified welfare organizations.",
+      systemPrompt: "Khudii is Pakistan's premier digital welfare platform uniting donors, volunteers, and welfare organizations across healthcare, education, special needs, orphan care, and community development.",
+      quickPrompts: [
+        { id: '1', question: 'What is Khudii?', answer: "Khudii is Pakistan's largest digital welfare network connecting verified welfare organizations, donors, and volunteers to create sustainable social impact.", category: 'General', keywords: 'what, khudii, about, platform, mission' },
+        { id: '2', question: 'How can I donate?', answer: "You can donate directly to verified welfare organizations on Khudii. Visit our 'Donate Now' page or browse our Organizations directory to find causes that align with your heart.", category: 'Donations', keywords: 'donate, payment, money, contribution, bank, sadqah, zakat' },
+        { id: '3', question: 'How to volunteer?', answer: "Volunteering is easy! Go to our 'Volunteer' page, fill out your registration form with your skills and preferred sector, and our partner organizations will reach out to you.", category: 'Volunteers', keywords: 'volunteer, join, help, participate, signup, work' },
+        { id: '4', question: 'Are organizations verified?', answer: "Yes! Every NGO and welfare organization on Khudii undergoes strict administrative review, documentation checks, and background verification before being listed in our public directory.", category: 'Trust', keywords: 'verified, trust, authentic, safe, legal, check' },
+        { id: '5', question: 'Contact support', answer: "You can reach the Khudii team via our Contact page, email us at info@khudii.com, or message us on WhatsApp.", category: 'Support', keywords: 'contact, phone, email, whatsapp, support, help' },
+      ],
+      quickChips: ['What is Khudii?', 'How can I donate?', 'How to volunteer?', 'Verified NGOs', 'Contact Support'],
+    };
+    const data = rows.length ? { ...defaults, ...parse(rows[0].content, {}) } : defaults;
+    return res.json({ success: true, data });
+  } catch(e){return err(res,e);}
+}
+
+export async function cmsQueryAiChat(req,res){
+  try {
+    await init();
+    const userMessage = cleanString(req.body?.message || req.body?.query || '', 1000).trim();
+    if (!userMessage) return res.status(400).json({ success: false, message: 'Message is required' });
+
+    const [rows] = await sql.query("SELECT content FROM khudii_admin_settings WHERE bucket = 'ai_chat'");
+    const defaults = {
+      enabled: true,
+      title: 'Ask Khudii',
+      subtitle: '24/7 Support',
+      welcomeMessage: 'Hello! Welcome to Khudii. How can I help you today?',
+      fallbackMessage: "I'm sorry, I don't have enough information on that topic yet. You can contact our support team at info@khudii.com or explore our verified welfare organizations.",
+      systemPrompt: "Khudii is Pakistan's premier digital welfare platform uniting donors, volunteers, and welfare organizations.",
+      quickPrompts: [
+        { id: '1', question: 'What is Khudii?', answer: "Khudii is Pakistan's largest digital welfare network connecting verified welfare organizations, donors, and volunteers to create sustainable social impact.", category: 'General', keywords: 'what, khudii, about, platform, mission' },
+        { id: '2', question: 'How can I donate?', answer: "You can donate directly to verified welfare organizations on Khudii. Visit our 'Donate Now' page or browse our Organizations directory to find causes that align with your heart.", category: 'Donations', keywords: 'donate, payment, money, contribution, bank, sadqah, zakat' },
+        { id: '3', question: 'How to volunteer?', answer: "Volunteering is easy! Go to our 'Volunteer' page, fill out your registration form with your skills and preferred sector, and our partner organizations will reach out to you.", category: 'Volunteers', keywords: 'volunteer, join, help, participate, signup, work' },
+        { id: '4', question: 'Are organizations verified?', answer: "Yes! Every NGO and welfare organization on Khudii undergoes strict administrative review, documentation checks, and background verification before being listed in our public directory.", category: 'Trust', keywords: 'verified, trust, authentic, safe, legal, check' },
+        { id: '5', question: 'Contact support', answer: "You can reach the Khudii team via our Contact page, email us at info@khudii.com, or message us on WhatsApp.", category: 'Support', keywords: 'contact, phone, email, whatsapp, support, help' },
+      ],
+      quickChips: ['What is Khudii?', 'How can I donate?', 'How to volunteer?', 'Verified NGOs', 'Contact Support'],
+    };
+    const config = rows.length ? { ...defaults, ...parse(rows[0].content, {}) } : defaults;
+
+    if (config.enabled === false) {
+      return res.status(403).json({ success: false, message: 'AI Chat is currently disabled.' });
+    }
+
+    const lowerQuery = userMessage.toLowerCase();
+    const queryTokens = lowerQuery.replace(/[^a-z0-9\s]/gi, ' ').split(/\s+/).filter(t => t.length > 2);
+
+    let bestMatch = null;
+    let highestScore = 0;
+
+    for (const prompt of (config.quickPrompts || [])) {
+      let score = 0;
+      const promptQ = (prompt.question || '').toLowerCase();
+      const promptKW = (prompt.keywords || '').toLowerCase();
+
+      if (lowerQuery === promptQ || lowerQuery.includes(promptQ) || promptQ.includes(lowerQuery)) {
+        score += 100;
+      }
+
+      const kwList = promptKW.split(/[,;\s]+/).map(k => k.trim()).filter(Boolean);
+      for (const token of queryTokens) {
+        if (kwList.includes(token)) score += 25;
+        if (promptQ.includes(token)) score += 15;
+      }
+
+      if (score > highestScore) {
+        highestScore = score;
+        bestMatch = prompt;
+      }
+    }
+
+    if (bestMatch && highestScore >= 25) {
+      return res.json({
+        success: true,
+        answer: bestMatch.answer,
+        category: bestMatch.category,
+        source: 'knowledge_base',
+        suggestedChips: config.quickChips || [],
+      });
+    }
+
+    // Dynamic search against database if query relates to organizations/charity/NGOs
+    if (queryTokens.some(t => ['ngo', 'ngos', 'charity', 'charities', 'organization', 'organizations', 'welfare', 'foundation', 'trust', 'health', 'education'].includes(t))) {
+      const searchTerms = queryTokens.filter(t => !['what', 'where', 'how', 'who', 'the', 'and', 'are', 'for'].includes(t)).slice(0, 3);
+      if (searchTerms.length > 0) {
+        const likeQuery = searchTerms.map(() => '(name LIKE ? OR description LIKE ? OR category LIKE ?)').join(' OR ');
+        const params = [];
+        for (const t of searchTerms) params.push(`%${t}%`, `%${t}%`, `%${t}%`);
+        const [matchedOrgs] = await sql.query(`SELECT id, name, category, slug, description FROM ngos WHERE status = 1 AND (${likeQuery}) LIMIT 3`, params);
+        if (matchedOrgs && matchedOrgs.length > 0) {
+          const orgList = matchedOrgs.map(o => `• **${o.name}** (${o.category || 'Welfare'}): ${cleanString(o.description, 100)}...`).join('\n');
+          return res.json({
+            success: true,
+            answer: `Here are verified organizations matching your search:\n\n${orgList}\n\nYou can explore more in our Organizations directory.`,
+            source: 'database_organizations',
+            suggestedChips: config.quickChips || [],
+          });
+        }
+      }
+    }
+
+    // Dynamic search against FAQs
+    const faqSearchTerms = queryTokens.filter(t => !['what', 'where', 'how', 'who', 'the', 'and', 'are', 'for'].includes(t)).slice(0, 3);
+    if (faqSearchTerms.length > 0) {
+      const likeQuery = faqSearchTerms.map(() => '(question LIKE ? OR answer LIKE ?)').join(' OR ');
+      const params = [];
+      for (const t of faqSearchTerms) params.push(`%${t}%`, `%${t}%`);
+      const [matchedFaqs] = await sql.query(`SELECT question, answer FROM faqs WHERE is_active = 1 AND (${likeQuery}) LIMIT 1`, params);
+      if (matchedFaqs && matchedFaqs.length > 0) {
+        return res.json({
+          success: true,
+          answer: `**${matchedFaqs[0].question}**\n\n${matchedFaqs[0].answer}`,
+          source: 'database_faqs',
+          suggestedChips: config.quickChips || [],
+        });
+      }
+    }
+
+    return res.json({
+      success: true,
+      answer: config.fallbackMessage || defaults.fallbackMessage,
+      source: 'fallback',
+      suggestedChips: config.quickChips || defaults.quickChips,
+    });
+  } catch(e){return err(res,e);}
 }

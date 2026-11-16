@@ -494,6 +494,7 @@ import { useState, useEffect, useRef } from 'react'
 import styles from './Crousel.module.css'
 import axios from 'axios'
 import { useNavigate } from '@/lib/router-compat'
+import ImageSlider from '@/components/shared/ImageSlider'
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
 
 const carouselTarget = (value) => {
@@ -588,6 +589,25 @@ const Crousel = () => {
         const t = setInterval(() => setIndex(i => (i + 1) % hero.length), 6000);
         return () => clearInterval(t);
     }, [hero.length]);
+
+    const [modernSliders, setModernSliders] = useState([]);
+
+    useEffect(() => {
+        let isMounted = true;
+        fetch(`${APIPath}/api/public-sliders`)
+            .then(r => r.ok ? r.json() : null)
+            .then(json => {
+                if (isMounted && Array.isArray(json?.data) && json.data.length > 0) {
+                    setModernSliders(json.data);
+                }
+            })
+            .catch(() => {});
+        return () => { isMounted = false; };
+    }, []);
+
+    if (modernSliders.length > 0) {
+        return <ImageSlider slides={modernSliders} />;
+    }
 
     return (
         <>
