@@ -3,7 +3,7 @@ import axios from "axios";
 import "./DifferentOrganizations.css";
 import { useNavigate } from '@/lib/router-compat';
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
-const DifferentOrganizations = () => {
+const DifferentOrganizations = ({ limit, selectedIds, heading, description }) => {
   const [loading, setLoading] = useState(false);
   const [organizations, setOrganizations] = useState([]);
   const [error, setError] = useState(null)
@@ -13,16 +13,22 @@ const DifferentOrganizations = () => {
       setLoading(true);
       try {
         const res = await axios.get(`${APIPath}/items`, { withCredentials: true });
-
-        setOrganizations(res.data); // replace with res.data later
-
+        let list = Array.isArray(res.data) ? res.data : [];
+        if (Array.isArray(selectedIds) && selectedIds.length > 0) {
+          const idSet = new Set(selectedIds.map(String));
+          list = list.filter((org) => idSet.has(String(org.id)));
+        }
+        if (limit && limit !== 'all' && Number(limit) > 0) {
+          list = list.slice(0, Number(limit));
+        }
+        setOrganizations(list);
       } catch (error) {
         console.log(error);
         setError(error.message)
       }
       setLoading(false);
     })();
-  }, []);
+  }, [limit, selectedIds]);
 
   if (loading) {
     return (
@@ -77,6 +83,12 @@ const DifferentOrganizations = () => {
             </div>
           ))}
         </div> */}
+        {(heading || description) && (
+          <div className="text-center mb-10">
+            {heading && <h2 className="text-3xl md:text-4xl font-bold text-[#02236E] mb-3">{heading}</h2>}
+            {description && <p className="text-base text-gray-600 max-w-2xl mx-auto">{description}</p>}
+          </div>
+        )}
         <div className="max-w-[1240px] grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
           {organizations.length > 0 ? (
             organizations.map((org, idx) => (

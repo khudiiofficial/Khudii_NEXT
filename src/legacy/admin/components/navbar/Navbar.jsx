@@ -115,7 +115,7 @@ export default function Sidebar({ mobileOpen = false, onClose = () => { } }) {
           href={BASE}
           onClick={onClose}
           title={`${siteName} Dashboard`}
-          className="kh-brand-mark grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white text-xl font-black text-[#02236E] shadow-md transition-transform hover:scale-105 overflow-hidden"
+          className="kh-brand-mark grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white text-xl font-bold text-[#02236E] shadow-md transition-transform hover:scale-105 overflow-hidden"
         >
           {siteLogo ? (
             <img

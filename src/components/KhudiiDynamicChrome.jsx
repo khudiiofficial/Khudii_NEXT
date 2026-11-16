@@ -764,7 +764,7 @@ export function DynamicFooter() {
             <Loader2 className="h-6 w-6 animate-spin text-white" />
           </div>
           <div className="text-left leading-tight">
-            <div className="text-xs font-black tracking-wide">Ask Khudii</div>
+            <div className="text-xs font-bold tracking-wide">Ask Khudii</div>
             <div className="text-[10px] font-medium text-white/90">24/7 Support</div>
           </div>
         </a>

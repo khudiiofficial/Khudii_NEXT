@@ -59,7 +59,7 @@ export default function ImageSlider({ slides = [], autoPlayInterval = 5000 }) {
 
               {title && (
                 <div className="absolute bottom-6 left-6 right-6 md:left-12 md:bottom-10 max-w-xl z-20">
-                  <h2 className="text-white text-lg md:text-2xl font-black drop-shadow-md m-0">
+                  <h2 className="text-white text-lg md:text-2xl font-bold drop-shadow-md m-0">
                     {title}
                   </h2>
                 </div>

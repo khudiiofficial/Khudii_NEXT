@@ -34,7 +34,7 @@ export default function AdminSeoShortcut({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <strong className="text-sm font-black text-[#02236E]">SEO Center Intelligence</strong>
+              <strong className="text-sm font-bold text-[#02236E]">SEO Center Intelligence</strong>
               <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[10px] font-bold text-emerald-800 uppercase tracking-wide">
                 Next-Gen Multi-Engine
               </span>

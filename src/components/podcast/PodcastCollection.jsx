@@ -7,6 +7,8 @@ const API = process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app';
 export default function PodcastCollection({
   heading = 'Khudii Podcast',
   description = 'Conversations and stories from the people behind Khudii.',
+  limit,
+  selectedIds,
 }) {
   const [episodes, setEpisodes] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,7 +27,15 @@ export default function PodcastCollection({
         }
         if (!r.ok) throw new Error(j.message || `HTTP ${r.status}`);
         if (!Array.isArray(j.items)) throw new Error('Unexpected response format');
-        setEpisodes(j.items);
+        let list = j.items;
+        if (Array.isArray(selectedIds) && selectedIds.length > 0) {
+          const idSet = new Set(selectedIds.map(String));
+          list = list.filter((ep) => idSet.has(String(ep.id)));
+        }
+        if (limit && limit !== 'all' && Number(limit) > 0) {
+          list = list.slice(0, Number(limit));
+        }
+        setEpisodes(list);
       })
       .catch((e) => {
         if (e.name !== 'AbortError') setError(e.message || 'Unable to load podcasts');
@@ -34,7 +44,7 @@ export default function PodcastCollection({
         if (!ctrl.signal.aborted) setLoading(false);
       });
     return () => ctrl.abort();
-  }, []);
+  }, [limit, selectedIds]);
 
   return (
     <section className="mx-auto w-full max-w-[1440px] px-5 py-12 md:py-16" aria-label="Khudii podcast episodes">

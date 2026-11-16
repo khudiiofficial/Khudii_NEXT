@@ -320,7 +320,7 @@ export default function FormEnquiriesPage() {
               <Inbox size={20} />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-black text-[#02236E] m-0">
+              <h1 className="text-2xl md:text-3xl font-bold text-[#02236E] m-0">
                 All form submissions
               </h1>
               <p className="text-xs md:text-sm text-slate-500 mt-0.5 m-0 font-medium">
@@ -380,7 +380,7 @@ export default function FormEnquiriesPage() {
         <div className="rounded-2xl border border-slate-200 bg-white p-5 md:p-6 shadow-xs space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
-              <h2 className="text-base font-black text-[#02236E] m-0">All form submissions</h2>
+              <h2 className="text-base font-bold text-[#02236E] m-0">All form submissions</h2>
               <p className="text-xs text-slate-500 mt-0.5 m-0">
                 Contact, inquiry, donation, volunteer, jobs, stories and registration records, {fromDate} to {toDate}.
               </p>

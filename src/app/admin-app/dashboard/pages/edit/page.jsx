@@ -39,6 +39,87 @@ const API = process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app';
 
 const SECTION_CATALOG = [
   {
+    category: 'Connected Database Modules',
+    icon: '⚡',
+    items: [
+      {
+        kind: 'organizations',
+        title: 'Organizations Grid',
+        description: 'Calls registered welfare organizations directly from the Organizations database with count & item selection.',
+        defaultData: {
+          eyebrow: 'VERIFIED WELFARE NETWORK',
+          heading: 'Explore Registered Organizations',
+          body: 'Browse all certified NGOs and social welfare foundations active across Pakistan.',
+          buttonText: 'View All Organizations →',
+          buttonUrl: '/organizations',
+          source: 'all',
+          limit: 'all',
+          selectedIds: [],
+        },
+      },
+      {
+        kind: 'blogs',
+        title: 'Blogs Showcase',
+        description: 'Calls published editorial articles directly from the Blogs database with count & item selection.',
+        defaultData: {
+          eyebrow: 'EDITORIAL & INSIGHTS',
+          heading: 'Latest Articles & Updates',
+          body: 'Read stories of resilience, social impact, and community development across Pakistan.',
+          buttonText: 'Read All Blogs →',
+          buttonUrl: '/blogs',
+          source: 'all',
+          limit: 'all',
+          selectedIds: [],
+        },
+      },
+      {
+        kind: 'stories',
+        title: 'Success Stories Carousel',
+        description: 'Calls verified impact and transformation stories directly from the Success Stories database.',
+        defaultData: {
+          eyebrow: 'LIVES TRANSFORMED',
+          heading: 'Real Stories of Impact',
+          body: 'See how your donations and community support change lives across Pakistan.',
+          buttonText: 'See All Stories →',
+          buttonUrl: '/success-stories',
+          source: 'all',
+          limit: 'all',
+          selectedIds: [],
+        },
+      },
+      {
+        kind: 'podcast-grid',
+        title: 'Podcasts Grid',
+        description: 'Calls video podcast episodes directly from the Podcasts database with count & episode selection.',
+        defaultData: {
+          eyebrow: 'KHUDII PODCAST',
+          heading: 'Voices of Change',
+          body: 'In-depth conversations with social reformers, philanthropists, and NGO leaders.',
+          buttonText: 'Watch All Episodes →',
+          buttonUrl: '/podcast',
+          source: 'all',
+          limit: 'all',
+          selectedIds: [],
+        },
+      },
+      {
+        kind: 'faq',
+        title: 'FAQs Accordion',
+        description: 'Calls categorized questions and answers directly from the FAQs database with count & item selection.',
+        defaultData: {
+          eyebrow: 'HAVE QUESTIONS?',
+          heading: 'Frequently Asked Questions',
+          body: 'Everything you need to know about donations, volunteer opportunities, and NGO verification.',
+          buttonText: '',
+          buttonUrl: '',
+          source: 'all',
+          limit: 'all',
+          selectedIds: [],
+        },
+      },
+    ],
+  },
+  {
     category: 'Homepage',
     icon: '🏠',
     items: [
@@ -141,6 +222,312 @@ const getBadgeColor = (acronym) => {
   return colors[hash % colors.length];
 };
 
+const CONNECTED_CONFIG = {
+  organizations: {
+    title: 'Organizations Database Module',
+    icon: '🏢',
+    managerUrl: '/admin-app/dashboard/OrganizationPage',
+    managerName: 'Organizations Manager',
+    dataKey: 'organizations',
+    idKey: 'id',
+    titleKey: (item) => item.name || 'Untitled Organization',
+    subtitleKey: (item) => item.category || 'Welfare Organization',
+    imageKey: (item) => item.introductory_image_path || item.logo || '',
+  },
+  blogs: {
+    title: 'Blogs Database Module',
+    icon: '📰',
+    managerUrl: '/admin-app/dashboard/BlogPage',
+    managerName: 'Blogs Manager',
+    dataKey: 'blogs',
+    idKey: 'id',
+    titleKey: (item) => item.Name || item.name || 'Untitled Blog',
+    subtitleKey: (item) => item.category || (item.slug ? `/${item.slug}` : ''),
+    imageKey: (item) => item.image_path || item.image || item.Image || '',
+  },
+  stories: {
+    title: 'Success Stories Database Module',
+    icon: '🌟',
+    managerUrl: '/admin-app/dashboard/SuccessStories',
+    managerName: 'Success Stories Manager',
+    dataKey: 'stories',
+    idKey: 'id',
+    titleKey: (item) => item.name || item.title || 'Untitled Story',
+    subtitleKey: (item) => item.subtitle || (typeof item.description === 'string' ? item.description.replace(/<[^>]*>/g, '').slice(0, 80) : ''),
+    imageKey: (item) => item.image || '',
+  },
+  'podcast-grid': {
+    title: 'Podcasts Database Module',
+    icon: '🎙️',
+    managerUrl: '/admin-app/dashboard/Podcast',
+    managerName: 'Podcasts Manager',
+    dataKey: 'podcasts',
+    idKey: 'id',
+    titleKey: (item) => item.title || 'Untitled Podcast',
+    subtitleKey: (item) => item.guest_name ? `Guest: ${item.guest_name}` : (item.slug ? `/podcast/${item.slug}` : ''),
+    imageKey: (item) => item.youtube_id ? `https://img.youtube.com/vi/${item.youtube_id}/hqdefault.jpg` : (item.image || ''),
+  },
+  faq: {
+    title: 'FAQs Database Module',
+    icon: '❓',
+    managerUrl: '/admin-app/dashboard/faqs',
+    managerName: 'FAQs Manager',
+    dataKey: 'faqs',
+    idKey: 'id',
+    titleKey: (item) => item.question || item.title || 'Untitled Question',
+    subtitleKey: (item) => item.category || 'General FAQ',
+    imageKey: () => '',
+  },
+};
+
+function ConnectedModuleEditor({ section, connectedData, updateSectionData }) {
+  const [filter, setFilter] = useState('');
+  const cfg = CONNECTED_CONFIG[section.kind];
+  if (!cfg) return null;
+
+  const rawItems = connectedData[cfg.dataKey] || [];
+  const sourceMode = section.data?.source || 'all'; // 'all' | 'selected'
+  const limit = section.data?.limit ?? 'all';
+  const selectedIds = Array.isArray(section.data?.selectedIds) ? section.data.selectedIds : [];
+
+  const filteredItems = useMemo(() => {
+    if (!filter.trim()) return rawItems;
+    const q = filter.toLowerCase();
+    return rawItems.filter((it) => {
+      const t = cfg.titleKey(it).toLowerCase();
+      const s = cfg.subtitleKey(it).toLowerCase();
+      return t.includes(q) || s.includes(q);
+    });
+  }, [rawItems, filter, cfg]);
+
+  const handleToggleId = (id) => {
+    const idStr = String(id);
+    const existing = new Set(selectedIds.map(String));
+    let next;
+    if (existing.has(idStr)) {
+      next = selectedIds.filter((x) => String(x) !== idStr);
+    } else {
+      next = [...selectedIds, id];
+    }
+    updateSectionData(section.id, 'selectedIds', next);
+  };
+
+  const handleSelectAll = () => {
+    const all = rawItems.map((it) => it[cfg.idKey]);
+    updateSectionData(section.id, 'selectedIds', all);
+  };
+
+  const handleClearAll = () => {
+    updateSectionData(section.id, 'selectedIds', []);
+  };
+
+  return (
+    <div className="bg-white rounded-2xl p-4 border border-blue-200/80 shadow-2xs space-y-4">
+      {/* Top Banner with Direct Module Link */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 bg-blue-50/70 border border-blue-200 rounded-xl">
+        <div className="flex items-center gap-2.5">
+          <span className="text-xl">{cfg.icon}</span>
+          <div>
+            <div className="flex items-center gap-2">
+              <h4 className="text-xs font-black text-[#02236E] m-0">{cfg.title}</h4>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse" />
+                Live Database ({rawItems.length} items)
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-500 m-0 mt-0.5">
+              Items are managed centralized in the admin sidebar and rendered dynamically.
+            </p>
+          </div>
+        </div>
+
+        <a
+          href={cfg.managerUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-blue-300 bg-white text-xs font-bold text-[#02236E] hover:bg-blue-100 transition-colors shadow-2xs no-underline shrink-0"
+        >
+          <ExternalLink size={12} />
+          {cfg.managerName} ↗
+        </a>
+      </div>
+
+      {/* Grid: Display Count & Selection Source Mode */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Display Count / Limit */}
+        <div className="space-y-1.5">
+          <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+            DISPLAY COUNT (HOW MANY TO DISPLAY)
+          </label>
+          <div className="flex flex-wrap items-center gap-1.5">
+            {['all', '3', '4', '6', '8', '9', '12'].map((opt) => (
+              <button
+                key={opt}
+                type="button"
+                onClick={() => updateSectionData(section.id, 'limit', opt)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                  String(limit) === opt
+                    ? 'bg-[#02236E] text-white border-[#02236E] shadow-2xs'
+                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                }`}
+              >
+                {opt === 'all' ? 'All (No limit)' : opt}
+              </button>
+            ))}
+            <div className="flex items-center gap-1 pl-1">
+              <span className="text-[11px] text-slate-400 font-bold">Custom:</span>
+              <input
+                type="number"
+                min="1"
+                max="100"
+                value={limit !== 'all' ? limit : ''}
+                placeholder="e.g. 5"
+                onChange={(e) => updateSectionData(section.id, 'limit', e.target.value ? Number(e.target.value) : 'all')}
+                className="w-16 px-2 py-1 rounded-lg border border-slate-200 bg-slate-50 text-xs font-bold text-center outline-none focus:border-[#02236E]"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Source Mode: All vs Selected */}
+        <div className="space-y-1.5">
+          <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+            ITEM SELECTION MODE
+          </label>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => updateSectionData(section.id, 'source', 'all')}
+              className={`flex-1 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border text-center ${
+                sourceMode === 'all'
+                  ? 'bg-[#02236E] text-white border-[#02236E] shadow-2xs'
+                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+              }`}
+            >
+              ◉ All / Latest from DB
+            </button>
+            <button
+              type="button"
+              onClick={() => updateSectionData(section.id, 'source', 'selected')}
+              className={`flex-1 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border text-center ${
+                sourceMode === 'selected'
+                  ? 'bg-[#02236E] text-white border-[#02236E] shadow-2xs'
+                  : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+              }`}
+            >
+              ○ Hand-pick Items ({selectedIds.length})
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Hand-pick Checklist Panel */}
+      {sourceMode === 'selected' && (
+        <div className="pt-3 border-t border-slate-100 space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div className="text-xs font-bold text-slate-800 flex items-center gap-2">
+              <span>Select which items to display on this page:</span>
+              <span className="px-2 py-0.5 rounded-full bg-blue-100 text-[#02236E] text-[10px] font-black">
+                {selectedIds.length} of {rawItems.length} selected
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <button
+                type="button"
+                onClick={handleSelectAll}
+                className="text-[11px] font-bold text-[#02236E] hover:underline bg-transparent border-none cursor-pointer"
+              >
+                Select All
+              </button>
+              <span className="text-slate-300">|</span>
+              <button
+                type="button"
+                onClick={handleClearAll}
+                className="text-[11px] font-bold text-red-600 hover:underline bg-transparent border-none cursor-pointer"
+              >
+                Clear Selection
+              </button>
+            </div>
+          </div>
+
+          <div className="relative">
+            <Search size={14} className="absolute left-3 top-2.5 text-slate-400" />
+            <input
+              type="text"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              placeholder={`🔍 Search available items in ${cfg.managerName}...`}
+              className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-800 outline-none focus:border-[#02236E]"
+            />
+          </div>
+
+          <div className="max-h-64 overflow-y-auto border border-slate-200 rounded-2xl bg-white divide-y divide-slate-100">
+            {filteredItems.length === 0 ? (
+              <div className="p-6 text-center text-xs text-slate-400">
+                {rawItems.length === 0
+                  ? `No items found in database yet. Add them in ${cfg.managerName} first.`
+                  : 'No items match your search filter.'}
+              </div>
+            ) : (
+              filteredItems.map((it) => {
+                const id = it[cfg.idKey];
+                const isChecked = selectedIds.some((x) => String(x) === String(id));
+                const title = cfg.titleKey(it);
+                const subtitle = cfg.subtitleKey(it);
+                const img = cfg.imageKey(it);
+
+                return (
+                  <label
+                    key={id}
+                    className={`flex items-center gap-3 p-2.5 px-3 cursor-pointer hover:bg-slate-50 transition-colors ${
+                      isChecked ? 'bg-blue-50/50' : ''
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => handleToggleId(id)}
+                      className="rounded border-slate-300 text-[#02236E] focus:ring-[#02236E] h-4 w-4 cursor-pointer"
+                    />
+
+                    {img ? (
+                      <img
+                        src={img}
+                        alt=""
+                        className="w-10 h-10 rounded-lg object-cover bg-slate-100 border border-slate-200 shrink-0"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-base shrink-0">
+                        {cfg.icon}
+                      </div>
+                    )}
+
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs font-bold text-slate-900 truncate">{title}</div>
+                      {subtitle && (
+                        <div className="text-[11px] text-slate-400 truncate mt-0.5">{subtitle}</div>
+                      )}
+                    </div>
+
+                    {isChecked && (
+                      <span className="text-[10px] font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full shrink-0">
+                        ✓ Selected
+                      </span>
+                    )}
+                  </label>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PageEditorContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -191,6 +578,54 @@ function PageEditorContent() {
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [catalogSearch, setCatalogSearch] = useState('');
   const dropdownRef = useRef(null);
+  const dragIdxRef = useRef(null);
+
+  // Connected Database Data
+  const [connectedData, setConnectedData] = useState({
+    organizations: [],
+    blogs: [],
+    stories: [],
+    podcasts: [],
+    faqs: [],
+    loading: true,
+  });
+
+  // Fetch Connected Database Records
+  useEffect(() => {
+    let alive = true;
+    const fetchAllConnected = async () => {
+      try {
+        const [orgsRes, blogsRes, storiesRes, podcastsRes, faqsRes] = await Promise.allSettled([
+          fetch(`${API}/admin/organizations`, { credentials: 'include', headers: { 'x-khudii-surface': 'admin' } }).then(r => r.json()),
+          fetch(`${API}/admin/blogs`, { credentials: 'include', headers: { 'x-khudii-surface': 'admin' } }).then(r => r.json()),
+          fetch(`${API}/api/success-stories`, { credentials: 'include' }).then(r => r.json()),
+          fetch(`${API}/api/podcasts`, { credentials: 'include' }).then(r => r.json()),
+          fetch(`${API}/api/faqs`, { credentials: 'include' }).then(r => r.json()),
+        ]);
+
+        if (!alive) return;
+
+        const orgs = orgsRes.status === 'fulfilled' && orgsRes.value?.items ? orgsRes.value.items : [];
+        const blogs = blogsRes.status === 'fulfilled' && blogsRes.value?.items ? blogsRes.value.items : [];
+        const stories = storiesRes.status === 'fulfilled' ? (Array.isArray(storiesRes.value) ? storiesRes.value : storiesRes.value?.data || []) : [];
+        const podcasts = podcastsRes.status === 'fulfilled' && podcastsRes.value?.items ? podcastsRes.value.items : [];
+        const faqs = faqsRes.status === 'fulfilled' ? (Array.isArray(faqsRes.value?.data) ? faqsRes.value.data : Array.isArray(faqsRes.value) ? faqsRes.value : []) : [];
+
+        setConnectedData({
+          organizations: orgs,
+          blogs,
+          stories,
+          podcasts,
+          faqs,
+          loading: false,
+        });
+      } catch {
+        if (alive) setConnectedData((prev) => ({ ...prev, loading: false }));
+      }
+    };
+    fetchAllConnected();
+    return () => { alive = false; };
+  }, []);
 
   // SEO Settings
   const [seo, setSeo] = useState({
@@ -457,14 +892,17 @@ function PageEditorContent() {
       title: catItem.title,
       visible: true,
       data: {
-        heading: catItem.title,
-        subheading: '',
-        body: catItem.description,
-        image: '',
-        imageAlt: '',
-        buttonText: '',
-        buttonUrl: '',
-        items: [],
+        heading: catItem.defaultData?.heading || catItem.title,
+        subheading: catItem.defaultData?.subheading || '',
+        body: catItem.defaultData?.body || catItem.description,
+        image: catItem.defaultData?.image || '',
+        imageAlt: catItem.defaultData?.imageAlt || '',
+        buttonText: catItem.defaultData?.buttonText || '',
+        buttonUrl: catItem.defaultData?.buttonUrl || '',
+        items: catItem.defaultData?.items || [],
+        source: catItem.defaultData?.source || 'all',
+        limit: catItem.defaultData?.limit || 'all',
+        selectedIds: catItem.defaultData?.selectedIds || [],
       },
     };
     setSections((prev) => [...prev, newSec]);
@@ -720,7 +1158,7 @@ function PageEditorContent() {
     return (
       <div className="flex h-96 items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-[#02236E]" />
-        <span className="ml-3 text-sm font-bold text-slate-600">Loading page editor...</span>
+        <span className="ml-3 text-sm font-bold text-slate-600">Loading Page...</span>
       </div>
     );
   }
@@ -804,7 +1242,7 @@ function PageEditorContent() {
             type="button"
             onClick={() => handleSave(false)}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-[#02236E] hover:bg-blue-900 text-white text-xs font-black transition-all cursor-pointer shadow-md border-none disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-[#02236E] hover:bg-blue-900 text-white text-xs font-bold transition-all cursor-pointer shadow-md border-none disabled:opacity-50"
           >
             {saving ? <Loader2 size={13} className="animate-spin" /> : <Check size={13} />}
             <span>{saving ? 'Saving...' : '✓ Update'}</span>
@@ -912,7 +1350,7 @@ function PageEditorContent() {
                   ★
                 </div>
                 <div>
-                  <div className="text-xs font-black text-slate-900 leading-none">{heroData.badge1Top}</div>
+                  <div className="text-xs font-bold text-slate-900 leading-none">{heroData.badge1Top}</div>
                   <div className="text-[10px] text-slate-500 font-semibold mt-0.5">{heroData.badge1Sub}</div>
                 </div>
               </div>
@@ -923,7 +1361,7 @@ function PageEditorContent() {
                   ✓
                 </div>
                 <div>
-                  <div className="text-xs font-black text-slate-900 leading-none">{heroData.badge2Top}</div>
+                  <div className="text-xs font-bold text-slate-900 leading-none">{heroData.badge2Top}</div>
                   <div className="text-[10px] text-slate-500 font-semibold mt-0.5">{heroData.badge2Sub}</div>
                 </div>
               </div>
@@ -943,7 +1381,7 @@ function PageEditorContent() {
 
                 {/* Primary & Secondary Buttons */}
                 <div className="flex flex-wrap items-center gap-3 pt-2">
-                  <span className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-black text-xs px-5 py-2.5 rounded-full shadow-md transition-all cursor-pointer">
+                  <span className="bg-amber-400 hover:bg-amber-500 text-slate-950 font-bold text-xs px-5 py-2.5 rounded-full shadow-md transition-all cursor-pointer">
                     {heroData.primaryBtnLabel}
                   </span>
                   <span className="bg-white/20 text-white hover:bg-white/30 font-bold text-xs px-5 py-2.5 rounded-full backdrop-blur-xs transition-all cursor-pointer border border-white/40">
@@ -1232,9 +1670,9 @@ function PageEditorContent() {
       </div>
 
       {/* ── PAGE BUILDER WORKSPACE (DYNAMIC SECTIONS) ── */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div className="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-visible">
         {/* Dynamic Builder Tabs */}
-        <div className="flex border-b border-slate-100 bg-slate-50 px-6">
+        <div className="flex border-b border-slate-100 bg-slate-50 px-6 rounded-t-3xl">
           {[
             { key: 'sections', label: `🧱 Page Sections (${sections.length})` },
             { key: 'richtext', label: '📝 Rich Text' },
@@ -1262,10 +1700,10 @@ function PageEditorContent() {
         </div>
 
         {/* Tab Content Panel */}
-        <div className="p-6">
+        <div className="p-6 min-h-[460px]">
           {activeTab === 'sections' && (
             <div className="space-y-5">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between relative z-30">
                 <div>
                   <h3 className="text-base font-extrabold text-slate-900 m-0">Page Sections</h3>
                   <p className="text-xs text-slate-400 mt-0.5 m-0">Build page layout with reorderable sections</p>
@@ -1286,7 +1724,7 @@ function PageEditorContent() {
                   </button>
 
                   {catalogOpen && (
-                    <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 flex flex-col bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 overflow-hidden">
+                    <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 flex flex-col bg-white rounded-2xl border border-slate-200 shadow-2xl z-[9999] animate-in fade-in slide-in-from-top-2 overflow-hidden">
                       {/* Search */}
                       <div className="p-3 border-b border-slate-100 bg-slate-50">
                         <div className="relative">
@@ -1306,7 +1744,7 @@ function PageEditorContent() {
                       <div className="overflow-y-auto max-h-[380px] p-2 space-y-3">
                         {filteredCatalog.map((catGroup) => (
                           <div key={catGroup.category} className="space-y-1">
-                            <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                            <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                               <span>{catGroup.icon}</span>
                               <span>{catGroup.category}</span>
                             </div>
@@ -1346,6 +1784,15 @@ function PageEditorContent() {
                     return (
                       <div
                         key={sec.id}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={(e) => {
+                          e.preventDefault();
+                          const fromIdx = dragIdxRef.current;
+                          if (fromIdx !== null && fromIdx !== undefined && fromIdx !== index) {
+                            handleMoveSection(fromIdx, index);
+                          }
+                          dragIdxRef.current = null;
+                        }}
                         className={`rounded-2xl border bg-white shadow-xs transition-all overflow-hidden ${
                           isExpanded
                             ? 'border-[#02236E] ring-2 ring-[#02236E]/10'
@@ -1355,31 +1802,46 @@ function PageEditorContent() {
                         {/* Section Header Row */}
                         <div className="p-3.5 px-4 flex items-center justify-between gap-3">
                           <div className="flex items-center gap-3 min-w-0">
-                            {/* Reorder Buttons */}
-                            <div className="flex flex-col gap-0.5 shrink-0">
-                              <button
-                                type="button"
-                                disabled={index === 0}
-                                onClick={() => handleMoveSection(index, index - 1)}
-                                className="p-1 rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 cursor-pointer"
-                                title="Move Up"
+                            {/* Standard Reorder Handle & Order Position Badge */}
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <div
+                                draggable
+                                onDragStart={(e) => {
+                                  e.dataTransfer.setData('text/plain', String(index));
+                                  dragIdxRef.current = index;
+                                }}
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-grab active:cursor-grabbing transition-colors"
+                                title="Drag to reorder section"
                               >
-                                <ArrowUp size={12} />
-                              </button>
-                              <button
-                                type="button"
-                                disabled={index === sections.length - 1}
-                                onClick={() => handleMoveSection(index, index + 1)}
-                                className="p-1 rounded text-slate-400 hover:bg-slate-100 hover:text-slate-700 disabled:opacity-30 cursor-pointer"
-                                title="Move Down"
-                              >
-                                <ArrowDown size={12} />
-                              </button>
+                                <GripVertical size={16} />
+                              </div>
+
+                              <div className="relative" title="Section position (click to change order)">
+                                <select
+                                  value={index + 1}
+                                  onChange={(e) => {
+                                    const targetPos = parseInt(e.target.value, 10) - 1;
+                                    if (!isNaN(targetPos) && targetPos !== index) {
+                                      handleMoveSection(index, targetPos);
+                                    }
+                                  }}
+                                  className="appearance-none pl-2 pr-4 py-1 rounded-lg border border-slate-200 bg-slate-50 text-[11px] font-black text-slate-700 hover:border-slate-300 hover:bg-white cursor-pointer transition-colors focus:outline-none focus:ring-1 focus:ring-[#02236E]"
+                                >
+                                  {sections.map((_, pIdx) => (
+                                    <option key={pIdx + 1} value={pIdx + 1}>
+                                      #{pIdx + 1}
+                                    </option>
+                                  ))}
+                                </select>
+                                <span className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-[8px] text-slate-400">
+                                  ▼
+                                </span>
+                              </div>
                             </div>
 
                             {/* Acronym Badge */}
                             <div
-                              className={`w-9 h-9 rounded-xl border flex items-center justify-center text-xs font-black shrink-0 ${badgeClass}`}
+                              className={`w-9 h-9 rounded-xl border flex items-center justify-center text-xs font-bold shrink-0 ${badgeClass}`}
                             >
                               {acronym}
                             </div>
@@ -1436,6 +1898,15 @@ function PageEditorContent() {
                         {/* Inline Section Editor Panel (Expands when clicked) */}
                         {isExpanded && (
                           <div className="p-5 border-t border-slate-100 bg-slate-50/60 space-y-4 animate-in fade-in-50 duration-150">
+                            {/* Connected Database Module Picker (Organizations, Blogs, Success Stories, Podcasts, FAQs) */}
+                            {['organizations', 'blogs', 'stories', 'podcast-grid', 'faq'].includes(sec.kind) && (
+                              <ConnectedModuleEditor
+                                section={sec}
+                                connectedData={connectedData}
+                                updateSectionData={updateSectionData}
+                              />
+                            )}
+
                             <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-2xs space-y-4">
                               <span className="text-[11px] font-extrabold text-[#02236E] uppercase tracking-wider flex items-center gap-1.5">
                                 ✏️ SECTION HEADING & CONTENT
@@ -1540,7 +2011,7 @@ function PageEditorContent() {
                             </div>
 
                             {/* Repeatable Items (Cards, FAQ, Logos, Stats, Steps) */}
-                            {['cards', 'faq', 'gallery', 'logos', 'people', 'stats', 'steps', 'timeline', 'downloads'].includes(sec.kind) && (
+                            {['cards', 'gallery', 'logos', 'people', 'stats', 'steps', 'timeline', 'downloads'].includes(sec.kind) || (sec.kind === 'faq' && sec.data?.source === 'manual') ? (
                               <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-2xs space-y-3">
                                 <div className="flex items-center justify-between">
                                   <span className="text-[11px] font-extrabold text-[#02236E] uppercase tracking-wider">
@@ -1629,7 +2100,7 @@ function PageEditorContent() {
                                   ))}
                                 </div>
                               </div>
-                            )}
+                            ) : null}
                           </div>
                         )}
                       </div>
@@ -1677,7 +2148,7 @@ export default function PageBuilderWrapper() {
       fallback={
         <div className="flex h-96 items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-[#02236E]" />
-          <span className="ml-3 text-sm font-bold text-slate-600">Loading Page Editor...</span>
+          <span className="ml-3 text-sm font-bold text-slate-600">Loading Page...</span>
         </div>
       }
     >

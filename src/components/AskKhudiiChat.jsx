@@ -253,7 +253,7 @@ export default function AskKhudiiChat() {
             <circle cx="12" cy="12" r="8" strokeDasharray="3 3" />
           </svg>
           <div className="text-left leading-tight">
-            <div className="text-xs font-black text-white tracking-wide">
+            <div className="text-xs font-bold text-white tracking-wide">
               {config.title || 'Ask Khudii'}
             </div>
             <div className="text-[10px] text-sky-100 font-medium">

@@ -203,7 +203,7 @@ function OrganizationsSection() {
           <div className={styles.exp_org_btn}>
             <Link
               to="/organizations/"
-              className="inline-flex items-center font-semibold transition-colors group min-h-[44px] min-w-[44px] px-4 py-2"
+              className="inline-flex items-center font-medium group bg-[#02236E] px-3 py-1.5 rounded-xl text-white hover:text-[#02236E] hover:bg-blue-100"
               aria-label="Explore all organizations"
             >
               Explore Organizations

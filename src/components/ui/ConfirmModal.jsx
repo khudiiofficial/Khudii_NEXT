@@ -186,7 +186,7 @@ export default function ConfirmModal({ config, onClose }) {
             type="button"
             onClick={handleConfirm}
             disabled={isSubmitting}
-            className={`flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider ${theme.buttonBg} transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer border-none disabled:opacity-75 disabled:scale-100 disabled:cursor-wait flex items-center justify-center gap-2`}
+            className={`flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider ${theme.buttonBg} transition-all shadow-md hover:shadow-lg transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer border-none disabled:opacity-75 disabled:scale-100 disabled:cursor-wait flex items-center justify-center gap-2`}
           >
             {isSubmitting ? (
               <>

@@ -139,7 +139,7 @@ import { useNavigate } from '@/lib/router-compat';
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
 
 
-const Blog = ({ loader1 = false }) => {
+const Blog = ({ loader1 = false, limit, selectedIds, heading, description }) => {
   const [visiblePosts, setVisiblePosts] = useState([]);
   const [err, seterr] = useState(null)
   const [loader, setloader] = useState(false)
@@ -160,14 +160,21 @@ const Blog = ({ loader1 = false }) => {
       setloader(true)
       try {
         const res = await axios.get(`${APIPath}/getAllBlogs`, { withCredentials: true })
-        setVisiblePosts(res.data)
-
+        let list = Array.isArray(res.data) ? res.data : [];
+        if (Array.isArray(selectedIds) && selectedIds.length > 0) {
+          const idSet = new Set(selectedIds.map(String));
+          list = list.filter((p) => idSet.has(String(p.id)));
+        }
+        if (limit && limit !== 'all' && Number(limit) > 0) {
+          list = list.slice(0, Number(limit));
+        }
+        setVisiblePosts(list);
       } catch (error) {
         seterr(error.message)
       }
       setloader(false)
     })()
-  }, [])
+  }, [limit, selectedIds])
 
 
   if (loader || loader1) {
@@ -200,7 +207,12 @@ const Blog = ({ loader1 = false }) => {
       <div className="max-w-[1240px] w-full mx-auto">
 
         <div className="text-center">
-          {location.pathname !== '/blogs' && (
+          {heading ? (
+            <div className="p-4 md:p-8 lg:p-10">
+              <h2 className="text-2xl sm:text-3xl font-bold text-[#02236E] mb-2">{heading}</h2>
+              {description && <p className="text-sm text-slate-600 max-w-2xl mx-auto">{description}</p>}
+            </div>
+          ) : location.pathname !== '/blogs' && (
             <h2 className="text-2xl sm:text-3xl font-bold text-[#02236E] p-4 md:p-8 lg:p-10">Blogs</h2>
           )}
         </div>

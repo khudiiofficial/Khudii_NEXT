@@ -175,7 +175,7 @@ import { Link } from '@/lib/router-compat'
 const APIPath = (process.env.NEXT_PUBLIC_BACKEND_PATH || '');
 import axios from 'axios';
 
-const SuccessStories = () => {
+const SuccessStories = ({ limit, selectedIds, heading, description }) => {
   const [arr, setarr] = useState([])
   const [width, setWidth] = useState(null)
   const [item, setitems] = useState({})
@@ -194,16 +194,25 @@ const SuccessStories = () => {
     const func = async () => {
       try {
         const res = await axios.get(`${APIPath}/getsuccessstories`)
-        if (res.status === 200 && res.data.length > 6) {
-          res.data = res.data.slice(0, 6)
-          setarr(res.data)
+        if (res.status === 200 && Array.isArray(res.data)) {
+          let list = res.data;
+          if (Array.isArray(selectedIds) && selectedIds.length > 0) {
+            const idSet = new Set(selectedIds.map(String));
+            list = list.filter((s) => idSet.has(String(s.id)));
+          }
+          if (limit && limit !== 'all' && Number(limit) > 0) {
+            list = list.slice(0, Number(limit));
+          } else if (!limit && list.length > 6) {
+            list = list.slice(0, 6);
+          }
+          setarr(list);
         }
       } catch (error) {
         console.log(error)
       }
     }
     func()
-  }, [])
+  }, [limit, selectedIds])
 
   useEffect(() => {
     const call = async () => {
@@ -243,12 +252,12 @@ const SuccessStories = () => {
             <div className={`${styles.ssh_right} hidden md:block`}>
               <Link
                 to="/success-stories/"
-                className="inline-flex items-center font-medium transition-colors group"
+                className="inline-flex items-center font-medium group bg-[#02236E] px-3 py-1.5 rounded-xl text-white hover:text-[#02236E] hover:bg-blue-100"
                 aria-label="Explore more success stories"
               >
                 Explore More Stories&nbsp;
                 <svg
-                  className="w-4 h-4 ml-1 group-hover:translate-x-0.5 transition-transform"
+                  className="w-4 h-4 transition-transform"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"

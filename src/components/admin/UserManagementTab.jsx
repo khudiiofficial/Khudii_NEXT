@@ -620,7 +620,7 @@ export default function UserManagementTab() {
                       >
                         <span
                           aria-hidden="true"
-                          className={`inline-flex items-center justify-center w-4 h-4 rounded-md text-[10px] font-black transition-colors ${
+                          className={`inline-flex items-center justify-center w-4 h-4 rounded-md text-[10px] font-bold transition-colors ${
                             isAllowed ? 'bg-white/20 text-white' : 'border border-slate-300 text-slate-400'
                           }`}
                         >

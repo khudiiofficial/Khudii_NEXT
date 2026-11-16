@@ -315,15 +315,15 @@ export default function FAQManager() {
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs">
           <div className="text-xs font-bold uppercase tracking-wider text-slate-400">Total FAQs</div>
-          <div className="text-2xl font-black text-[#02236E] mt-1">{stats.total}</div>
+          <div className="text-2xl font-bold text-[#02236E] mt-1">{stats.total}</div>
         </div>
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 shadow-xs">
           <div className="text-xs font-bold uppercase tracking-wider text-emerald-700">Published / Active</div>
-          <div className="text-2xl font-black text-emerald-800 mt-1">{stats.published}</div>
+          <div className="text-2xl font-bold text-emerald-800 mt-1">{stats.published}</div>
         </div>
         <div className="rounded-2xl border border-amber-200 bg-amber-50/50 p-4 shadow-xs col-span-2 sm:col-span-1">
           <div className="text-xs font-bold uppercase tracking-wider text-amber-700">Drafts / Inactive</div>
-          <div className="text-2xl font-black text-amber-800 mt-1">{stats.draft}</div>
+          <div className="text-2xl font-bold text-amber-800 mt-1">{stats.draft}</div>
         </div>
       </div>
 

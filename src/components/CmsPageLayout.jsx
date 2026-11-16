@@ -9,8 +9,66 @@ import PodcastCollection from '@/components/podcast/PodcastCollection';
 const Crousel = dynamic(() => import('@/legacy/public/componets/crousel/Crousel'), { ssr: false });
 const DifferentOrganizations = dynamic(() => import('@/legacy/public/componets/DifferentOrganizations/DifferentOrganizations'), { ssr: false });
 const Blogs = dynamic(() => import('@/legacy/public/componets/Blogs/Blogs'), { ssr: false });
+const SuccessStories = dynamic(() => import('@/legacy/public/componets/SuccessStories/SuccessStories'), { ssr: false });
 
 const base = process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app';
+
+function CmsFaqSection({ heading, description, limit, selectedIds, manualItems }) {
+  const [faqs, setFaqs] = useState(manualItems && manualItems.length > 0 ? manualItems : []);
+  const [openIdx, setOpenIdx] = useState(null);
+
+  useEffect(() => {
+    if (manualItems && manualItems.length > 0 && (!selectedIds || selectedIds.length === 0)) return;
+    fetch(`${base}/api/faqs`, { cache: 'no-store' })
+      .then(r => r.json())
+      .then(res => {
+        let list = Array.isArray(res.data) ? res.data : (Array.isArray(res) ? res : []);
+        if (Array.isArray(selectedIds) && selectedIds.length > 0) {
+          const set = new Set(selectedIds.map(String));
+          list = list.filter(f => set.has(String(f.id)));
+        }
+        if (limit && limit !== 'all' && Number(limit) > 0) {
+          list = list.slice(0, Number(limit));
+        }
+        if (list.length > 0) setFaqs(list);
+      })
+      .catch(() => {});
+  }, [limit, selectedIds, manualItems]);
+
+  return (
+    <section className="w-full py-12 md:py-16 bg-slate-50">
+      <div className="max-w-4xl mx-auto px-5">
+        {heading && <h2 className="text-2xl sm:text-3xl font-bold text-[#02236E] text-center mb-3">{heading}</h2>}
+        {description && <p className="text-sm text-slate-600 text-center mb-8 max-w-2xl mx-auto">{description}</p>}
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 divide-y divide-slate-100 overflow-hidden">
+          {faqs.map((faq, idx) => {
+            const isOpen = openIdx === idx;
+            const q = faq.question || faq.title;
+            const a = faq.answer || faq.description;
+            return (
+              <div key={faq.id || idx} className="p-4 sm:p-5">
+                <button
+                  type="button"
+                  onClick={() => setOpenIdx(isOpen ? null : idx)}
+                  className="w-full flex items-center justify-between text-left gap-4 font-bold text-slate-900 hover:text-[#02236E] transition-colors"
+                >
+                  <span className="text-sm sm:text-base">{q}</span>
+                  <span className={`text-slate-400 transform transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>▼</span>
+                </button>
+                {isOpen && (
+                  <div className="mt-3 text-sm text-slate-600 leading-relaxed whitespace-pre-wrap animate-in fade-in-50 duration-150">
+                    {a}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function CmsVideo({ url, title, sectionId }) {
   const [playing, setPlaying] = useState(false);
   const id = youtubeVideoId(url);
@@ -20,10 +78,12 @@ function CmsVideo({ url, title, sectionId }) {
 function CmsAddedSection({ item }) {
   const d = item.data || {}, items = Array.isArray(d.items) ? d.items : [];
   if (item.kind === 'divider') return <div data-khudii-section={item.id} aria-hidden="true" className="mx-auto my-10 max-w-7xl border-t border-slate-200" />;
-  if (item.kind === 'podcast-grid') return <div data-khudii-section={item.id}><PodcastCollection heading={d.heading || 'Podcast episodes'} description={d.body || ''} /></div>;
+  if (item.kind === 'podcast-grid') return <div data-khudii-section={item.id}><PodcastCollection heading={d.heading || 'Podcast episodes'} description={d.body || ''} limit={d.limit} selectedIds={d.selectedIds} /></div>;
   if (item.kind === 'carousel') return <div data-khudii-section={item.id}><Crousel /></div>;
-  if (item.kind === 'organizations') return <div data-khudii-section={item.id}><DifferentOrganizations /></div>;
-  if (item.kind === 'blogs') return <div data-khudii-section={item.id}><Blogs /></div>;
+  if (item.kind === 'organizations') return <div data-khudii-section={item.id}><DifferentOrganizations heading={d.heading} description={d.body} limit={d.limit} selectedIds={d.selectedIds} /></div>;
+  if (item.kind === 'blogs') return <div data-khudii-section={item.id}><Blogs heading={d.heading} description={d.body} limit={d.limit} selectedIds={d.selectedIds} /></div>;
+  if (item.kind === 'stories') return <div data-khudii-section={item.id}><SuccessStories heading={d.heading} description={d.body} limit={d.limit} selectedIds={d.selectedIds} /></div>;
+  if (item.kind === 'faq') return <div data-khudii-section={item.id}><CmsFaqSection heading={d.heading || 'Frequently Asked Questions'} description={d.body || ''} limit={d.limit} selectedIds={d.selectedIds} manualItems={items} /></div>;
   const hero = item.kind === 'hero', cta = ['cta', 'form-link', 'notice'].includes(item.kind);
   const gridTypes = ['cards', 'gallery', 'logos', 'testimonials', 'people', 'stats', 'steps', 'timeline', 'social-links', 'downloads', 'video-grid', 'faq'];
   const background = hero ? 'bg-[#02236E] text-white' : cta ? 'bg-blue-50 text-[#02236E]' : 'bg-white text-[#02236E]';
