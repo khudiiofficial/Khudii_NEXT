@@ -326,7 +326,7 @@ const SuccessStories = ({
                 {/* Title badge below thumbnail if title exists */}
                 {ele.title && (
                   <div className="p-3 bg-white">
-                    <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 leading-snug group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-sm font-semibold text-gray-800 line-clamp-2 leading-snug group-hover:text-[#02236E] transition-colors">
                       {ele.title}
                     </h3>
                   </div>

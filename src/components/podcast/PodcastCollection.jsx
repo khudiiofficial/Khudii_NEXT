@@ -5,8 +5,8 @@ import PodcastEpisodeCards from './PodcastEpisodeCards';
 const API = process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app';
 
 export default function PodcastCollection({
-  heading = 'Khudii Podcast',
-  description = 'Conversations and stories from the people behind Khudii.',
+  heading = '',
+  description = '',
   limit,
   selectedIds,
   showTitle = true,
