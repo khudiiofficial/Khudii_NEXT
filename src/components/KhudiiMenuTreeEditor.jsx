@@ -10,7 +10,7 @@ import {
   AlertCircle,
   Plus,
 } from 'lucide-react';
-import { confirmDelete, showSuccess, showError, toastNotice } from '@/lib/dialogs';
+import { confirmDelete, showSuccess, showError, alertNotice } from '@/lib/dialogs';
 import { CrudActions } from '@/components/ui/CrudActions';
 import { AppButton, SaveButton, CancelButton, AddButton, ReloadButton } from '@/components/ui/AppButton';
 
@@ -309,14 +309,14 @@ export default function KhudiiMenuTreeEditor({ location = 'header' }) {
 
       await refresh();
       window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { dirty: false } }));
-      toastNotice({
+      alertNotice({
         title:
           operation === 'duplicate'
             ? `Duplicated "${row.label}"`
             : operation === 'delete'
               ? `Deleted "${row.label}"`
               : `Updated "${row.label}" visibility`,
-        status: 'success',
+        status: operation === 'delete' ? 'error' : 'success',
       });
     } catch (e) {
       setError(e.message);

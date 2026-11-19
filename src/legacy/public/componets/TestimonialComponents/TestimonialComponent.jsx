@@ -373,7 +373,7 @@ const ClientFeedbacks = () => {
           <div className="flex items-center justify-center h-90 ">
 
             {/* <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"> */}
-            <img src="/siteicon.png" alt="" width={200} height={200} />
+            <img src="/siteicon.png" alt="Loading Khudii testimonials" width={200} height={200} />
             {/* </div> */}
           </div>
         )}

@@ -1,8 +1,35 @@
 import db from './admin-backend/Database/oldDB.js';
-import { validateExportRange,completedRange,validReportDays } from '@/lib/reporting-periods';
+import { validateExportRange } from '@/lib/reporting-periods';
+import { adminRequestIp, recordAdminActivity } from './admin-observability.js';
 
 const sql = db.promise();
 let initialized;
+let cachedBackendCols = null;
+
+function deriveBackendCategory(pathStr, status, explicitCategory) {
+  if (explicitCategory && explicitCategory !== 'all') return String(explicitCategory).toLowerCase();
+  const p = String(pathStr || '').toLowerCase();
+  if (p.includes('test')) return 'diagnostic';
+  if (p.includes('ftp') || p.includes('image') || p.includes('media') || p.includes('upload')) return 'ftp';
+  if (p.includes('db') || p.includes('mysql') || p.includes('sql') || p.includes('table')) return 'database';
+  if (p.includes('network') || p.includes('timeout') || p.includes('connect')) return 'network';
+  if (p.includes('email') || p.includes('smtp') || p.includes('mail')) return 'email';
+  if (p.includes('auth') || p.includes('login') || p.includes('security') || status === 401 || status === 403) return 'security';
+  if (p.includes('deploy') || p.includes('build')) return 'deployment';
+  return 'application';
+}
+
+async function getBackendLogColumns() {
+  if (cachedBackendCols) return cachedBackendCols;
+  try {
+    const [cols] = await sql.query('SHOW COLUMNS FROM khudii_backend_logs');
+    cachedBackendCols = new Set(cols.map((c) => String(c.Field).toLowerCase()));
+  } catch {
+    cachedBackendCols = new Set(['id', 'created_at', 'level', 'method', 'path', 'status', 'source', 'message']);
+  }
+  return cachedBackendCols;
+}
+
 const safePath = value => {
   const path = String(value || '/').split('?')[0].split('#')[0];
   return path.startsWith('/') && !path.startsWith('//') ? path.slice(0, 500) : '/';
@@ -18,12 +45,15 @@ export function ensureDiagnosticTables() {
     sql.query(`CREATE TABLE IF NOT EXISTS khudii_backend_logs (
       id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
       created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      deleted_at TIMESTAMP NULL DEFAULT NULL,
       level VARCHAR(12) NOT NULL,
+      category VARCHAR(70) NULL DEFAULT 'application',
       method VARCHAR(8) NOT NULL,
       path VARCHAR(500) NOT NULL,
       status SMALLINT UNSIGNED NOT NULL,
-      source VARCHAR(24) NOT NULL,
-      message VARCHAR(300) NOT NULL DEFAULT '',
+      source VARCHAR(64) NOT NULL,
+      message VARCHAR(500) NOT NULL DEFAULT '',
       INDEX idx_backend_time (created_at),
       INDEX idx_backend_status (status, created_at),
       INDEX idx_backend_path (path(120), created_at)
@@ -42,38 +72,191 @@ export function ensureDiagnosticTables() {
   ]).catch(e => { initialized = null; throw e; });
   return initialized;
 }
-export async function recordBackendLog({ method = 'GET', path = '/', status = 500, source = 'api', message = '' }) {
+export async function recordBackendLog({ method = 'GET', path = '/', status = 500, source = 'api', message = '', category = null }) {
   try {
     await ensureDiagnosticTables();
     const code = Number(status);
     if (!Number.isInteger(code) || code < 400 || code > 599) return;
     const pathSafe = safePath(path);
-    const msg = String(message || '').slice(0, 300).replace(/[\r\n]/g, ' ');
+    const msg = String(message || '').slice(0, 500).replace(/[\r\n]/g, ' ');
     const level = code >= 500 ? 'error' : 'warning';
-    await sql.execute('INSERT INTO khudii_backend_logs (level,method,path,status,source,message) VALUES (?,?,?,?,?,?)',
-      [level, String(method).slice(0, 8), pathSafe, code, String(source).slice(0, 24), msg]);
+    const cat = deriveBackendCategory(pathSafe, code, category);
+    const cols = await getBackendLogColumns();
+    if (cols.has('category')) {
+      await sql.execute(
+        'INSERT INTO khudii_backend_logs (level,category,method,path,status,source,message) VALUES (?,?,?,?,?,?,?)',
+        [level, cat, String(method).slice(0, 8), pathSafe, code, String(source).slice(0, 64), msg],
+      );
+    } else {
+      await sql.execute(
+        'INSERT INTO khudii_backend_logs (level,method,path,status,source,message) VALUES (?,?,?,?,?,?)',
+        [level, String(method).slice(0, 8), pathSafe, code, String(source).slice(0, 24), msg],
+      );
+    }
   } catch(e) { console.error('[diagnostics persistence]', e.code || e.message); }
 }
-export async function getBackendLogs(req,res) {
+export async function writeBackendTestLog(req, res) {
+  try {
+    if (req.body?.action && req.body.action !== 'test') {
+      return res.status(422).json({ success: false, message: 'Invalid diagnostic action' });
+    }
+    await ensureDiagnosticTables();
+    const cols = await getBackendLogColumns();
+    if (cols.has('category')) {
+      await sql.execute(
+        'INSERT INTO khudii_backend_logs (level, category, method, path, status, source, message) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        ['info', 'diagnostic', 'POST', '/admin/backend-logs/test', 200, 'admin-panel', 'Test logger succeeded from Admin Console'],
+      );
+    } else {
+      await sql.execute(
+        'INSERT INTO khudii_backend_logs (level, method, path, status, source, message) VALUES (?, ?, ?, ?, ?, ?)',
+        ['info', 'POST', '/admin/backend-logs/test', 200, 'admin-panel', 'Test logger succeeded from Admin Console'],
+      );
+    }
+    await recordAdminActivity({
+      module: 'diagnostic',
+      action: 'test',
+      target: 'backend logs',
+      message: 'Ran backend logger diagnostic test',
+      userId: req.user?.id,
+      actorName: req.user?.name,
+      actorEmail: req.user?.email,
+      role: req.user?.role || 'admin',
+      ipAddress: adminRequestIp(req.headers),
+      requestPath: '/admin/backend-logs/test',
+    });
+    res.set('Cache-Control', 'no-store');
+    return res.json({ success: true, message: 'Test log entry successfully written and audited.' });
+  } catch (err) {
+    console.error('[writeBackendTestLog error]:', err);
+    return res.status(500).json({ success: false, message: 'Failed to write test log: ' + err.message });
+  }
+}
+
+export async function getBackendLogs(req, res) {
   try {
     await ensureDiagnosticTables();
-    const days=validReportDays(req.query.days);
-    const {from,to}=completedRange(days);
-    const status = Number(req.query.status) || 0;
-    const limit = Math.min(Math.max(Number(req.query.limit) || 100,1),500);
-    const filters = ["DATE(CONVERT_TZ(created_at,'+00:00','+05:00')) BETWEEN ? AND ?"];
-    const params = [from,to];
-    if (status>=400 && status<=599) { filters.push('status = ?'); params.push(status); }
-    const term = String(req.query.q || '').trim().slice(0,100);
-    if (term) { filters.push('path LIKE ?'); params.push('%'+term.replace(/[%_]/g, '')+'%'); }
+    const cols = await getBackendLogColumns();
+    const hasDeleted = cols.has('deleted_at');
+    const hasCategory = cols.has('category');
+
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const pageSize = Math.min(100, Math.max(10, Number(req.query.pageSize) || 25));
+    const offset = (page - 1) * pageSize;
+
+    const level = String(req.query.level || '').trim().toLowerCase();
+    const category = String(req.query.category || '').trim().toLowerCase();
+    const sourceFilter = String(req.query.source || '').trim();
+    const search = String(req.query.search || req.query.q || '').trim();
+
+    const filters = hasDeleted ? ['deleted_at IS NULL'] : ['1=1'];
+    const params = [];
+
+    if (level && level !== 'all') {
+      filters.push('LOWER(level) = ?');
+      params.push(level);
+    }
+    if (sourceFilter && sourceFilter !== 'all') {
+      filters.push('source = ?');
+      params.push(sourceFilter);
+    }
+    if (search) {
+      filters.push('(path LIKE ? OR message LIKE ? OR source LIKE ?)');
+      const s = `%${search}%`;
+      params.push(s, s, s);
+    }
+    if (category && category !== 'all') {
+      const sqlDerivedCat = `COALESCE(${hasCategory ? 'NULLIF(LOWER(category), \'\')' : 'NULL'}, CASE
+        WHEN LOWER(path) LIKE '%test%' THEN 'diagnostic'
+        WHEN LOWER(path) LIKE '%ftp%' OR LOWER(path) LIKE '%image%' OR LOWER(path) LIKE '%media%' OR LOWER(path) LIKE '%upload%' THEN 'ftp'
+        WHEN LOWER(path) LIKE '%db%' OR LOWER(path) LIKE '%mysql%' OR LOWER(path) LIKE '%sql%' THEN 'database'
+        WHEN LOWER(path) LIKE '%network%' OR LOWER(path) LIKE '%timeout%' THEN 'network'
+        WHEN LOWER(path) LIKE '%email%' OR LOWER(path) LIKE '%smtp%' OR LOWER(path) LIKE '%mail%' THEN 'email'
+        WHEN LOWER(path) LIKE '%auth%' OR LOWER(path) LIKE '%login%' OR status IN (401,403) THEN 'security'
+        WHEN LOWER(path) LIKE '%deploy%' OR LOWER(path) LIKE '%build%' THEN 'deployment'
+        ELSE 'application'
+      END)`;
+      filters.push(`${sqlDerivedCat} = ?`);
+      params.push(category);
+    }
+
     const where = filters.join(' AND ');
-    const [[summary]] = await sql.query(`SELECT COUNT(*) AS total, SUM(status>=500) AS errors, SUM(status=404) AS not_found FROM khudii_backend_logs WHERE ${where}`, params);
-    const [events] = await sql.query(`SELECT id,created_at,level,method,path,status,source,message FROM khudii_backend_logs WHERE ${where} ORDER BY created_at DESC,id DESC LIMIT ?`, [...params,limit]);
-    const [timeline] = await sql.query(`SELECT DATE(created_at) AS day,IF(status>=500,'Errors','4xx') AS category,COUNT(*) AS count FROM khudii_backend_logs WHERE ${where} GROUP BY day,category ORDER BY day`,params);
-    res.set('Cache-Control','no-store');return res.json({summary,events,timeline,days});
-  } catch(e) { console.error('[backend logs]',e); return res.status(503).json({message:'Diagnostics storage is not available'}); }
+
+    const [[{ totalCount }]] = await sql.query(`SELECT COUNT(*) as totalCount FROM khudii_backend_logs WHERE ${where}`, params);
+    const [rawRows] = await sql.query(
+      `SELECT * FROM khudii_backend_logs WHERE ${where} ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?`,
+      [...params, pageSize, offset],
+    );
+
+    const formattedRows = rawRows.map((row) => {
+      const derivedCat = deriveBackendCategory(row.path, row.status, row.category);
+      let explanation = '';
+      let suggestedAction = '';
+      if (row.status === 404) {
+        explanation = `The requested route or API endpoint '${row.path}' was not found on the server.`;
+        suggestedAction = 'Add a redirect rule in Redirects & 404 or verify the target route.';
+      } else if (row.status === 401 || row.status === 403) {
+        explanation = 'Authentication failure or insufficient role permission while accessing a protected endpoint.';
+        suggestedAction = 'Confirm user role permissions in Users & Access or sign in again.';
+      } else if (row.status >= 500) {
+        explanation = `Server error ${row.status} occurred during request processing.`;
+        suggestedAction = 'Inspect database connectivity, external FTP/SMTP configuration, and server logs.';
+      } else if (row.message && row.message.includes('Test log')) {
+        explanation = 'Manual diagnostic check executed by administrator.';
+        suggestedAction = 'No action required. Diagnostics storage is operational.';
+      }
+
+      return {
+        id: String(row.id),
+        timestamp: row.created_at ? new Date(row.created_at).toISOString() : new Date().toISOString(),
+        level: row.level || (row.status >= 500 ? 'error' : row.status >= 400 ? 'warning' : 'info'),
+        category: derivedCat,
+        environment: process.env.NODE_ENV || 'production',
+        source: row.source || 'admin-api',
+        method: row.method || 'GET',
+        httpStatus: row.status ? Number(row.status) : null,
+        targetFile: row.path,
+        code: row.status ? `HTTP_${row.status}` : 'APPLICATION_LOG',
+        message: row.message || `HTTP ${row.status} response for ${row.path}`,
+        explanation,
+        suggestedAction,
+        details: `Timestamp (UTC): ${row.created_at ? new Date(row.created_at).toISOString() : 'N/A'}\nMethod: ${row.method}\nPath: ${row.path}\nHTTP Status: ${row.status}\nCategory: ${derivedCat}\nSource: ${row.source}\nMessage: ${row.message}`,
+      };
+    });
+
+    const delSql = hasDeleted ? 'WHERE deleted_at IS NULL' : '';
+    const [[summary]] = await sql.query(
+      `SELECT COUNT(*) AS total, SUM(status >= 500) AS errors, SUM(status = 404) AS not_found, SUM(status >= 400 AND status < 500) AS warnings FROM khudii_backend_logs ${delSql}`,
+    );
+    const [sourceRows] = await sql.query(
+      `SELECT DISTINCT source FROM khudii_backend_logs ${delSql} ORDER BY source ASC LIMIT 30`,
+    );
+
+    res.set('Cache-Control', 'no-store');
+    return res.json({
+      success: true,
+      rows: formattedRows,
+      events: rawRows,
+      total: Number(totalCount),
+      page,
+      pageSize,
+      sources: sourceRows.map((r) => r.source).filter(Boolean),
+      source: 'MySQL Diagnostics',
+      environment: process.env.NODE_ENV || 'production',
+      summary: {
+        total: Number(summary?.total || 0),
+        errors: Number(summary?.errors || 0),
+        not_found: Number(summary?.not_found || 0),
+        warnings: Number(summary?.warnings || 0),
+      },
+    });
+  } catch (e) {
+    if (e?.code === 'ER_BAD_FIELD_ERROR') cachedBackendCols = null;
+    console.error('[backend logs]', e);
+    return res.status(503).json({ success: false, message: 'Diagnostics storage is not available' });
+  }
 }
-function csvCell(value) {let s=String(value??'').replace(/[\r\n]/g,' ');if(/^[=+@-]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}
+function csvCell(value) {let s=String(value??'').replace(/[\r\n]/g,' ');if(/^[=+@\-\t\r]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"';}
 export async function exportBackendLogs(req,res) {
   const from=String(req.query.from||''),to=String(req.query.to||'');
   const validation=validateExportRange(from,to);if(validation)return res.status(422).json({message:validation});

@@ -144,8 +144,8 @@ const AdminContacts = () => {
                       </td>
                       <td>
                         <div className="contact-info">
-                          <div><a href={`mailto:${message.email} target="_blank"`}>{message.email}</a></div>
-                          <div><a href={`tel:${message.phone} target="_blank"`}>+{message.countryCode} {message.phone}</a></div>
+                          <div><a href={`mailto:${message.email}`} target="_blank" rel="noopener noreferrer">{message.email}</a></div>
+                          <div><a href={`tel:${message.phone}`} target="_blank" rel="noopener noreferrer">+{message.countryCode} {message.phone}</a></div>
                         </div>
                       </td>
                       <td>

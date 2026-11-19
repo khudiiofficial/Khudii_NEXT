@@ -129,11 +129,11 @@ const Footer = () => {
             <div className="footer-section">
               <h4 className="footer-heading">Links</h4>
               <ul className="footer-links">
-                <li><Link to="/blogs/"><span className="link-icon"><i className="far fa-dot-circle"></i></span>Blogs</Link></li>
-                <li><Link to="/faqs/"><span className="link-icon"><i className="far fa-dot-circle"></i></span>FAQs</Link></li>
-                <li><Link to="/organizations/"><span className="link-icon"><i className="far fa-dot-circle"></i></span>Organizations</Link></li>
-                <li><Link to="/testimonials/"><span className="link-icon"><i className="far fa-dot-circle"></i></span>Testimonials</Link></li>
-                <li><Link to="/contact/"><span className="link-icon"><i className="far fa-dot-circle"></i></span>Contact Us</Link></li>
+                <li><Link to="/blogs"><span className="link-icon"><i className="far fa-dot-circle"></i></span>Blogs</Link></li>
+                <li><Link to="/faqs"><span className="link-icon"><i className="far fa-dot-circle"></i></span>FAQs</Link></li>
+                <li><Link to="/organizations"><span className="link-icon"><i className="far fa-dot-circle"></i></span>Organizations</Link></li>
+                <li><Link to="/testimonials"><span className="link-icon"><i className="far fa-dot-circle"></i></span>Testimonials</Link></li>
+                <li><Link to="/contact"><span className="link-icon"><i className="far fa-dot-circle"></i></span>Contact Us</Link></li>
               </ul>
             </div>
 

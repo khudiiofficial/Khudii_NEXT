@@ -26,7 +26,7 @@ function routeRedirect(request, pathname, permanent = false) {
   const url = request.nextUrl.clone();
   url.pathname = pathname;
   url.search = '';
-  return NextResponse.redirect(url, permanent ? 308 : 307);
+  return NextResponse.redirect(url, permanent ? 301 : 307);
 }
 function rewriteWithSurface(request, pathname, surface) {
   const url = request.nextUrl.clone();
@@ -46,17 +46,38 @@ export function proxy(request) {
     return routeRedirect(request, '/blogs', true);
   }
 
+  // Trailing slash normalization: 301 Permanent Redirect to slashless canonical URL
+  if (pathname.length > 1 && pathname.endsWith('/') && !isAsset(pathname) && !pathname.startsWith('/api')) {
+    return routeRedirect(request, pathname.replace(/\/+$/, ''), true);
+  }
+
+  // Permanent 301 redirect for uppercase URLs to lowercase equivalents (Fixes RustySEO uppercase warnings)
+  if (pathname.startsWith('/Blog/')) {
+    return routeRedirect(request, `/blog/${pathname.slice(6)}`, true);
+  }
+  if (pathname.startsWith('/Categories/')) {
+    return routeRedirect(request, `/categories/${pathname.slice(12)}`, true);
+  }
+
+  // Internal rewrite from lowercase /blog/* and /categories/* to Next.js route directory
+  if (pathname.startsWith('/blog/')) {
+    return rewriteWithSurface(request, `/Blog/${pathname.slice(6)}`, 'public');
+  }
+  if (pathname.startsWith('/categories/')) {
+    return rewriteWithSurface(request, `/Categories/${pathname.slice(12)}`, 'public');
+  }
+
   // One canonical admin login page on either public or dedicated admin hostname.
   // Old login slugs have no forms and redirect to the canonical address.
   if (LEGACY_LOGIN_PATHS.has(lower)) return routeRedirect(request, LOGIN, true);
   // Let the server-validated session guard decide if a token is valid.
   // A stale HttpOnly token must NOT bounce between login and dashboard.
-  if (lower === LOGIN) return NextResponse.next();
+  if (lower === LOGIN || lower.startsWith(`${LOGIN}/`)) return NextResponse.next();
   if (lower.startsWith('/admin-app')) {
     if (!token) return routeRedirect(request, LOGIN);
     return NextResponse.next();
   }
-  if (isAsset(pathname) || pathname.startsWith('/api-app') || pathname.startsWith('/media-app')) {
+  if (isAsset(pathname) || pathname === '/api/global-css' || pathname.startsWith('/api-app') || pathname.startsWith('/media-app')) {
     return NextResponse.next();
   }
 

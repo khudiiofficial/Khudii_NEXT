@@ -254,20 +254,25 @@ const SuccessStoryDetail = ({ url }) => {
               <div className="relative pb-[56.25%] h-0 bg-black">
                 <iframe
                   className="absolute top-0 left-0 w-full h-full"
-                  src={`https://www.youtube.com/embed/${videoData.youtube_id}?rel=0&modestbranding=1&autoplay=1`}
-                  title={videoData.title}
+                  src={videoData?.youtube_id ? `https://www.youtube-nocookie.com/embed/${videoData.youtube_id}?rel=0&modestbranding=1` : 'about:blank'}
+                  title={videoData?.title || 'Khudii Success Story'}
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                   loading="lazy"
+                  sandbox="allow-scripts allow-same-origin allow-presentation"
+                  referrerPolicy="strict-origin-when-cross-origin"
                 />
               </div>
 
               {/* Video Info */}
               <div className="p-6 bg-gray-100">
-                <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-3">
-                  {videoData.title}
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
+                  {videoData.title || 'Khudii Success Story'}
+                </h1>
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-[#02236E] mb-3">
+                  Success Story Impact Overview
                 </h2>
-                <p className="text-gray-700 leading-relaxed">
+                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
                   {videoData.description}
                 </p>
               </div>

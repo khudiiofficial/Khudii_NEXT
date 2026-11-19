@@ -60,16 +60,27 @@ function getStatusTheme(status = 'info') {
 export async function confirmDialog({
   title = 'Are you sure?',
   text = 'Please confirm this action.',
+  html,
   status = 'warning',
   confirmText,
   cancelText = 'Cancel',
   reverseButtons = true,
+  input,
+  inputLabel,
+  inputPlaceholder,
+  inputValue,
+  inputAttributes,
+  inputValidator,
+  preConfirm,
+  showDenyButton,
+  denyButtonText,
+  focusCancel,
 } = {}) {
   const theme = getStatusTheme(status);
 
-  const res = await Swal.fire({
+  const swalOptions = {
     title,
-    text,
+    ...(html ? { html } : { text }),
     icon: theme.icon,
     iconColor: theme.color,
     showCancelButton: true,
@@ -87,7 +98,22 @@ export async function confirmDialog({
     },
     background: '#ffffff',
     backdrop: 'rgba(15, 23, 42, 0.65)',
-  });
+  };
+
+  if (input !== undefined) swalOptions.input = input;
+  if (inputLabel !== undefined) swalOptions.inputLabel = inputLabel;
+  if (inputPlaceholder !== undefined) swalOptions.inputPlaceholder = inputPlaceholder;
+  if (inputValue !== undefined) swalOptions.inputValue = inputValue;
+  if (inputAttributes !== undefined) swalOptions.inputAttributes = inputAttributes;
+  if (typeof inputValidator === 'function') swalOptions.inputValidator = inputValidator;
+  if (typeof preConfirm === 'function') swalOptions.preConfirm = preConfirm;
+  if (showDenyButton) {
+    swalOptions.showDenyButton = true;
+    if (denyButtonText) swalOptions.denyButtonText = denyButtonText;
+  }
+  if (focusCancel !== undefined) swalOptions.focusCancel = focusCancel;
+
+  const res = await Swal.fire(swalOptions);
 
   return Boolean(res.isConfirmed);
 }
@@ -99,17 +125,20 @@ export async function confirmDialog({
 export async function alertNotice({
   title,
   text,
+  html,
   status = 'success',
   confirmText,
   timer,
+  showConfirmButton = true,
 } = {}) {
   const theme = getStatusTheme(status);
 
   return Swal.fire({
     title: title || theme.defaultTitle,
-    text,
+    ...(html ? { html } : { text }),
     icon: theme.icon,
     iconColor: theme.color,
+    showConfirmButton,
     confirmButtonText: confirmText || (theme.icon === 'success' ? 'OK' : 'Close'),
     timer,
     timerProgressBar: Boolean(timer),
@@ -186,16 +215,40 @@ export function confirmSave(title = 'Save changes?', details = 'Your updates wil
   });
 }
 
-export function showSuccess(title = 'Success!', text = '') {
-  return alertNotice({ title, text, status: 'success' });
+export function showSuccess(title = 'Success!', text = '', options = {}) {
+  return alertNotice({ title, text, status: 'success', ...options });
 }
 
-export function showError(title = 'Error', text = 'Something went wrong.') {
-  return alertNotice({ title, text, status: 'error' });
+export function showError(title = 'Error', text = 'Something went wrong.', options = {}) {
+  return alertNotice({ title, text, status: 'error', ...options });
 }
 
-export function showWarning(title = 'Warning', text = '') {
-  return alertNotice({ title, text, status: 'warning' });
+export function showWarning(title = 'Warning', text = '', options = {}) {
+  return alertNotice({ title, text, status: 'warning', ...options });
+}
+
+export function showInfo(title = 'Notice', text = '', options = {}) {
+  return alertNotice({ title, text, status: 'info', ...options });
+}
+
+export function confirmPublish(title = 'Publish changes?', details = 'This item will become visible to public visitors.') {
+  return confirmDialog({
+    title,
+    text: details,
+    status: 'success',
+    confirmText: 'Publish',
+    cancelText: 'Cancel',
+  });
+}
+
+export function confirmInfo(title = 'Confirm action?', details = 'Proceed with this action?', confirmText = 'Continue') {
+  return confirmDialog({
+    title,
+    text: details,
+    status: 'info',
+    confirmText,
+    cancelText: 'Cancel',
+  });
 }
 
 export const showValidationMessage = (msg) => Swal.showValidationMessage(msg);

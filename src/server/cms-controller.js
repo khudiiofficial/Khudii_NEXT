@@ -1,6 +1,9 @@
 import db from './admin-backend/Database/oldDB.js';
 import { validateFormSettings } from './form-settings-validation.js';
 import { CMS_PAGES, defaultSections, allowedPage, CMS_SECTION_TYPES } from '@/lib/cms-registry';
+import { revalidatePath } from 'next/cache';
+import { adminRequestIp, recordAdminActivity } from './admin-observability.js';
+import { queryAskKhudii, buildDeepKnowledgePrompts, invalidateAskKhudiiCache } from './ask-khudii-engine.js';
 import ftp from 'basic-ftp';
 import { Readable } from 'node:stream';
 import fs from 'node:fs/promises';
@@ -125,7 +128,7 @@ export async function cmsGetSettings(req,res){
     const aiChatDefaults = {
       enabled: true,
       title: 'Ask Khudii',
-      subtitle: '24/7 Welfare Assistant',
+      subtitle: '24/7 Support',
       headerTitle: 'Ask Khudii (AI)',
       headerSubtitle: 'Explore NGOs, Blogs, Podcasts & FAQs',
       inputPlaceholder: 'Ask anything about NGOs, blogs, podcasts, volunteering...',
@@ -134,17 +137,17 @@ export async function cmsGetSettings(req,res){
       systemPrompt: "Khudii is Pakistan's premier digital welfare platform uniting donors, volunteers, and certified NGOs across healthcare, education, orphan care, special needs, and emergency relief.",
       quickPrompts: [
         { id: '1', question: 'What is Khudii?', answer: "Khudii is Pakistan's premier digital welfare platform connecting certified welfare organizations, philanthropists, and active volunteers. We ensure 100% transparency with zero commission cuts.", category: 'General', keywords: 'what, khudii, about, platform, mission, vision, pakistan' },
-        { id: '2', question: 'Which organizations are listed on Khudii?', answer: "Khudii features verified welfare organizations across Pakistan in healthcare, education, orphan care, clean water, disaster relief, and youth empowerment. Every organization is certified with audited financials.", category: 'Organizations', keywords: 'organizations, ngos, list, verified, charity, foundations, directory, partners' },
-        { id: '3', question: 'How can an NGO register on Khudii?', answer: "Welfare organizations can apply for listing by visiting the 'Register Organization' page or submitting their registration certificate, tax exemption certificates, and governance records for verification.", category: 'Organizations', keywords: 'register organization, ngo signup, join khudii, onboarding, apply organization' },
-        { id: '4', question: 'How are organizations verified?', answer: "Every organization undergoes a rigorous 3-tier verification process: (1) Official legal registration verification with government bodies, (2) Field audit & operational impact checks, and (3) Financial governance and transparency checks.", category: 'Organizations', keywords: 'verification, verified, authentic, check, trust, legal, safe' },
+        { id: '2', question: 'Which organizations are listed on Khudii?', answer: "Khudii features verified welfare organizations across Pakistan working in:\n• Healthcare\n• Education & Literacy\n• Orphan Care\n• Clean Water\n• Disaster Relief\n• Youth Empowerment\n\nEvery organization is certified with audited financials.", category: 'Organizations', keywords: 'organizations, ngos, list, verified, charity, foundations, directory, partners' },
+        { id: '3', question: 'How can an NGO register on Khudii?', answer: "Welfare organizations can apply for listing by visiting the 'Register Organization' page and submitting:\n• Official Registration Certificate\n• Tax Exemption Certificates\n• Governance & Audit Records\n\nOur compliance team verifies all credentials within 3 to 5 business days.", category: 'Organizations', keywords: 'register organization, ngo signup, join khudii, onboarding, apply organization' },
+        { id: '4', question: 'How are organizations verified?', answer: "Every organization undergoes a rigorous 3-tier verification process:\n• Official legal registration check with government authorities\n• Field audit & operational impact checks\n• Financial governance and audited financial statements", category: 'Organizations', keywords: 'verification, verified, authentic, check, trust, legal, safe' },
         { id: '5', question: 'What is the Khudii Podcast series?', answer: "The Khudii Podcast features in-depth conversations with humanitarian leaders, grassroots changemakers, and social pioneers discussing high-impact community solutions across Pakistan.", category: 'Podcasts', keywords: 'podcast, podcasts, episodes, youtube, watch, series, video, interview' },
         { id: '6', question: 'Where can I watch or listen to the Podcast?', answer: "You can watch full video episodes on our dedicated '/podcast' page or visit our official YouTube channel @khudiiofficial with complete timestamps and episode highlights.", category: 'Podcasts', keywords: 'watch podcast, where podcast, listen, youtube channel, episode link' },
-        { id: '7', question: 'What topics do Khudii Blogs cover?', answer: "Our blogs cover thought leadership on philanthropic impact, volunteer experiences, social sector insights, healthcare and education drives, and actionable guides for meaningful giving in Pakistan.", category: 'Blogs', keywords: 'blogs, articles, topics, read, stories, insights, social sector' },
+        { id: '7', question: 'What topics do Khudii Blogs cover?', answer: "Our blogs feature in-depth thought leadership covering:\n• Philanthropic impact and transparency\n• Volunteer stories and grassroots experiences\n• Social sector insights and governance\n• Healthcare, clean water, and education drives\n• Actionable guides for meaningful giving in Pakistan", category: 'Blogs', keywords: 'blogs, articles, topics, read, stories, insights, social sector' },
         { id: '8', question: 'How can I publish or submit a blog?', answer: "Welfare researchers, volunteers, and writers can submit guest articles and community field stories by contacting our editorial team at info@khudii.com.", category: 'Blogs', keywords: 'submit blog, write, contributor, author, publish article' },
         { id: '9', question: 'Does Khudii charge commission on donations?', answer: "No! Khudii operates as a 100% free community platform. We do NOT take any cut or commission from donations. All donor contributions go directly to the verified organization's official bank account.", category: 'FAQs', keywords: 'commission, fees, charge, deduction, free, percentage, cut' },
-        { id: '10', question: 'How do I donate directly to welfare causes?', answer: "Browse our verified Organizations directory, select a cause close to your heart, and use the direct bank transfer, IBAN, or online payment details provided on the organization's verified profile.", category: 'FAQs', keywords: 'donate, payment, money, contribution, bank, sadqah, zakat, iban' },
-        { id: '11', question: 'How do I become a volunteer?', answer: "Head over to our 'Volunteer Registration' section, choose your areas of interest (medical, teaching, field aid, digital/media), and partner organizations in your city will connect with you.", category: 'FAQs', keywords: 'volunteer, join, help, participate, signup, work, skills' },
-        { id: '12', question: 'How can I contact Khudii support?', answer: "You can reach us anytime via our Contact page, email us directly at info@khudii.com, or message our official WhatsApp helpline for prompt assistance.", category: 'FAQs', keywords: 'contact, phone, email, whatsapp, support, help, address' }
+        { id: '10', question: 'How do I donate directly to welfare causes?', answer: "To donate directly to welfare causes:\n• Browse our verified Organizations directory\n• Select a cause close to your heart\n• Use direct bank transfer, IBAN, or online payment details provided on the verified profile", category: 'FAQs', keywords: 'donate, payment, money, contribution, bank, sadqah, zakat, iban' },
+        { id: '11', question: 'How do I become a volunteer?', answer: "To become an active volunteer on Khudii:\n• Head to our 'Volunteer Registration' section\n• Choose your areas of interest (medical, teaching, field aid, digital/media)\n• Partner organizations in your city will connect with you directly", category: 'FAQs', keywords: 'volunteer, join, help, participate, signup, work, skills' },
+        { id: '12', question: 'How can I contact Khudii support?', answer: "You can reach the Khudii team anytime via:\n• Official Contact page form\n• Direct email: info@khudii.com\n• Official WhatsApp helpline for prompt assistance", category: 'FAQs', keywords: 'contact, phone, email, whatsapp, support, help, address' }
       ],
       quickChips: [
         'What is Khudii?',
@@ -206,10 +209,14 @@ export async function cmsSaveHeaderSettings(req,res){
   }catch(e){return err(res,e);}
 }
 export async function cmsGetPublicSettings(req,res){
-  try {await init();const [rows]=await sql.query("SELECT bucket,content FROM khudii_admin_settings WHERE bucket IN ('appearance','profile','seo','forms','popup','css','header','site_identity','share_tools','ai_chat')");
+  try {await init();const [rows]=await sql.query("SELECT bucket,content FROM khudii_admin_settings WHERE bucket IN ('appearance','profile','seo','forms','popup','css','header','site_identity','share_tools','ai_chat','maintenance','login_auth')");
     const cfg=Object.fromEntries(rows.map(r=>[r.bucket,parse(r.content,{})]));
     const publicForms=Object.fromEntries(Object.entries(cfg.forms||{}).filter(([key])=>['contact','inquiry','donate','volunteer','jobs','story','organization'].includes(key)).map(([key,value])=>[key,{fields:value?.fields||{}}]));
-    const socials=Object.fromEntries(['facebook_url','instagram_url','youtube_url','twitter_url','linkedin_url','tiktok_url','whatsapp_url'].map(key => [key, /^https:\/\//i.test(String(cfg.profile?.[key]||'')) ? String(cfg.profile[key]).slice(0,1000) : '']));
+    const socialPairs=[['facebook_url','facebook'],['instagram_url','instagram'],['youtube_url','youtube'],['twitter_url','twitter'],['linkedin_url','linkedin'],['tiktok_url','tiktok'],['whatsapp_url','whatsapp']];
+    const socials=Object.fromEntries(socialPairs.map(([urlKey,shortKey]) => {
+      const raw = String(cfg.profile?.[urlKey] || cfg.profile?.[shortKey] || '').trim();
+      return [urlKey, /^https?:\/\//i.test(raw) ? raw.slice(0,1000) : ''];
+    }));
     const headerDefaults = { show_search: true, search_placeholder: 'Search Organization', search_areas: ['organizations', 'blogs', 'categories', 'stories'], show_donate_button: true, donate_button_text: 'Donate Now', donate_button_url: '/donate-now' };
     const header = cfg.header ? { ...headerDefaults, ...cfg.header } : headerDefaults;
     const logoUrl = cleanUrl(cfg.site_identity?.siteLogo || cfg.site_identity?.logo || cfg.appearance?.logo_url);
@@ -219,14 +226,36 @@ export async function cmsGetPublicSettings(req,res){
       enabled: true,
       title: 'Ask Khudii',
       subtitle: '24/7 Support',
-      headerTitle: 'AI Assistant',
-      headerSubtitle: 'Type a message below',
-      inputPlaceholder: 'How can I help you today?',
-      welcomeMessage: 'Hello! Welcome to Khudii. How can I help you today?',
-      fallbackMessage: "I'm sorry, I don't have enough information on that topic yet. Please contact our support team at info@khudii.com or explore our verified welfare organizations.",
-      quickChips: ['What is Khudii?', 'How can I donate?', 'How to volunteer?', 'Verified NGOs', 'Contact Support'],
+      headerTitle: 'Ask Khudii (AI)',
+      headerSubtitle: 'Explore NGOs, Blogs, Podcasts & FAQs',
+      inputPlaceholder: 'Ask anything about NGOs, blogs, podcasts, donations...',
+      welcomeMessage: 'Assalam-o-Alaikum! Welcome to Khudii. Ask me anything about verified NGOs, donations, bank details, blogs, podcasts, volunteering, jobs, or contact info.',
+      fallbackMessage: "I couldn't find an exact match for that yet. Please contact our team at info@khudii.com or explore our verified welfare organizations.",
+      quickChips: ['Explore Verified Organizations', 'How can I donate?', 'Latest Podcasts', 'Read Khudii Blogs', 'How to volunteer?', 'Contact Support'],
     };
-    return res.json({forms:publicForms,social:socials,navigation:Array.isArray(cfg.appearance?.navigation)?cfg.appearance.navigation:[],logo:logoUrl,favicon:faviconUrl,site_name:siteName,site_identity:cfg.site_identity||{},share_tools:cfg.share_tools||{},primaryColor:/^#[0-9a-f]{6}$/i.test(cfg.appearance?.primary_color)?cfg.appearance.primary_color:'#2563eb',popup:cfg.popup||{},css:cfg.css||{},header,ai_chat:aiChat});
+    const maintenance = cfg.maintenance
+      ? {
+          enabled: Boolean(cfg.maintenance.enabled),
+          scope: cfg.maintenance.scope === 'selected' ? 'selected' : 'all',
+          message: cleanString(cfg.maintenance.message || '', 2000),
+          selectedPaths: Array.isArray(cfg.maintenance.selectedPaths) ? cfg.maintenance.selectedPaths : [],
+        }
+      : {
+          enabled: Boolean(cfg.login_auth?.maintenanceMode),
+          scope: cfg.login_auth?.maintenanceScope === 'selected' ? 'selected' : 'all',
+          message: 'We are currently performing scheduled maintenance to improve your experience. Please check back shortly.',
+          selectedPaths: Array.isArray(cfg.login_auth?.maintenancePaths) ? cfg.login_auth.maintenancePaths : [],
+        };
+    const publicLoginAuth = {
+      backgroundImage: cleanUrl(cfg.login_auth?.backgroundImage || ''),
+      backgroundAlt: cleanString(cfg.login_auth?.backgroundAlt || '', 255),
+      footerText: cleanString(cfg.login_auth?.footerText || '', 255),
+    };
+    const publicSeo = {
+      ga_id: cleanString(cfg.seo?.ga_id || '', 40),
+      google_analytics_enabled: cfg.seo?.google_analytics_enabled !== false,
+    };
+    return res.json({forms:publicForms,social:socials,navigation:Array.isArray(cfg.appearance?.navigation)?cfg.appearance.navigation:[],logo:logoUrl,favicon:faviconUrl,site_name:siteName,site_identity:cfg.site_identity||{},share_tools:cfg.share_tools||{},primaryColor:/^#[0-9a-f]{6}$/i.test(cfg.appearance?.primary_color)?cfg.appearance.primary_color:'#2563eb',popup:cfg.popup||{},css:cfg.css||{},header,ai_chat:aiChat,maintenance,login_auth:publicLoginAuth,seo:publicSeo});
   } catch(e){return err(res,e);}
 }
 export async function cmsSaveSettings(req,res){
@@ -243,14 +272,21 @@ export async function cmsSaveSettings(req,res){
         try{doc=validateFormSettings(doc)}catch(e){return res.status(422).json({message:e.message});}
       }
       if(bucket==='profile' && doc.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(doc.email))return res.status(422).json({message:'Invalid primary email address'});
-      if(bucket==='profile') for(const field of ['facebook_url','instagram_url','youtube_url','twitter_url','linkedin_url','tiktok_url','whatsapp_url']) if(doc[field] && (!/^https:\/\/[^\s]+$/i.test(doc[field]) || String(doc[field]).length>1000))return res.status(422).json({message:`${field} must be an HTTPS URL`});
+      if(bucket==='profile') {
+        for(const shortKey of ['facebook','instagram','youtube','twitter','linkedin','tiktok','whatsapp']) {
+          const urlKey = `${shortKey}_url`;
+          if(doc[shortKey] && !doc[urlKey]) doc[urlKey] = doc[shortKey];
+          if(doc[urlKey] && !doc[shortKey]) doc[shortKey] = doc[urlKey];
+        }
+        for(const field of ['facebook_url','instagram_url','youtube_url','twitter_url','linkedin_url','tiktok_url','whatsapp_url']) {
+          if(doc[field] && (!/^https?:\/\/[^\s]+$/i.test(doc[field]) || String(doc[field]).length>1000))return res.status(422).json({message:`${field} must be a valid URL`});
+        }
+      }
       if(bucket==='smtp'){
         const port=Number(doc.smtp_port||465);
         if(!Number.isInteger(port)||port<1||port>65535)return res.status(422).json({message:'Invalid SMTP port'});
-        for(const key of ['smtp_username','smtp_from']){
-          const value=String(doc[key]||'').trim();
-          if(value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))return res.status(422).json({message:`Invalid ${key} address`});
-        }
+        const fromVal=String(doc.smtp_from||'').trim();
+        if(fromVal && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(fromVal))return res.status(422).json({message:'Invalid smtp_from email address'});
         if(doc.smtp_host && (!/^[a-zA-Z0-9.-]{1,255}$/.test(String(doc.smtp_host))||String(doc.smtp_host).includes('..')))return res.status(422).json({message:'Invalid SMTP hostname'});
       }
       if(bucket==='seo'){
@@ -270,6 +306,7 @@ export async function cmsSaveSettings(req,res){
         doc.title=cleanString(doc.title,150);
         doc.message=cleanString(doc.message,5000);
         doc.button_text=cleanString(doc.button_text,80);
+        doc.image=cleanUrl(doc.image||'');
       }
       if(bucket==='css'){
         const stylesheet=String(doc.stylesheet||'');
@@ -292,6 +329,10 @@ export async function cmsSaveSettings(req,res){
         doc.siteLogo=doc.logo;
         doc.favicon=cleanUrl(doc.siteFavicon||doc.favicon||'');
         doc.siteFavicon=doc.favicon;
+        doc.adminLogoUrl=cleanUrl(doc.adminLogoUrl||'');
+        doc.adminLogoAlt=cleanString(doc.adminLogoAlt||'Khudii Admin',120);
+        const w = Number(doc.adminLogoWidth||44);
+        doc.adminLogoWidth=Number.isFinite(w)&&w>=40&&w<=220?w:44;
         doc.whatsappHeaderLabel=cleanString(doc.whatsappHeaderLabel||'',100);
         doc.whatsappHeaderText=cleanString(doc.whatsappHeaderText||'',50);
         doc.whatsappHeaderUrl=cleanUrl(doc.whatsappHeaderUrl||'');
@@ -386,6 +427,21 @@ export async function cmsSaveSettings(req,res){
       }
       await connection.commit();
     }catch(e){await connection.rollback();throw e;}finally{connection.release();}
+    invalidateAskKhudiiCache();
+    try { revalidatePath('/', 'layout'); revalidatePath('/sitemap.xml'); } catch { /* ignore */ }
+    await recordAdminActivity({
+      module: 'settings',
+      action: 'UPDATE',
+      target: prepared.map(([b]) => b).join(', '),
+      message: `Saved settings buckets: ${prepared.map(([b]) => b).join(', ')}`,
+      userId: req.user?.id,
+      actorName: req.user?.name,
+      actorEmail: req.user?.email,
+      role: req.user?.role,
+      ipAddress: adminRequestIp(req.headers),
+      requestPath: '/admin/settings',
+      changedFields: prepared.map(([b]) => b).join(', '),
+    });
     return res.json({success:true,message:'Settings saved'});
   }catch(e){return err(res,e);}
 }
@@ -476,7 +532,6 @@ export async function cmsGetPublicAiChat(req,res){
       enabled: true,
       title: 'Ask Khudii',
       subtitle: '24/7 Support',
-      headerTitle: 'AI Assistant',
       headerTitle: 'Ask Khudii (AI)',
       headerSubtitle: 'Explore NGOs, Blogs, Podcasts & FAQs',
       inputPlaceholder: 'Ask anything about NGOs, blogs, podcasts, volunteering...',
@@ -485,17 +540,17 @@ export async function cmsGetPublicAiChat(req,res){
       systemPrompt: "Khudii is Pakistan's premier digital welfare platform uniting donors, volunteers, and certified NGOs across healthcare, education, orphan care, special needs, and emergency relief.",
       quickPrompts: [
         { id: '1', question: 'What is Khudii?', answer: "Khudii is Pakistan's premier digital welfare platform connecting certified welfare organizations, philanthropists, and active volunteers. We ensure 100% transparency with zero commission cuts.", category: 'General', keywords: 'what, khudii, about, platform, mission, vision, pakistan' },
-        { id: '2', question: 'Which organizations are listed on Khudii?', answer: "Khudii features verified welfare organizations across Pakistan in healthcare, education, orphan care, clean water, disaster relief, and youth empowerment. Every organization is certified with audited financials.", category: 'Organizations', keywords: 'organizations, ngos, list, verified, charity, foundations, directory, partners' },
-        { id: '3', question: 'How can an NGO register on Khudii?', answer: "Welfare organizations can apply for listing by visiting the 'Register Organization' page or submitting their registration certificate, tax exemption certificates, and governance records for verification.", category: 'Organizations', keywords: 'register organization, ngo signup, join khudii, onboarding, apply organization' },
-        { id: '4', question: 'How are organizations verified?', answer: "Every organization undergoes a rigorous 3-tier verification process: (1) Official legal registration verification with government bodies, (2) Field audit & operational impact checks, and (3) Financial governance and transparency checks.", category: 'Organizations', keywords: 'verification, verified, authentic, check, trust, legal, safe' },
+        { id: '2', question: 'Which organizations are listed on Khudii?', answer: "Khudii features verified welfare organizations across Pakistan working in:\n• Healthcare\n• Education & Literacy\n• Orphan Care\n• Clean Water\n• Disaster Relief\n• Youth Empowerment\n\nEvery organization is certified with audited financials.", category: 'Organizations', keywords: 'organizations, ngos, list, verified, charity, foundations, directory, partners' },
+        { id: '3', question: 'How can an NGO register on Khudii?', answer: "Welfare organizations can apply for listing by visiting the 'Register Organization' page and submitting:\n• Official Registration Certificate\n• Tax Exemption Certificates\n• Governance & Audit Records\n\nOur compliance team verifies all credentials within 3 to 5 business days.", category: 'Organizations', keywords: 'register organization, ngo signup, join khudii, onboarding, apply organization' },
+        { id: '4', question: 'How are organizations verified?', answer: "Every organization undergoes a rigorous 3-tier verification process:\n• Official legal registration check with government authorities\n• Field audit & operational impact checks\n• Financial governance and audited financial statements", category: 'Organizations', keywords: 'verification, verified, authentic, check, trust, legal, safe' },
         { id: '5', question: 'What is the Khudii Podcast series?', answer: "The Khudii Podcast features in-depth conversations with humanitarian leaders, grassroots changemakers, and social pioneers discussing high-impact community solutions across Pakistan.", category: 'Podcasts', keywords: 'podcast, podcasts, episodes, youtube, watch, series, video, interview' },
         { id: '6', question: 'Where can I watch or listen to the Podcast?', answer: "You can watch full video episodes on our dedicated '/podcast' page or visit our official YouTube channel @khudiiofficial with complete timestamps and episode highlights.", category: 'Podcasts', keywords: 'watch podcast, where podcast, listen, youtube channel, episode link' },
-        { id: '7', question: 'What topics do Khudii Blogs cover?', answer: "Our blogs cover thought leadership on philanthropic impact, volunteer experiences, social sector insights, healthcare and education drives, and actionable guides for meaningful giving in Pakistan.", category: 'Blogs', keywords: 'blogs, articles, topics, read, stories, insights, social sector' },
+        { id: '7', question: 'What topics do Khudii Blogs cover?', answer: "Our blogs feature in-depth thought leadership covering:\n• Philanthropic impact and transparency\n• Volunteer stories and grassroots experiences\n• Social sector insights and governance\n• Healthcare, clean water, and education drives\n• Actionable guides for meaningful giving in Pakistan", category: 'Blogs', keywords: 'blogs, articles, topics, read, stories, insights, social sector' },
         { id: '8', question: 'How can I publish or submit a blog?', answer: "Welfare researchers, volunteers, and writers can submit guest articles and community field stories by contacting our editorial team at info@khudii.com.", category: 'Blogs', keywords: 'submit blog, write, contributor, author, publish article' },
         { id: '9', question: 'Does Khudii charge commission on donations?', answer: "No! Khudii operates as a 100% free community platform. We do NOT take any cut or commission from donations. All donor contributions go directly to the verified organization's official bank account.", category: 'FAQs', keywords: 'commission, fees, charge, deduction, free, percentage, cut' },
-        { id: '10', question: 'How do I donate directly to welfare causes?', answer: "Browse our verified Organizations directory, select a cause close to your heart, and use the direct bank transfer, IBAN, or online payment details provided on the organization's verified profile.", category: 'FAQs', keywords: 'donate, payment, money, contribution, bank, sadqah, zakat, iban' },
-        { id: '11', question: 'How do I become a volunteer?', answer: "Head over to our 'Volunteer Registration' section, choose your areas of interest (medical, teaching, field aid, digital/media), and partner organizations in your city will connect with you.", category: 'FAQs', keywords: 'volunteer, join, help, participate, signup, work, skills' },
-        { id: '12', question: 'How can I contact Khudii support?', answer: "You can reach us anytime via our Contact page, email us directly at info@khudii.com, or message our official WhatsApp helpline for prompt assistance.", category: 'FAQs', keywords: 'contact, phone, email, whatsapp, support, help, address' }
+        { id: '10', question: 'How do I donate directly to welfare causes?', answer: "To donate directly to welfare causes:\n• Browse our verified Organizations directory\n• Select a cause close to your heart\n• Use direct bank transfer, IBAN, or online payment details provided on the verified profile", category: 'FAQs', keywords: 'donate, payment, money, contribution, bank, sadqah, zakat, iban' },
+        { id: '11', question: 'How do I become a volunteer?', answer: "To become an active volunteer on Khudii:\n• Head to our 'Volunteer Registration' section\n• Choose your areas of interest (medical, teaching, field aid, digital/media)\n• Partner organizations in your city will connect with you directly", category: 'FAQs', keywords: 'volunteer, join, help, participate, signup, work, skills' },
+        { id: '12', question: 'How can I contact Khudii support?', answer: "You can reach the Khudii team anytime via:\n• Official Contact page form\n• Direct email: info@khudii.com\n• Official WhatsApp helpline for prompt assistance", category: 'FAQs', keywords: 'contact, phone, email, whatsapp, support, help, address' }
       ],
       quickChips: [
         'What is Khudii?',
@@ -512,173 +567,77 @@ export async function cmsGetPublicAiChat(req,res){
   } catch(e){return err(res,e);}
 }
 
-export async function cmsQueryAiChat(req,res){
+export async function cmsQueryAiChat(req, res) {
   try {
     await init();
     const userMessage = cleanString(req.body?.message || req.body?.query || '', 1000).trim();
     if (!userMessage) return res.status(400).json({ success: false, message: 'Message is required' });
 
     const [rows] = await sql.query("SELECT content FROM khudii_admin_settings WHERE bucket = 'ai_chat'");
-    const defaults = {
-      enabled: true,
-      title: 'Ask Khudii',
-      subtitle: '24/7 Welfare Assistant',
-      headerTitle: 'Ask Khudii (AI)',
-      headerSubtitle: 'Explore NGOs, Blogs, Podcasts & FAQs',
-      inputPlaceholder: 'Ask anything about NGOs, blogs, podcasts, volunteering...',
-      welcomeMessage: 'Welcome to Khudii! I am your AI Welfare Assistant. Select a category below or ask anything about verified NGOs, blogs, podcasts, success stories, and donation workflows.',
-      fallbackMessage: "I couldn't find an exact match in our verified database. You can reach out directly to the Khudii team at info@khudii.com or explore our verified welfare directories.",
-      systemPrompt: "Khudii is Pakistan's premier digital welfare platform uniting donors, volunteers, and certified NGOs.",
-      quickPrompts: [
-        { id: '1', question: 'What is Khudii?', answer: "Khudii is Pakistan's premier digital welfare platform connecting certified welfare organizations, philanthropists, and active volunteers. We ensure 100% transparency with zero commission cuts.", category: 'General', keywords: 'what, khudii, about, platform, mission, vision, pakistan' },
-        { id: '2', question: 'Which organizations are listed on Khudii?', answer: "Khudii features verified welfare organizations across Pakistan in healthcare, education, orphan care, clean water, disaster relief, and youth empowerment. Every organization is certified with audited financials.", category: 'Organizations', keywords: 'organizations, ngos, list, verified, charity, foundations, directory, partners' },
-        { id: '3', question: 'How can an NGO register on Khudii?', answer: "Welfare organizations can apply for listing by visiting the 'Register Organization' page or submitting their registration certificate, tax exemption certificates, and governance records for verification.", category: 'Organizations', keywords: 'register organization, ngo signup, join khudii, onboarding, apply organization' },
-        { id: '4', question: 'How are organizations verified?', answer: "Every organization undergoes a rigorous 3-tier verification process: (1) Official legal registration verification with government bodies, (2) Field audit & operational impact checks, and (3) Financial governance and transparency checks.", category: 'Organizations', keywords: 'verification, verified, authentic, check, trust, legal, safe' },
-        { id: '5', question: 'What is the Khudii Podcast series?', answer: "The Khudii Podcast features in-depth conversations with humanitarian leaders, grassroots changemakers, and social pioneers discussing high-impact community solutions across Pakistan.", category: 'Podcasts', keywords: 'podcast, podcasts, episodes, youtube, watch, series, video, interview' },
-        { id: '6', question: 'Where can I watch or listen to the Podcast?', answer: "You can watch full video episodes on our dedicated '/podcast' page or visit our official YouTube channel @khudiiofficial with complete timestamps and episode highlights.", category: 'Podcasts', keywords: 'watch podcast, where podcast, listen, youtube channel, episode link' },
-        { id: '7', question: 'What topics do Khudii Blogs cover?', answer: "Our blogs cover thought leadership on philanthropic impact, volunteer experiences, social sector insights, healthcare and education drives, and actionable guides for meaningful giving in Pakistan.", category: 'Blogs', keywords: 'blogs, articles, topics, read, stories, insights, social sector' },
-        { id: '8', question: 'How can I publish or submit a blog?', answer: "Welfare researchers, volunteers, and writers can submit guest articles and community field stories by contacting our editorial team at info@khudii.com.", category: 'Blogs', keywords: 'submit blog, write, contributor, author, publish article' },
-        { id: '9', question: 'Does Khudii charge commission on donations?', answer: "No! Khudii operates as a 100% free community platform. We do NOT take any cut or commission from donations. All donor contributions go directly to the verified organization's official bank account.", category: 'FAQs', keywords: 'commission, fees, charge, deduction, free, percentage, cut' },
-        { id: '10', question: 'How do I donate directly to welfare causes?', answer: "Browse our verified Organizations directory, select a cause close to your heart, and use the direct bank transfer, IBAN, or online payment details provided on the organization's verified profile.", category: 'FAQs', keywords: 'donate, payment, money, contribution, bank, sadqah, zakat, iban' },
-        { id: '11', question: 'How do I become a volunteer?', answer: "Head over to our 'Volunteer Registration' section, choose your areas of interest (medical, teaching, field aid, digital/media), and partner organizations in your city will connect with you.", category: 'FAQs', keywords: 'volunteer, join, help, participate, signup, work, skills' },
-        { id: '12', question: 'How can I contact Khudii support?', answer: "You can reach us anytime via our Contact page, email us directly at info@khudii.com, or message our official WhatsApp helpline for prompt assistance.", category: 'FAQs', keywords: 'contact, phone, email, whatsapp, support, help, address' }
-      ],
-      quickChips: [
-        'What is Khudii?',
-        'Which organizations are listed?',
-        'How to register an NGO?',
-        'Khudii Podcast series',
-        'Topics in Khudii Blogs',
-        'Does Khudii charge commission?',
-        'How do I volunteer?'
-      ],
-    };
-    const config = rows.length ? { ...defaults, ...parse(rows[0].content, {}) } : defaults;
+    const config = rows.length ? parse(rows[0].content, {}) : {};
+    const result = await queryAskKhudii({
+      message: userMessage,
+      history: Array.isArray(req.body?.history) ? req.body.history.slice(-8) : [],
+      config,
+    });
+    res.set('Cache-Control', 'no-store');
+    return res.json(result);
+  } catch (e) {
+    return err(res, e);
+  }
+}
 
-    if (config.enabled === false) {
-      return res.status(403).json({ success: false, message: 'AI Chat is currently disabled.' });
-    }
+export async function cmsAnalyzeAiChat(req, res) {
+  try {
+    await init();
+    const category = cleanString(req.body?.category || 'General', 50).trim();
+    const existingQuestion = cleanString(req.body?.question || '', 500).trim();
+    const mode = cleanString(req.body?.mode || 'standard', 30).trim();
 
-    const lowerQuery = userMessage.toLowerCase();
-    const queryTokens = lowerQuery.replace(/[^a-z0-9\s]/gi, ' ').split(/\s+/).filter(t => t.length > 2);
-
-    let bestMatch = null;
-    let highestScore = 0;
-
-    for (const prompt of (config.quickPrompts || [])) {
-      let score = 0;
-      const promptQ = (prompt.question || '').toLowerCase();
-      const promptKW = (prompt.keywords || '').toLowerCase();
-
-      if (lowerQuery === promptQ || lowerQuery.includes(promptQ) || promptQ.includes(lowerQuery)) {
-        score += 100;
-      }
-
-      const kwList = promptKW.split(/[,;\s]+/).map(k => k.trim()).filter(Boolean);
-      for (const token of queryTokens) {
-        if (kwList.includes(token)) score += 25;
-        if (promptQ.includes(token)) score += 15;
-      }
-
-      if (score > highestScore) {
-        highestScore = score;
-        bestMatch = prompt;
-      }
-    }
-
-    if (bestMatch && highestScore >= 25) {
+    if (mode === 'full_sync') {
+      const fullKb = await buildDeepKnowledgePrompts();
       return res.json({
         success: true,
-        answer: bestMatch.answer,
-        category: bestMatch.category,
-        source: 'knowledge_base',
-        suggestedChips: config.quickChips || [],
+        data: {
+          mode: 'full_sync',
+          prompts: fullKb.prompts,
+          quickChips: fullKb.quickChips,
+          stats: fullKb.stats,
+          analyzedAt: new Date().toISOString(),
+          summary: `Synced ${fullKb.prompts.length} deep Q&A entries from ${fullKb.stats.pages} pages, ${fullKb.stats.organizations} organizations, ${fullKb.stats.blogs} blogs, ${fullKb.stats.podcasts} podcasts, ${fullKb.stats.videos} videos, ${fullKb.stats.stories} stories, and ${fullKb.stats.faqs} FAQs.`,
+        },
       });
     }
 
-    // Dynamic search against podcasts
-    if (queryTokens.some(t => ['podcast', 'podcasts', 'episode', 'episodes', 'interview', 'youtube'].includes(t))) {
-      const searchTerms = queryTokens.filter(t => !['what', 'where', 'how', 'who', 'the', 'and', 'are', 'for', 'about'].includes(t)).slice(0, 3);
-      const params = searchTerms.length > 0 ? searchTerms.map(t => `%${t}%`) : ['%%'];
-      const likeClause = searchTerms.length > 0 ? searchTerms.map(() => '(title LIKE ? OR description LIKE ?)').join(' OR ') : '1=1';
-      const fullParams = [];
-      if (searchTerms.length > 0) {
-        for (const t of searchTerms) fullParams.push(`%${t}%`, `%${t}%`);
-      }
-      const [matchedPodcasts] = await sql.query(`SELECT title, description, slug, youtube_id FROM podcasts WHERE is_published = 1 ${searchTerms.length > 0 ? `AND (${likeClause})` : ''} ORDER BY id DESC LIMIT 2`, fullParams);
-      if (matchedPodcasts && matchedPodcasts.length > 0) {
-        const podList = matchedPodcasts.map(p => `• **${p.title}**: ${cleanString(p.description, 110)}... (Watch on /podcast/${p.slug})`).join('\n\n');
-        return res.json({
-          success: true,
-          answer: `Here are Khudii podcast episodes:\n\n${podList}\n\nYou can watch all episodes on our /podcast page or on YouTube!`,
-          source: 'database_podcasts',
-          suggestedChips: config.quickChips || [],
-        });
-      }
-    }
-
-    // Dynamic search against blogs
-    if (queryTokens.some(t => ['blog', 'blogs', 'article', 'articles', 'story', 'post', 'posts'].includes(t))) {
-      const searchTerms = queryTokens.filter(t => !['what', 'where', 'how', 'who', 'the', 'and', 'are', 'for', 'about'].includes(t)).slice(0, 3);
-      if (searchTerms.length > 0) {
-        const likeClause = searchTerms.map(() => '(title LIKE ? OR excerpt LIKE ?)').join(' OR ');
-        const params = [];
-        for (const t of searchTerms) params.push(`%${t}%`, `%${t}%`);
-        const [matchedBlogs] = await sql.query(`SELECT title, excerpt, slug FROM blogs WHERE status = 'published' AND (${likeClause}) LIMIT 2`, params);
-        if (matchedBlogs && matchedBlogs.length > 0) {
-          const blogList = matchedBlogs.map(b => `• **${b.title}**: ${cleanString(b.excerpt, 100)}... (Read at /blogs/${b.slug})`).join('\n\n');
-          return res.json({
-            success: true,
-            answer: `Here are relevant articles from Khudii Blogs:\n\n${blogList}\n\nExplore more insightful pieces on our /blogs page.`,
-            source: 'database_blogs',
-            suggestedChips: config.quickChips || [],
-          });
-        }
-      }
-    }
-
-    // Dynamic search against database if query relates to organizations/charity/NGOs
-    if (queryTokens.some(t => ['ngo', 'ngos', 'charity', 'charities', 'organization', 'organizations', 'welfare', 'foundation', 'trust', 'health', 'education'].includes(t))) {
-      const searchTerms = queryTokens.filter(t => !['what', 'where', 'how', 'who', 'the', 'and', 'are', 'for'].includes(t)).slice(0, 3);
-      if (searchTerms.length > 0) {
-        const likeQuery = searchTerms.map(() => '(name LIKE ? OR description LIKE ? OR category LIKE ?)').join(' OR ');
-        const params = [];
-        for (const t of searchTerms) params.push(`%${t}%`, `%${t}%`, `%${t}%`);
-        const [matchedOrgs] = await sql.query(`SELECT id, name, category, slug, description FROM ngos WHERE status = 1 AND (${likeQuery}) LIMIT 3`, params);
-        if (matchedOrgs && matchedOrgs.length > 0) {
-          const orgList = matchedOrgs.map(o => `• **${o.name}** (${o.category || 'Welfare'}): ${cleanString(o.description, 100)}...`).join('\n');
-          return res.json({
-            success: true,
-            answer: `Here are verified organizations matching your search:\n\n${orgList}\n\nYou can explore more in our Organizations directory.`,
-            source: 'database_organizations',
-            suggestedChips: config.quickChips || [],
-          });
-        }
-      }
-    }
-
-    // Dynamic search against FAQs
-    const faqSearchTerms = queryTokens.filter(t => !['what', 'where', 'how', 'who', 'the', 'and', 'are', 'for'].includes(t)).slice(0, 3);
-    if (faqSearchTerms.length > 0) {
-      const likeQuery = faqSearchTerms.map(() => '(question LIKE ? OR answer LIKE ?)').join(' OR ');
-      const params = [];
-      for (const t of faqSearchTerms) params.push(`%${t}%`, `%${t}%`);
-      const [matchedFaqs] = await sql.query(`SELECT question, answer FROM faqs WHERE is_active = 1 AND (${likeQuery}) LIMIT 1`, params);
-      if (matchedFaqs && matchedFaqs.length > 0) {
-        return res.json({
-          success: true,
-          answer: `**${matchedFaqs[0].question}**\n\n${matchedFaqs[0].answer}`,
-          source: 'database_faqs',
-          suggestedChips: config.quickChips || [],
-        });
-      }
-    }
+    const probeQuery = existingQuestion || category || 'What is Khudii?';
+    const [liveResult, fullKb] = await Promise.all([
+      queryAskKhudii({ message: probeQuery, config: {} }),
+      buildDeepKnowledgePrompts(),
+    ]);
+    const matched =
+      fullKb.prompts.find((p) => p.category.toLowerCase() === category.toLowerCase()) ||
+      fullKb.prompts[0];
 
     return res.json({
       success: true,
-      answer: config.fallbackMessage || defaults.fallbackMessage,
-      source: 'fallback',
-      suggestedChips: config.quickChips || defaults.quickChips,
+      data: {
+        category,
+        generatedQuestion: existingQuestion || matched?.question || probeQuery,
+        generatedKeywords: matched?.keywords || `${category.toLowerCase()}, khudii`,
+        generatedAnswer: liveResult.answer || matched?.answer || '',
+        frontendExtracted: `Live scan: ${fullKb.stats.pages} pages · ${fullKb.stats.organizations} NGOs · ${fullKb.stats.blogs} blogs · ${fullKb.stats.podcasts} podcasts · ${fullKb.stats.videos} videos · ${fullKb.stats.stories} stories · ${fullKb.stats.faqs} FAQs`,
+        isDeepAnalysis: mode === 'deep',
+        collectedData: {
+          sourceTable: 'items, document, podcast, videos, successstories, faqs, bankdata, sectors, certifications, testimonials, about & CMS pages',
+          totalRecords: `${fullKb.stats.organizations} NGOs, ${fullKb.stats.blogs} Blogs, ${fullKb.stats.podcasts} Podcasts, ${fullKb.stats.stories} Stories, ${fullKb.stats.faqs} FAQs`,
+          frontendRoute: liveResult.cards?.[0]?.url || '/',
+          sampleRecords: (liveResult.cards || []).map((c) => ({ title: c.title, url: c.url, badge: c.badge })),
+          summary: `Live full-site knowledge engine returned ${liveResult.cards?.length || 0} linked visual card(s) from source "${liveResult.source}".`,
+        },
+        analyzedAt: new Date().toISOString(),
+      },
     });
-  } catch(e){return err(res,e);}
+  } catch (e) {
+    return err(res, e);
+  }
 }

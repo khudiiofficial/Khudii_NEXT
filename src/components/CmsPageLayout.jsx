@@ -68,6 +68,8 @@ function CmsFaqSection({
                 {showButton !== false && Boolean(buttonText) && (
                   <a
                     href={buttonUrl || '/faqs'}
+                    target={buttonUrl && /^https?:\/\//i.test(buttonUrl) ? '_blank' : undefined}
+                    rel={buttonUrl && /^https?:\/\//i.test(buttonUrl) ? 'noopener noreferrer' : undefined}
                     className="inline-flex items-center font-medium group bg-[#02236E] px-4 py-2 rounded-xl text-white hover:bg-blue-900 transition-colors text-xs shrink-0 no-underline shadow-xs"
                     aria-label={buttonText}
                   >
@@ -120,7 +122,7 @@ function CmsVideo({ url, title, sectionId }) {
   const [playing, setPlaying] = useState(false);
   const id = youtubeVideoId(url);
   if (!id) return url ? <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline">{title || 'Open linked video'}</a> : null;
-  return <div className="aspect-video overflow-hidden rounded-2xl bg-[#02236E]">{playing ? <iframe src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1`} title={title || 'Khudii video'} className="h-full w-full" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /> : <button type="button" onClick={() => { trackKhudiiEvent('video_play', 'videos', sectionId); setPlaying(true); }} className="relative flex h-full w-full items-center justify-center"><img src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`} className="absolute inset-0 h-full w-full object-cover" loading="lazy" alt="" /><span className="relative rounded-full bg-[#02236E] px-6 py-4 text-sm font-bold text-white shadow-lg">Play video</span></button>}</div>;
+  return <div className="aspect-video overflow-hidden rounded-2xl bg-[#02236E]">{playing ? <iframe src={`https://www.youtube-nocookie.com/embed/${id}?autoplay=1`} title={title || 'Khudii video'} className="h-full w-full" loading="lazy" sandbox="allow-scripts allow-same-origin allow-presentation" referrerPolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowFullScreen /> : <button type="button" onClick={() => { trackKhudiiEvent('video_play', 'videos', sectionId); setPlaying(true); }} className="relative flex h-full w-full items-center justify-center"><img src={`https://i.ytimg.com/vi/${id}/hqdefault.jpg`} className="absolute inset-0 h-full w-full object-cover" loading="lazy" alt={title ? `${title} video preview` : 'Khudii video preview'} /><span className="relative rounded-full bg-[#02236E] px-6 py-4 text-sm font-bold text-white shadow-lg">Play video</span></button>}</div>;
 }
 function CmsAddedSection({ item }) {
   const d = item.data || {}, items = Array.isArray(d.items) ? d.items : [];
@@ -135,7 +137,16 @@ function CmsAddedSection({ item }) {
   const gridTypes = ['cards', 'gallery', 'logos', 'testimonials', 'people', 'stats', 'steps', 'timeline', 'social-links', 'downloads', 'video-grid', 'faq'];
   const background = hero ? 'bg-[#02236E] text-white' : cta ? 'bg-blue-50 text-[#02236E]' : 'bg-white text-[#02236E]';
   const isImageText = item.kind === 'image-text';
-  const button = d.buttonText && d.buttonUrl && item.kind !== 'embed' ? <a href={d.buttonUrl} className={`mt-6 inline-block rounded-xl px-6 py-3 text-sm font-semibold ${hero ? 'bg-white text-[#02236E]' : 'bg-[#02236E] text-white'}`}>{d.buttonText}</a> : null;
+  const button = d.buttonText && d.buttonUrl && item.kind !== 'embed' ? (
+    <a
+      href={d.buttonUrl}
+      target={typeof d.buttonUrl === 'string' && /^https?:\/\//i.test(d.buttonUrl) ? '_blank' : undefined}
+      rel={typeof d.buttonUrl === 'string' && /^https?:\/\//i.test(d.buttonUrl) ? 'noopener noreferrer' : undefined}
+      className={`mt-6 inline-block rounded-xl px-6 py-3 text-sm font-semibold ${hero ? 'bg-white text-[#02236E]' : 'bg-[#02236E] text-white'}`}
+    >
+      {d.buttonText}
+    </a>
+  ) : null;
   return <section data-khudii-section={item.id} aria-label={d.heading || item.title} className={`${background} py-12 md:py-16`}>
     <div className="mx-auto max-w-7xl px-5">
       <div className={isImageText ? 'grid items-center gap-8 md:grid-cols-2' : ''}>

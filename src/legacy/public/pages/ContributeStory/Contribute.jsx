@@ -156,9 +156,9 @@ if(res.status===200){
 
 
           {/* Heading */}
-          <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">
+          <h2 className="text-4xl font-bold text-center text-gray-800 mb-8">
             Contribute Your Story
-          </h1>
+          </h2>
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="grid gap-6">

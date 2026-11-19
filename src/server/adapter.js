@@ -104,13 +104,29 @@ export async function dispatch(request, routes, originalPath) {
     return NextResponse.json({ success: false, message: 'Invalid request body' }, { status: 400 });
   }
 
-  const isAdminMutation = originalPath !== '/auth/login' && matched.route.handlers.length > 1 && ['POST','PUT','PATCH','DELETE'].includes(request.method);
+  const EXCLUDED_MUTATION_PATHS = new Set([
+    '/auth/login',
+    '/authlogin',
+    '/admin/analytics/event',
+    '/admin/user-presence',
+    '/admin/activity/click',
+  ]);
+  const isAdminMutation = !EXCLUDED_MUTATION_PATHS.has(originalPath) && matched.route.handlers.length > 1 && ['POST','PUT','PATCH','DELETE'].includes(request.method);
+
+  const rawIp = (
+    request.headers.get('cf-connecting-ip') ||
+    request.headers.get('x-forwarded-for') ||
+    request.headers.get('x-real-ip') ||
+    ''
+  ).split(',')[0].trim();
+  const clientIp = /^[0-9a-fA-F:.]{2,45}$/.test(rawIp) ? rawIp : '';
 
   const req = {
     method: request.method,
     url: originalPath,
     originalUrl: originalPath,
     path: originalPath,
+    ip: clientIp || null,
     params,
     query: queryObject(url.searchParams),
     headers: Object.fromEntries(request.headers.entries()),
@@ -218,7 +234,16 @@ export async function dispatch(request, routes, originalPath) {
   // Capture both successful and failed authenticated mutations for RCA.
   if (isAdminMutation && req.user) {
     const { writeActivityLog } = await import('./admin-backend/controllers/activityLogs.js');
-    await writeActivityLog({actor:req.user.id || req.user.userId || req.user.email, method:request.method, path:originalPath,status,ip:(request.headers.get('x-forwarded-for') || '').split(',')[0].trim()});
+    await writeActivityLog({
+      actor: req.user.id || req.user.userId || req.user.email,
+      userName: req.user.name || null,
+      userEmail: req.user.email || null,
+      role: req.user.role || 'admin',
+      method: request.method,
+      path: originalPath,
+      status,
+      ip: clientIp || null,
+    });
   }
 
   // Count confirmed public form submissions without collecting form field values.

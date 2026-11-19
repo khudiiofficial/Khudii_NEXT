@@ -164,6 +164,8 @@ const VideoGallery = ({ con, url }) => {
             {video.link ? (
               <a
                 href={video.link}
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={(event) => event.stopPropagation()}
                 className="hover:text-blue-600 transition-colors duration-200"
               >

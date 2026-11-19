@@ -68,8 +68,8 @@ const DEFAULT_USERS = [
 ];
 
 export default function UserManagementTab() {
-  const [usersList, setUsersList] = useState(DEFAULT_USERS);
-  const [loading, setLoading] = useState(false);
+  const [usersList, setUsersList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [userModalOpen, setUserModalOpen] = useState(false);
   const [userModalMode, setUserModalMode] = useState('create');
   const [userSaveMsg, setUserSaveMsg] = useState(null);
@@ -91,21 +91,58 @@ export default function UserManagementTab() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api-app/admin/users', { credentials: 'include' });
+      const res = await fetch('/api-app/admin/users', {
+        credentials: 'include',
+        headers: { 'x-khudii-surface': 'admin' },
+      });
       const data = await res.json();
-      if (data?.success && Array.isArray(data.users) && data.users.length > 0) {
+      if (data?.success && Array.isArray(data.users)) {
         setUsersList(data.users);
+      } else if (usersList.length === 0) {
+        setUsersList(DEFAULT_USERS);
       }
     } catch {
-      // Fallback to local state
+      if (usersList.length === 0) {
+        setUsersList(DEFAULT_USERS);
+      }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [usersList.length]);
 
   useEffect(() => {
     fetchUsers();
   }, [fetchUsers]);
+
+  const handleCloseModal = useCallback(() => {
+    setUserModalOpen(false);
+    setShowModalPassword(false);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { source: 'users', dirty: false } }));
+    }
+  }, []);
+
+  // Listen for shell-level Save and Discard requests
+  useEffect(() => {
+    const onSaveRequest = (e) => {
+      if (userModalOpen) {
+        e.preventDefault();
+        const form = document.getElementById('khudii-user-modal-form');
+        if (form) form.requestSubmit();
+      }
+    };
+    const onDiscardRequest = () => {
+      if (userModalOpen) {
+        handleCloseModal();
+      }
+    };
+    window.addEventListener('khudii:save-request', onSaveRequest);
+    window.addEventListener('khudii:discard-request', onDiscardRequest);
+    return () => {
+      window.removeEventListener('khudii:save-request', onSaveRequest);
+      window.removeEventListener('khudii:discard-request', onDiscardRequest);
+    };
+  }, [userModalOpen, handleCloseModal]);
 
   const selectedRoleMeta = useMemo(() => {
     return ROLE_OPTIONS.find((r) => r.value === userFormData.role) || ROLE_OPTIONS[0];
@@ -130,6 +167,9 @@ export default function UserManagementTab() {
     });
     setShowModalPassword(false);
     setUserModalOpen(true);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { source: 'users', dirty: true } }));
+    }
   };
 
   const handleOpenEditUser = (u) => {
@@ -152,6 +192,9 @@ export default function UserManagementTab() {
     });
     setShowModalPassword(false);
     setUserModalOpen(true);
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('khudii:dirty', { detail: { source: 'users', dirty: true } }));
+    }
   };
 
   const handleGeneratePassword = () => {
@@ -193,56 +236,45 @@ export default function UserManagementTab() {
             .filter((area) => !RESTRICTED_TO_SUPER_ADMIN.has(area)),
     };
 
+    if (userModalMode === 'create' && (!userFormData.password || userFormData.password.trim().length < 8)) {
+      alertNotice({ title: 'Password Required', text: 'Enter a password of at least 8 characters when creating a new user.', status: 'warning' });
+      return;
+    }
+
     try {
       if (userModalMode === 'create') {
         const res = await fetch('/api-app/admin/users', {
           method: 'POST',
           credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'x-khudii-surface': 'admin' },
           body: JSON.stringify(payload),
         });
         const data = await res.json();
-        if (data?.success && data.user) {
-          setUsersList((prev) => [...prev, data.user]);
-        } else {
-          // Local fallback
-          const newId = usersList.length > 0 ? Math.max(...usersList.map((u) => u.id)) + 1 : 1;
-          const fallbackUser = {
-            id: newId,
-            ...payload,
-            status: payload.active ? 1 : 0,
-            created_at: new Date().toISOString(),
-          };
-          setUsersList((prev) => [...prev, fallbackUser]);
+        if (!res.ok || !data?.success || !data.user) {
+          throw new Error(data?.error || data?.message || 'Failed to create user');
         }
+        setUsersList((prev) => [...prev.filter((u) => u.id !== data.user.id), data.user]);
         setUserSaveMsg('User created successfully');
         alertNotice({ title: 'User Created', text: 'New administrator user created successfully!', status: 'success' });
       } else {
         const res = await fetch(`/api-app/admin/users/${userFormData.id}`, {
           method: 'PUT',
           credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', 'x-khudii-surface': 'admin' },
           body: JSON.stringify(payload),
         });
         const data = await res.json();
-        if (data?.success && data.user) {
-          setUsersList((prev) => prev.map((u) => (u.id === userFormData.id ? data.user : u)));
-        } else {
-          setUsersList((prev) =>
-            prev.map((u) =>
-              u.id === userFormData.id
-                ? { ...u, ...payload, status: payload.active ? 1 : 0 }
-                : u
-            )
-          );
+        if (!res.ok || !data?.success || !data.user) {
+          throw new Error(data?.error || data?.message || 'Failed to update user');
         }
+        setUsersList((prev) => prev.map((u) => (u.id === userFormData.id ? data.user : u)));
         setUserSaveMsg('User updated successfully');
         alertNotice({ title: 'User Updated', text: 'User account details updated successfully!', status: 'success' });
       }
-      setUserModalOpen(false);
+      handleCloseModal();
       setTimeout(() => setUserSaveMsg(null), 4000);
-    } catch {
-      alertNotice({ title: 'Error', text: 'Failed to save user.', status: 'error' });
+    } catch (err) {
+      alertNotice({ title: 'Save Failed', text: err.message || 'Failed to save user.', status: 'error' });
     } finally {
       setSubmitting(false);
     }
@@ -252,7 +284,9 @@ export default function UserManagementTab() {
     const confirmed = await confirmDialog({
       title: `Delete user "${name}"?`,
       text: 'This account will be permanently deactivated and removed from administrator access.',
-      status: 'warning',
+      status: 'error',
+      confirmText: 'Delete User',
+      cancelText: 'Cancel',
     });
     if (!confirmed) return;
 
@@ -260,20 +294,19 @@ export default function UserManagementTab() {
       const res = await fetch(`/api-app/admin/users/${id}`, {
         method: 'DELETE',
         credentials: 'include',
+        headers: { 'x-khudii-surface': 'admin' },
       });
       const data = await res.json();
-      if (data && !data.success) {
-        alertNotice({ title: 'Deletion Blocked', text: data.error || 'Cannot delete this user.', status: 'error' });
+      if (!res.ok || !data?.success) {
+        alertNotice({ title: 'Deletion Blocked', text: data?.error || data?.message || 'Cannot delete this user.', status: 'error' });
         return;
       }
       setUsersList((prev) => prev.filter((u) => u.id !== id));
       setUserSaveMsg('User deleted');
       alertNotice({ title: 'User Deleted', text: `User "${name}" has been removed.`, status: 'success' });
       setTimeout(() => setUserSaveMsg(null), 4000);
-    } catch {
-      // Local remove
-      setUsersList((prev) => prev.filter((u) => u.id !== id));
-      alertNotice({ title: 'User Deleted', text: `User "${name}" has been removed.`, status: 'success' });
+    } catch (err) {
+      alertNotice({ title: 'Deletion Failed', text: err.message || 'Failed to delete user.', status: 'error' });
     }
   };
 
@@ -425,7 +458,10 @@ export default function UserManagementTab() {
                       )}
                     </td>
                     <td className="p-4 text-slate-500 font-medium">
-                      {joinedFormatted}
+                      <div>{joinedFormatted}</div>
+                      <div className="text-[11px] text-slate-400">
+                        {u.last_seen_at ? `Seen ${new Date(u.last_seen_at).toLocaleString()}` : 'Not seen yet'}
+                      </div>
                     </td>
                     <td className="p-4 text-right pr-6">
                       <div className="flex items-center justify-end gap-2">
@@ -465,14 +501,14 @@ export default function UserManagementTab() {
               </h3>
               <button
                 type="button"
-                onClick={() => setUserModalOpen(false)}
+                onClick={handleCloseModal}
                 className="text-white p-2 border-none rounded-full bg-red-600 hover:bg-red-700 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveUser} className="flex flex-col gap-4">
+            <form id="khudii-user-modal-form" onSubmit={handleSaveUser} className="flex flex-col gap-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 mb-1">Full Name</label>
                 <input
@@ -706,7 +742,7 @@ export default function UserManagementTab() {
               <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
                 <button
                   type="button"
-                  onClick={() => setUserModalOpen(false)}
+                  onClick={handleCloseModal}
                   className="px-4 py-2 rounded-full border border-red-300 text-red-600 text-xs font-bold hover:bg-red-50 cursor-pointer"
                 >
                   Cancel

@@ -79,7 +79,16 @@ export default function MediaPickerModal({
       'image/svg+xml': 'svg',
       'image/x-icon': 'ico',
       'image/vnd.microsoft.icon': 'ico',
-    }[file.type] || file.name.split('.').pop() || 'png';
+    }[file.type] || (file.name.includes('.') ? file.name.split('.').pop().toLowerCase() : 'png');
+
+    const mime = file.type || (
+      ext === 'ico' ? 'image/x-icon' :
+      ext === 'svg' ? 'image/svg+xml' :
+      ext === 'webp' ? 'image/webp' :
+      ext === 'gif' ? 'image/gif' :
+      ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' :
+      'image/png'
+    );
 
     const uid = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     const filename = `khudii-${subfolder}-${uid}.${ext}`;
@@ -100,7 +109,8 @@ export default function MediaPickerModal({
           headers: {
             'content-type': 'application/octet-stream',
             'x-khudii-upload-name': filename,
-            'x-khudii-upload-mime': file.type || 'image/png',
+            'x-khudii-upload-mime': mime,
+            'x-khudii-surface': 'admin',
             'x-khudii-upload-index': String(index),
             'x-khudii-upload-total': String(total),
             'x-khudii-upload-offset': String(offset),

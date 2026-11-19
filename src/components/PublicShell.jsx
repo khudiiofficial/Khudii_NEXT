@@ -10,6 +10,8 @@ import KhudiiAnalyticsTracker from './KhudiiAnalyticsTracker';
 import CmsPageLayout from './CmsPageLayout';
 import Topbar from '@/legacy/public/componets/Topbar/Topbar';
 import AskKhudiiChat from './AskKhudiiChat';
+import MaintenanceView from './layout/MaintenanceView';
+import ConsentManager from './consent/ConsentManager';
 
 import { useGoogleAnalytics } from '@/legacy/public/Hooks/GoogleAnalytics';
 import { installLargePayloadUploadInterceptor } from '@/lib/large-payload-upload';
@@ -37,8 +39,8 @@ function LoadingFallback() {
 // <Suspense> boundary, or static prerendering of the page fails at build time. Isolating
 // it in its own leaf component (rendered below inside <Suspense>) keeps the exact same
 // tracking behavior without forcing the whole shell out of static rendering.
-function AnalyticsTracker() {
-  useGoogleAnalytics();
+function AnalyticsTracker({ gaId, enabled }) {
+  useGoogleAnalytics(gaId, enabled);
   return null;
 }
 
@@ -112,12 +114,35 @@ export default function PublicShell({ children }) {
     [pages, baseUrl],
   );
 
+  // Enforce Maintenance Mode (Full-Site or Selected Pages)
+  const maintenance = publicSettings.maintenance || {};
+  const isMaintenanceBlocked = useMemo(() => {
+    if (!maintenance.enabled) return false;
+    if (maintenance.scope !== 'selected') return true;
+    const list = Array.isArray(maintenance.selectedPaths) ? maintenance.selectedPaths : [];
+    const current = pathname || '/';
+    return list.some((p) => p === current || (p !== '/' && current.startsWith(`${p}/`)));
+  }, [maintenance.enabled, maintenance.scope, maintenance.selectedPaths, pathname]);
+
+  if (isMaintenanceBlocked) {
+    return (
+      <MaintenanceView
+        message={maintenance.message}
+        logoUrl={publicSettings.logo || '/Khudii.webp'}
+        siteName={publicSettings.site_name || 'Khudii'}
+      />
+    );
+  }
+
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''}>
       <PublicSeoContext.Provider value={seoValue}>
         <main id="main-content">
           <Suspense fallback={null}>
-            <AnalyticsTracker />
+            <AnalyticsTracker
+              gaId={publicSettings.seo?.ga_id || ''}
+              enabled={publicSettings.seo?.google_analytics_enabled !== false}
+            />
             <KhudiiAnalyticsTracker surface="frontend" />
           </Suspense>
           <CmsPageLayout slug="@global">
@@ -128,14 +153,46 @@ export default function PublicShell({ children }) {
             <PublicFormPreferences />
           </CmsPageLayout>
           {publicSettings.css?.stylesheet ? <style>{publicSettings.css.stylesheet}</style> : null}
-          {showDisclaimer && publicSettings.popup?.enabled && <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/70 p-4" role="dialog" aria-modal="true" aria-labelledby="khudii-disclaimer-title"><section className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl md:p-8"><h2 id="khudii-disclaimer-title" className="text-2xl font-bold text-[#02236E]">{publicSettings.popup.title || 'Important notice'}</h2><p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-slate-600">{publicSettings.popup.message || ''}</p><button type="button" autoFocus onClick={() => { try { sessionStorage.setItem('khudii_disclaimer_ack_v1', '1') } catch { } setShowDisclaimer(false) }} className="mt-6 rounded-xl bg-[#02236E] px-5 py-3 text-sm font-bold text-white">{publicSettings.popup.button_text || 'Continue'}</button></section></div>}
+          {showDisclaimer && publicSettings.popup?.enabled && (
+            <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/70 p-4" role="dialog" aria-modal="true" aria-labelledby="khudii-disclaimer-title">
+              <section className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+                {publicSettings.popup.image && (
+                  <img
+                    src={publicSettings.popup.image}
+                    alt={publicSettings.popup.title || 'Notice banner'}
+                    className="max-h-56 w-full object-cover"
+                  />
+                )}
+                <div className="p-6 md:p-8">
+                  <h2 id="khudii-disclaimer-title" className="text-2xl font-bold text-[#02236E]">
+                    {publicSettings.popup.title || 'Important notice'}
+                  </h2>
+                  <p className="mt-4 whitespace-pre-wrap text-sm leading-7 text-slate-600">
+                    {publicSettings.popup.message || ''}
+                  </p>
+                  <button
+                    type="button"
+                    autoFocus
+                    onClick={() => {
+                      try { sessionStorage.setItem('khudii_disclaimer_ack_v1', '1'); } catch { }
+                      setShowDisclaimer(false);
+                    }}
+                    className="mt-6 rounded-xl bg-[#02236E] px-5 py-3 text-sm font-bold text-white cursor-pointer hover:bg-[#001850]"
+                  >
+                    {publicSettings.popup.button_text || 'Continue'}
+                  </button>
+                </div>
+              </section>
+            </div>
+          )}
           {isInteracted ? (
             <Suspense fallback={null}>
               <VapiAssistant />
               <BackToTopButton />
-              <SocialShare />
+              <SocialShare shareTools={publicSettings.share_tools} />
             </Suspense>
           ) : null}
+          <ConsentManager />
           <AskKhudiiChat />
         </main>
       </PublicSeoContext.Provider>

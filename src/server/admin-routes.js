@@ -5,13 +5,13 @@ import {requireLegacyRole} from './cms-v2/security.js';
 import {adminCmsV2Routes} from './cms-v2/routes.js';
 import { listFormsInbox, updateFormInboxState, listFormEmailLogs, getFormInboxDetail, deleteFormSubmission, getFormsTimeline } from './form-management.js';
 import {listSeoIntelligence,updateSeoEntity,getSeoAuditHistory,captureSeoAuditSnapshot,getEntitySeo,saveEntitySeo,generateEntitySeo} from './seo-intelligence.js';
-import {getBackendLogs,exportBackendLogs,listRedirects,createRedirect,updateRedirect,deleteRedirect} from './site-diagnostics.js';
+import {getBackendLogs,exportBackendLogs,writeBackendTestLog,listRedirects,createRedirect,updateRedirect,deleteRedirect} from './site-diagnostics.js';
 import { reorderAdminCollection } from './admin-backend/controllers/reorder.js';
 import {listOrderedOrganizations,reorderOrganizations,setOrganizationVisibility,duplicateOrganization} from './admin-backend/controllers/organizationManagement.js';
 import {listManageableBlogs,publishBlog,reorderBlogs,duplicateBlog} from './admin-backend/controllers/blogManagement.js';
 import { receiveAdminAnalytics } from './admin-backend/controllers/analytics.js';
 import { listAdminPodcasts, getAdminPodcast, createPodcast, updatePodcast, deletePodcast, reorderPodcasts, getYoutubePodcastMetadata } from './podcast-controller.js';
-import { getActivityLogs, downloadActivityLogs } from './admin-backend/controllers/activityLogs.js';
+import { getActivityLogs, downloadActivityLogs, clearActivityLogs } from './admin-backend/controllers/activityLogs.js';
 import { getAdminOverview } from './admin-backend/controllers/reporting.js';
 import {
   authlogin,
@@ -137,8 +137,10 @@ import {
   updateWelcomeSection,
 } from './admin-backend/controllers/mainController.js';
 import { auth } from './admin-backend/middleware/auth.js';
-import {cmsGetPage,cmsSavePage,cmsGetSettings,cmsSaveSettings,cmsGetHeaderSettings,cmsSaveHeaderSettings,cmsGetMedia,cmsUpdateMedia,cmsUploadMedia,cmsGetPublicSettings,cmsGetPublicAiChat,cmsQueryAiChat} from './cms-controller.js';
+import {cmsGetPage,cmsSavePage,cmsGetSettings,cmsSaveSettings,cmsGetHeaderSettings,cmsSaveHeaderSettings,cmsGetMedia,cmsUpdateMedia,cmsUploadMedia,cmsGetPublicSettings,cmsGetPublicAiChat,cmsQueryAiChat,cmsAnalyzeAiChat} from './cms-controller.js';
 import { listAdminSliders, createSlider, updateSlider, deleteSlider, reorderSliders } from './sliders-controller.js';
+import { updateUserPresenceHandler, recordAdminClickAuditHandler, getCacheSizeHandler, flushAllCacheHandler } from './admin-presence-cache.js';
+import { getMaintenanceHandler, saveMaintenanceHandler, getSeoMatrixHandler, saveSeoMatrixHandler, getSeoIntelligenceHandler, saveSeoIntelligenceHandler, sendTestEmailHandler, syncCmsMediaHandler, forgotPasswordHandler, resetPasswordHandler } from './oriscare-parity-handlers.js';
 
 const protectedRoute = (method, path, handler) => ({ method, path, handlers: [auth, requireLegacyRole, handler] });
 const openRoute = (method, path, handler) => ({ method, path, handlers: [handler] });
@@ -148,6 +150,20 @@ export const routes = [
   openRoute('GET', '/cms/public-settings', cmsGetPublicSettings),
   openRoute('GET', '/cms/public-ai-chat', cmsGetPublicAiChat),
   openRoute('POST', '/cms/ai-chat/query', cmsQueryAiChat),
+  openRoute('POST', '/auth/forgot-password', forgotPasswordHandler),
+  openRoute('POST', '/auth/reset-password', resetPasswordHandler),
+  protectedRoute('POST', '/admin/user-presence', updateUserPresenceHandler),
+  protectedRoute('POST', '/admin/activity/click', recordAdminClickAuditHandler),
+  protectedRoute('GET', '/admin/cache/size', getCacheSizeHandler),
+  protectedRoute('POST', '/admin/cache/flush', flushAllCacheHandler),
+  protectedRoute('GET', '/admin/maintenance', getMaintenanceHandler),
+  protectedRoute('PUT', '/admin/maintenance', saveMaintenanceHandler),
+  protectedRoute('GET', '/admin/seo-intelligence-matrix', getSeoMatrixHandler),
+  protectedRoute('PUT', '/admin/seo-intelligence-matrix', saveSeoMatrixHandler),
+  protectedRoute('GET', '/admin/seo-intelligence', getSeoIntelligenceHandler),
+  protectedRoute('PUT', '/admin/seo-intelligence', saveSeoIntelligenceHandler),
+  protectedRoute('POST', '/admin/smtp/test', sendTestEmailHandler),
+  protectedRoute('POST', '/admin/media/sync', syncCmsMediaHandler),
   protectedRoute('GET', '/admin/sliders', listAdminSliders),
   protectedRoute('POST', '/admin/sliders', createSlider),
   protectedRoute('PUT', '/admin/sliders/order', reorderSliders),
@@ -163,6 +179,7 @@ export const routes = [
   protectedRoute('POST','/admin/seo/audit-snapshot',captureSeoAuditSnapshot),
   protectedRoute('PUT','/admin/seo/intelligence',updateSeoEntity),
   protectedRoute('GET','/admin/backend-logs',getBackendLogs),
+  protectedRoute('POST','/admin/backend-logs/test',writeBackendTestLog),
   protectedRoute('GET','/admin/backend-logs/export',exportBackendLogs),
   protectedRoute('GET','/admin/redirects',listRedirects),
   protectedRoute('POST','/admin/redirects',createRedirect),
@@ -179,6 +196,7 @@ export const routes = [
   protectedRoute('GET','/admin/forms/email-logs',listFormEmailLogs),
   protectedRoute('GET','/admin/settings',cmsGetSettings),
   protectedRoute('PUT','/admin/settings',cmsSaveSettings),
+  protectedRoute('POST','/admin/ai-chat/analyze',cmsAnalyzeAiChat),
   protectedRoute('GET','/admin/users',listUsersHandler),
   protectedRoute('POST','/admin/users',createUserHandler),
   protectedRoute('PUT','/admin/users/:id',updateUserHandler),
@@ -199,6 +217,8 @@ export const routes = [
   protectedRoute('PUT', '/api/profile', updateProfile),
 
   protectedRoute('POST', '/admin/analytics/event', receiveAdminAnalytics),
+  protectedRoute('GET', '/admin/activity-logs', getActivityLogs),
+  protectedRoute('POST', '/admin/activity-logs/clear', clearActivityLogs),
   protectedRoute('GET', '/admin/reports/activity', getActivityLogs),
   protectedRoute('GET', '/admin/reports/activity/download', downloadActivityLogs),
   protectedRoute('GET', '/admin/reports/overview', getAdminOverview),

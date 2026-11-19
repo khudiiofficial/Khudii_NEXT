@@ -114,7 +114,7 @@ export default function ImageSlider({ slides = [], autoPlayInterval = 5000 }) {
                 type="button"
                 onClick={() => setCurrent(i)}
                 className={`h-2 rounded-full transition-all duration-300 border-none cursor-pointer ${
-                  current === i ? 'w-6 bg-[#00a2d3]' : 'w-2 bg-white/60 hover:bg-white/90'
+                  current === i ? 'w-6 bg-[#02236E]' : 'w-2 bg-white/60 hover:bg-white/90'
                 }`}
                 aria-label={`Go to slide ${i + 1}`}
               />

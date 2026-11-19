@@ -86,5 +86,25 @@ export async function analyticsSummary(days) {
   const [topPages] = await sql.query(`SELECT path,COUNT(*) AS count FROM khudii_analytics_events WHERE action='page_view' AND surface='frontend' AND ${daySql} BETWEEN ? AND ? GROUP BY path ORDER BY count DESC LIMIT 12`,[from,to]);
   const [topActions] = await sql.query(`SELECT action,surface,COUNT(*) AS count FROM khudii_analytics_events WHERE ${daySql} BETWEEN ? AND ? GROUP BY action,surface ORDER BY count DESC LIMIT 20`,[from,to]);
   const [sessions] = await sql.query(`SELECT COUNT(DISTINCT visitor_hash) AS sessions FROM khudii_analytics_events WHERE surface='frontend' AND visitor_hash IS NOT NULL AND ${daySql} BETWEEN ? AND ?`,[from,to]);
-  return {days:period,from,to,timeline,categories,topPages,topActions,sessions:Number(sessions[0]?.sessions||0)};
+  const [devices] = await sql.query(`SELECT COALESCE(device_category,'desktop') AS device, COUNT(*) AS count FROM khudii_analytics_events WHERE surface='frontend' AND action='page_view' AND ${daySql} >= DATE_SUB(CURDATE(), INTERVAL 13 DAY) GROUP BY device`);
+  const [todayViews] = await sql.query(`SELECT COUNT(*) AS total FROM khudii_analytics_events WHERE surface='frontend' AND action='page_view' AND ${daySql} = DATE(CONVERT_TZ(NOW(),'+00:00','+05:00'))`);
+  const deviceSplit = { desktop: 0, mobile: 0, tablet: 0, total: 0 };
+  for (const row of devices) {
+    const key = ['desktop', 'mobile', 'tablet'].includes(row.device) ? row.device : 'desktop';
+    const c = Number(row.count || 0);
+    deviceSplit[key] += c;
+    deviceSplit.total += c;
+  }
+  return {
+    days: period,
+    from,
+    to,
+    timeline,
+    categories,
+    topPages,
+    topActions,
+    sessions: Number(sessions[0]?.sessions || 0),
+    deviceSplit,
+    todayViews: Number(todayViews[0]?.total || 0),
+  };
 }

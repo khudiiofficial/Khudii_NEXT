@@ -249,7 +249,7 @@ const myDivRef = useRef(null);
       <div className="max-w-[1240px] mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-[#222222] mb-4">Support Our Cause</h1>
+          <h2 className="text-4xl font-bold text-[#222222] mb-4">Support Our Cause</h2>
           <p className="text-xl text-[#222222]">Your donation makes a difference. Together we can create positive change.</p>
         </div>
 

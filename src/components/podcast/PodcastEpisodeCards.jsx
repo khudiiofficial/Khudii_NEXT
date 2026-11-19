@@ -21,6 +21,7 @@ export default function PodcastEpisodeCards({ episodes = [], single = false }) {
                   src={`https://www.youtube-nocookie.com/embed/${cleanId}?autoplay=1`}
                   className="h-full w-full"
                   loading="lazy"
+                  sandbox="allow-scripts allow-same-origin allow-presentation"
                   referrerPolicy="strict-origin-when-cross-origin"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
@@ -38,7 +39,7 @@ export default function PodcastEpisodeCards({ episodes = [], single = false }) {
                   <img
                     className="absolute inset-0 h-full w-full object-cover"
                     src={`https://i.ytimg.com/vi/${cleanId}/hqdefault.jpg`}
-                    alt=""
+                    alt={episode.title ? `${episode.title} thumbnail` : 'Khudii podcast episode thumbnail'}
                     loading="lazy"
                     onError={(e) => {
                       // Fallback to maxresdefault or placeholder if hqdefault fails

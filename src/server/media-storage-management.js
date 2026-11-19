@@ -1,15 +1,29 @@
 import ftp from 'basic-ftp';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import db from './admin-backend/Database/oldDB.js';
 
-// Default is 'ftp' as requested
-let currentStorageMode = process.env.MEDIA_STORAGE_MODE || 'ftp';
+const pool = db.promise();
+
+export async function getPersistedStorageMode() {
+  try {
+    const [rows] = await pool.query("SELECT content FROM khudii_admin_settings WHERE bucket = 'login_auth' LIMIT 1");
+    if (rows[0]?.content) {
+      const parsed = JSON.parse(rows[0].content);
+      if (parsed?.mediaStorageMode === 'public' || parsed?.mediaStorageMode === 'ftp') {
+        return parsed.mediaStorageMode;
+      }
+    }
+  } catch { /* fallback */ }
+  return process.env.MEDIA_STORAGE_MODE === 'public' ? 'public' : 'ftp';
+}
 
 export async function getMediaStorageHandler(req, res) {
+  const mode = await getPersistedStorageMode();
   return res.json({
     success: true,
-    mode: currentStorageMode,
-    publicPath: '/images_KTC',
+    mode,
+    publicPath: '/uploads',
   });
 }
 
@@ -18,19 +32,31 @@ export async function setMediaStorageHandler(req, res) {
   if (mode !== 'public' && mode !== 'ftp') {
     return res.status(422).json({ success: false, error: 'Invalid storage mode. Must be "public" or "ftp".' });
   }
-  currentStorageMode = mode;
-  return res.json({ success: true, mode: currentStorageMode });
+  try {
+    const [rows] = await pool.query("SELECT content FROM khudii_admin_settings WHERE bucket = 'login_auth' LIMIT 1");
+    const doc = rows[0]?.content ? JSON.parse(rows[0].content) : {};
+    doc.mediaStorageMode = mode;
+    await pool.query(
+      "INSERT INTO khudii_admin_settings (bucket, content) VALUES ('login_auth', ?) ON DUPLICATE KEY UPDATE content = VALUES(content)",
+      [JSON.stringify(doc)],
+    );
+    return res.json({ success: true, mode });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: 'Failed to persist storage mode: ' + err.message });
+  }
 }
 
 export async function testPublicMediaHandler(req, res) {
   try {
+    const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+    await fs.mkdir(uploadsDir, { recursive: true });
     const probeName = `.probe_${Date.now()}.txt`;
-    const probePath = path.join(process.cwd(), 'public', probeName);
+    const probePath = path.join(uploadsDir, probeName);
     await fs.writeFile(probePath, 'probe', 'utf8');
     await fs.unlink(probePath);
     return res.json({
       success: true,
-      message: 'Hostinger public_html media storage is writable and operational.',
+      message: 'Local public/uploads media storage is writable and operational.',
       checkedAt: new Date().toISOString(),
     });
   } catch (err) {

@@ -46,7 +46,7 @@ export const DEFAULT_KINGTRAVEL_EMAIL_TEMPLATE = `<!DOCTYPE html>
                       INQUIRY NOTIFICATION
                     </div>
                     <div style="margin: 8px 0 4px 0;">
-                      <a href="https://khudii.com" target="_blank" style="text-decoration: none; display: inline-block;">
+                      <a href="https://khudii.com" target="_blank" rel="noopener noreferrer" style="text-decoration: none; display: inline-block;">
                         <img src="https://media.khudii.com/khudii-25be32c7-e8a9-4a82-a49d-f0d694873286.png" alt="Khudii Welfare Organization" width="200" style="display: block; width: 200px; max-width: 100%; height: auto; border: 0; outline: none; text-decoration: none; margin: 0 auto;" />
                       </a>
                     </div>
@@ -129,7 +129,7 @@ export const DEFAULT_KINGTRAVEL_EMAIL_TEMPLATE = `<!DOCTYPE html>
                 </tr>
                 <tr>
                   <td align="center" style="padding-bottom: 16px;">
-                    <a href="https://www.khudii.com" target="_blank" style="color: #ffd700; text-decoration: none; font-weight: 700; font-size: 12px; margin: 0 8px;">
+                    <a href="https://www.khudii.com" target="_blank" rel="noopener noreferrer" style="color: #ffd700; text-decoration: none; font-weight: 700; font-size: 12px; margin: 0 8px;">
                       Visit Official Website →
                     </a>
                   </td>

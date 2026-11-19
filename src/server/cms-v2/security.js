@@ -7,12 +7,13 @@ import {validSessionVersion} from '../admin-backend/utils/sessionVersion.js';
 const pool=db.promise();
 export function routePermission(path,method){
   const write=!['GET','HEAD','OPTIONS'].includes(method);
-  if(path==='/auth/change-password'||path==='/api/profile')return null;
+  if(path==='/auth/change-password'||path==='/api/profile'||path==='/admin/user-presence'||path==='/admin/activity/click')return null;
   if(path.includes('/seo/')||path.includes('/seo-center'))return write?'seo.manage':'seo.read';
   if(path.includes('/redirect'))return 'redirects.manage';
+  if(path==='/admin/activity-logs/clear'||path==='/admin/backend-logs/test'||path.startsWith('/admin/cache/'))return 'settings.manage';
   if(path.includes('/backend-logs')||path.includes('/activity')||path.includes('/report'))return 'logs.read';
   if(path.includes('/media'))return 'media.manage';
-  if(path.includes('/settings')||path.includes('/owner'))return 'settings.manage';
+  if(path.includes('/settings')||path.includes('/owner')||path.includes('/maintenance')||path.includes('/smtp/'))return 'settings.manage';
   if(path.includes('/forms/')||path.includes('/inquir')||path.includes('/donation')||path.includes('/submissions')||path.includes('/contact-messages')||path.includes('/volunteer')||path.includes('/job-applications'))return write?'forms.manage':'forms.read';
   if(path.includes('/reorder'))return 'pages.write';
   return write?'pages.write':'pages.read';

@@ -243,7 +243,7 @@ const AdminStories = () => {
                 <div className="detail-group">
                   <label>Phone:</label>
                   <span>
-                    <a href={`tel:${selectedStory.phone} target="_blank"`}>
+                    <a href={`tel:${selectedStory.phone}`} target="_blank" rel="noopener noreferrer">
                       +{selectedStory.countryCode} {selectedStory.phone}
                     </a>
                   </span>

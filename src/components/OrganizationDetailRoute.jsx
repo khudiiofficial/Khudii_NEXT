@@ -11,14 +11,14 @@ const OrganizationDetail = dynamic(
   { ssr: false },
 );
 
-export default function OrganizationDetailRoute() {
+export default function OrganizationDetailRoute({ initialData = null }) {
   const { slug } = useParams();
   const { baseUrl } = usePublicSeo();
-  const [organization, setOrganization] = useState(null);
+  const [organization, setOrganization] = useState(initialData);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!slug) return;
+    if (!slug || initialData) return;
     const controller = new AbortController();
     axios
       .get(`/item/${encodeURIComponent(slug)}`, { signal: controller.signal })
@@ -29,7 +29,7 @@ export default function OrganizationDetailRoute() {
         }
       });
     return () => controller.abort();
-  }, [slug]);
+  }, [slug, initialData]);
 
   if (error) {
     return (

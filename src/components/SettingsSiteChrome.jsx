@@ -27,8 +27,8 @@ async function api(path, method = 'GET', body) {
   return json;
 }
 
-function confirm(title, text, status = 'warning') {
-  return confirmDialog({ title, text, status });
+function confirm(title, text, status = 'success', confirmText) {
+  return confirmDialog({ title, text, status, ...(confirmText ? { confirmText } : {}) });
 }
 
 function notify(title, status = 'success', text) {
@@ -67,7 +67,7 @@ function HeaderEditor({ onDirty }) {
   async function submit(e) {
     e.preventDefault();
     if (!draft.trim()) return notify('Header message is required', 'error');
-    if (!await confirm(editing === null ? 'Create header message?' : 'Update header message?', 'Changes appear on the live frontend after saving.')) return;
+    if (!await confirm(editing === null ? 'Create header message?' : 'Update header message?', 'Changes appear on the live frontend after saving.', 'success', 'Save Message')) return;
     setBusy(true);
     try {
       await api(editing === null ? '/api/topbar' : `/api/topbar/${editing}`, editing === null ? 'POST' : 'PUT', { text: draft.trim() });
@@ -81,7 +81,7 @@ function HeaderEditor({ onDirty }) {
     catch (e) { await notify('Could not save header message', 'error', e.message); } finally { setBusy(false); }
   }
   async function remove(item) {
-    if (!await confirm('Delete header message?', 'This permanently removes the selected message.')) return;
+    if (!await confirm('Delete header message?', 'This permanently removes the selected message.', 'error', 'Delete')) return;
     setBusy(true);
     try {
       await api(`/api/topbar/${item.id}`, 'DELETE');
@@ -94,7 +94,7 @@ function HeaderEditor({ onDirty }) {
   async function saveTelephone(e) {
     e.preventDefault();
     if (!telephone.phone_number?.trim() || !telephone.icon_name?.trim()) return notify('Both telephone fields are required', 'error');
-    if (!await confirm('Save header phone details?', 'The telephone number and icon will update on the public site.')) return;
+    if (!await confirm('Save header phone details?', 'The telephone number and icon will update on the public site.', 'success', 'Save Phone')) return;
     setBusy(true);
     try {
       await api('/api/telephone', 'PUT', { phone_number: telephone.phone_number.trim(), icon_name: telephone.icon_name.trim() });
@@ -106,7 +106,7 @@ function HeaderEditor({ onDirty }) {
   }
   async function saveHeaderActions(e) {
     e.preventDefault();
-    if (!await confirm('Save header search & donate settings?', 'Changes to the search bar and donate button will immediately update on the public site.')) return;
+    if (!await confirm('Save header search & donate settings?', 'Changes to the search bar and donate button will immediately update on the public site.', 'success', 'Save Settings')) return;
     setBusy(true);
     try {
       await api('/api/header', 'PUT', headerActions);
@@ -361,13 +361,21 @@ function FooterEditor({ onDirty }) {
     <div className="md:col-span-2"><SaveButton loading={busy}>Save footer changes</SaveButton></div>
   </form></Section>;
 }
-export default function SettingsSiteChrome({ onDirty = () => { }, mode }) {
+export default function SettingsSiteChrome({ onDirty = () => { }, mode, profile = {}, setProfile, onSaveProfile, savingProfile = false }) {
   const [sub, setSub] = useState(() => (mode === 'footer' || (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('sub') === 'footer') ? 'footer' : 'header'));
   useEffect(() => { if (mode) setSub(mode === 'footer' ? 'footer' : 'header'); }, [mode]);
   const [dirty, setDirty] = useState(false);
   const dirtySources = useRef(new Map());
   const markDirty = (source, value) => { dirtySources.current.set(source, Boolean(value)); const next = [...dirtySources.current.values()].some(Boolean); setDirty(next); onDirty(next); };
   const pick = value => { if (dirty) { notify('Unsaved changes', 'error', 'Save or discard your edits before switching sections.'); return; } setSub(value); const u = new URL(window.location.href); u.searchParams.set('sub', value); window.history.replaceState(window.history.state, '', u.pathname + u.search); };
+  const socialFields = [
+    ['facebook', 'Facebook URL'],
+    ['instagram', 'Instagram URL'],
+    ['youtube', 'YouTube URL'],
+    ['linkedin', 'LinkedIn URL'],
+    ['twitter', 'Twitter / X URL'],
+    ['tiktok', 'TikTok URL'],
+  ];
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap gap-2 border-b border-slate-100 pb-4">
@@ -379,7 +387,7 @@ export default function SettingsSiteChrome({ onDirty = () => { }, mode }) {
             key={t.id}
             type="button"
             onClick={() => pick(t.id)}
-            className={`rounded-lg px-4 py-2 text-xs font-bold transition-all ${sub === t.id ? 'bg-[#02236E]/10 text-[#02236E]' : 'text-slate-500 hover:text-[#02236E] hover:bg-slate-50'}`}
+            className={`rounded-lg px-4 py-2 text-xs font-bold transition-all cursor-pointer ${sub === t.id ? 'bg-[#02236E]/10 text-[#02236E]' : 'text-slate-500 hover:text-[#02236E] hover:bg-slate-50'}`}
           >
             {t.label}
           </button>
@@ -395,6 +403,31 @@ export default function SettingsSiteChrome({ onDirty = () => { }, mode }) {
       ) : (
         <>
           <FooterEditor onDirty={markDirty} />
+          {setProfile && (
+            <Section
+              title="Footer Social Media Links"
+              description="Configure the official social media URLs displayed in the public Khudii footer."
+            >
+              <div className="grid gap-4 md:grid-cols-2">
+                {socialFields.map(([key, label]) => (
+                  <Input
+                    key={key}
+                    label={label}
+                    type="url"
+                    value={profile[key] || ''}
+                    onChange={(v) => setProfile((prev) => ({ ...prev, [key]: v }))}
+                  />
+                ))}
+              </div>
+              {onSaveProfile && (
+                <div>
+                  <SaveButton loading={savingProfile} onClick={onSaveProfile}>
+                    Save Social Links
+                  </SaveButton>
+                </div>
+              )}
+            </Section>
+          )}
           <div className="pt-2">
             <KhudiiMenuTreeEditor location="footer" />
           </div>

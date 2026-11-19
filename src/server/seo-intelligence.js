@@ -1,6 +1,7 @@
 import db from './admin-backend/Database/oldDB.js';
 import { CMS_PAGES } from '@/lib/cms-registry';
 import {getPublicSeoDefaults} from './public-seo-defaults.js';
+import { formatSeoTitle, formatSeoDescription } from '@/lib/seo.js';
 
 const sql=db.promise();
 let initPromise;
@@ -61,7 +62,7 @@ function normalizeExtension(body){
 }
 
 const site=()=>String(process.env.NEXT_PUBLIC_SITE_URL||'https://www.khudii.com').replace(/\/+$/,'');
-const pathFor=(type,slug)=> type==='organizations'?'/organization/'+slug:type==='blogs'?'/Blog/'+slug:type==='stories'?'/success-stories/'+slug:type==='podcasts'?'/podcast/'+slug:type==='categories'?'/Categories/'+slug:slug;
+const pathFor=(type,slug)=> type==='organizations'?'/organization/'+slug:type==='blogs'?'/blog/'+slug:type==='stories'?'/success-stories/'+slug:type==='podcasts'?'/podcast/'+slug:type==='categories'?'/categories/'+slug:slug;
 export function initSeoStorage(){
   if(!initPromise)initPromise=sql.query(`CREATE TABLE IF NOT EXISTS khudii_seo_entities (
     page_path VARCHAR(190) NOT NULL PRIMARY KEY,
@@ -498,9 +499,29 @@ export function pageSeoMetadata(row, fallbackTitle, path, settings={}){
   const origin=String(settings.canonical_domain||site()).replace(/\/+$/,'');
   const image=row?.og_image||settings.og_image||'/Khudii.webp';
   const index=settings.allow_indexing!==false && !row?.noindex && path!=='/auth-callback';
-  return {title:row?.meta_title||fallbackTitle,description:row?.meta_description||undefined,keywords:row?.meta_keywords||undefined,
-    alternates:{canonical:row?.canonical_url||origin+path},robots:{index,follow:index&&!row?.robots_nofollow},
-    openGraph:{title:row?.og_title||row?.meta_title||fallbackTitle,description:row?.og_description||row?.meta_description||undefined,url:row?.canonical_url||origin+path,siteName:'Khudii',images:[image]},twitter:{card:row?.twitter_card||'summary_large_image',title:row?.og_title||row?.meta_title||fallbackTitle,description:row?.og_description||row?.meta_description||undefined,images:[image]}};
+  const title=formatSeoTitle(row?.meta_title||fallbackTitle);
+  const description=formatSeoDescription(row?.meta_description||row?.description, fallbackTitle);
+  const canonical=row?.canonical_url||`${origin}${path}`;
+  return {
+    title,
+    description,
+    keywords:row?.meta_keywords||undefined,
+    alternates:{canonical},
+    robots:{index,follow:index&&!row?.robots_nofollow},
+    openGraph:{
+      title:formatSeoTitle(row?.og_title||row?.meta_title||fallbackTitle),
+      description:formatSeoDescription(row?.og_description||row?.meta_description||description, fallbackTitle),
+      url:canonical,
+      siteName:'Khudii',
+      images:[image]
+    },
+    twitter:{
+      card:row?.twitter_card||'summary_large_image',
+      title:formatSeoTitle(row?.og_title||row?.meta_title||fallbackTitle),
+      description:formatSeoDescription(row?.og_description||row?.meta_description||description, fallbackTitle),
+      images:[image]
+    }
+  };
 }
 export async function generateKhudiiPageMetadata(path,title){
   const [record,settings]=await Promise.all([publicPageSeo(path),getPublicSeoDefaults()]);
@@ -558,4 +579,48 @@ export async function captureSeoAuditSnapshot(req,res){
     await sql.query('INSERT INTO khudii_seo_audit_snapshots(total_records,average_score,missing_titles,missing_descriptions,duplicate_metadata,noindex_count) VALUES (?,?,?,?,?,?)',Object.values(stats));
     return res.status(201).json({success:true,summary:stats});
   }catch(e){console.error('[SEO snapshot]',e);return res.status(503).json({message:'SEO snapshot could not be saved. Check the database migration.'});}
+}
+
+export async function getPublicOrganizationBySlug(slug) {
+  if (!slug) return null;
+  try {
+    const [rows] = await sql.query('SELECT * FROM items WHERE (slug=? OR id=?) AND deletestatus=0 LIMIT 1', [slug, slug]);
+    return rows[0] || null;
+  } catch (e) {
+    console.error('[getPublicOrganizationBySlug]', e.message);
+    return null;
+  }
+}
+
+export async function getPublicBlogBySlug(slug) {
+  if (!slug) return null;
+  try {
+    const [rows] = await sql.query('SELECT * FROM document WHERE (slug=? OR id=?) AND deletestatus=0 LIMIT 1', [slug, slug]);
+    return rows[0] || null;
+  } catch (e) {
+    console.error('[getPublicBlogBySlug]', e.message);
+    return null;
+  }
+}
+
+export async function getPublicStoryBySlug(slug) {
+  if (!slug) return null;
+  try {
+    const [rows] = await sql.query('SELECT * FROM successstories WHERE (slug=? OR id=?) AND deletestatus=0 AND is_published=1 LIMIT 1', [slug, slug]);
+    return rows[0] || null;
+  } catch (e) {
+    console.error('[getPublicStoryBySlug]', e.message);
+    return null;
+  }
+}
+
+export async function getPublicCategoryBySlug(slug) {
+  if (!slug) return null;
+  try {
+    const [rows] = await sql.query('SELECT * FROM sectors WHERE (slug=? OR id=?) AND deletestatus=0 LIMIT 1', [slug, slug]);
+    return rows[0] || null;
+  } catch (e) {
+    console.error('[getPublicCategoryBySlug]', e.message);
+    return null;
+  }
 }

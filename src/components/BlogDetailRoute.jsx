@@ -11,15 +11,15 @@ const BlogDetails = dynamic(
   { ssr: false },
 );
 
-export default function BlogDetailRoute() {
+export default function BlogDetailRoute({ initialData = null }) {
   const params = useParams();
   const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
   const { baseUrl } = usePublicSeo();
-  const [blog, setBlog] = useState(null);
+  const [blog, setBlog] = useState(initialData);
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!slug) return undefined;
+    if (!slug || initialData) return undefined;
     const controller = new AbortController();
 
     axios
@@ -36,7 +36,7 @@ export default function BlogDetailRoute() {
       });
 
     return () => controller.abort();
-  }, [slug]);
+  }, [slug, initialData]);
 
   if (error) {
     return (

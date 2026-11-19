@@ -11,7 +11,7 @@ import {
   Search,
   X,
   ArrowUp,
-  Loader2
+  MessageCircleMore
 } from 'lucide-react';
 
 const API = process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app';
@@ -754,27 +754,12 @@ export function DynamicFooter() {
         </div>
       </div>
 
-      {/* Floating Ask Khudii 24/7 Support Widget (as in Image 2) */}
-      <div className="fixed bottom-6 right-6 z-40">
-        <a
-          href="/contact"
-          className="flex items-center gap-2.5 rounded-2xl bg-[#009dc8] px-4 py-2.5 text-white shadow-2xl transition-all hover:bg-[#0089ae] hover:scale-105"
-        >
-          <div className="relative flex h-6 w-6 items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-white" />
-          </div>
-          <div className="text-left leading-tight">
-            <div className="text-xs font-bold tracking-wide">Ask Khudii</div>
-            <div className="text-[10px] font-medium text-white/90">24/7 Support</div>
-          </div>
-        </a>
-      </div>
-
       {/* Bottom Bar: Copyright & Socials */}
       <div className="bg-[#02236E] text-white">
         <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-4 px-6 py-4 md:px-8">
+          <div className="flex flex-wrap items-center gap-4">
           <p className="text-sm font-medium text-white/90 m-0">
-            ©2025 Copyright <strong className="text-[#ed0026]">Khudii</strong>. All Rights Reserved. Powered By{' '}
+            ©2026 Copyright <strong className="text-[#ed0026]">Khudii</strong>. All Rights Reserved. Powered By{' '}
             <a
               href="https://www.dks.com.pk/"
               target="_blank"
@@ -784,6 +769,14 @@ export function DynamicFooter() {
               DKS
             </a>
           </p>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent('khudii:open-cookie-preferences'))}
+            className="text-xs font-semibold text-blue-200 underline-offset-2 hover:text-white hover:underline cursor-pointer bg-transparent border-0"
+          >
+            Cookie Preferences
+          </button>
+          </div>
 
           {/* Social Icons with circular badges */}
           <div className="flex items-center gap-2.5">

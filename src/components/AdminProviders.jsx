@@ -6,6 +6,9 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { AdminAuthProvider, useAdminAuth } from '@/lib/admin-auth';
 import { installLargePayloadUploadInterceptor } from '@/lib/large-payload-upload';
+import { ToastProvider } from '@/components/providers/ToastProvider';
+import { ConfirmProvider } from '@/components/providers/ConfirmProvider';
+import { SubmissionPopupProvider } from '@/components/providers/SubmissionPopupProvider';
 
 // All admin API calls must include this header so the catch-all route
 // dispatches to adminRoutes instead of publicRoutes.
@@ -66,8 +69,14 @@ export default function AdminProviders({ children }) {
   useEffect(() => {const original=window.alert;window.alert=(message)=>{adminNotify(message,/(error|failed|invalid|fix|unable|❌)/i.test(String(message))?'error':'success');};return()=>{window.alert=original;};}, []);
 
   return (
-    <AdminAuthProvider>
-      <SessionGuard>{children}</SessionGuard>
-    </AdminAuthProvider>
+    <ToastProvider>
+      <ConfirmProvider>
+        <SubmissionPopupProvider>
+          <AdminAuthProvider>
+            <SessionGuard>{children}</SessionGuard>
+          </AdminAuthProvider>
+        </SubmissionPopupProvider>
+      </ConfirmProvider>
+    </ToastProvider>
   );
 }

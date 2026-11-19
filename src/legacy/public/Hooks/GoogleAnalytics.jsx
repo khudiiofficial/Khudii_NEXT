@@ -1,73 +1,67 @@
-// src/hooks/useGoogleAnalytics.js
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from '@/lib/router-compat';
+import { readCookieConsent } from '@/components/consent/ConsentManager';
 
-const GA_TRACKING_ID = process.env.NEXT_PUBLIC_GA_TRACKING_ID;
+const ENV_GA_ID = process.env.NEXT_PUBLIC_GA_TRACKING_ID || '';
 
-export const useGoogleAnalytics = () => {
+export const useGoogleAnalytics = (dynamicGaId = '', enabled = true) => {
   const location = useLocation();
+  const [trackingGranted, setTrackingGranted] = useState(false);
+
+  const gaId = (dynamicGaId || ENV_GA_ID || '').trim();
 
   useEffect(() => {
-    if (!GA_TRACKING_ID) {
-      console.warn('GA Tracking ID not found');
-      return;
-    }
+    const existing = readCookieConsent();
+    setTrackingGranted(Boolean(existing?.tracking));
 
-    // Avoid re-initializing
-    if (window.gtag) {
-      return;
-    }
-
-    // Initialize dataLayer
-    window.dataLayer = window.dataLayer || [];
-
-    // Define gtag function to push to dataLayer
-    window.gtag = function () {
-      window.dataLayer.push(arguments);
+    const onChange = (e) => {
+      setTrackingGranted(Boolean(e?.detail?.tracking));
     };
+    window.addEventListener('khudii:cookie-consent-changed', onChange);
+    return () => window.removeEventListener('khudii:cookie-consent-changed', onChange);
+  }, []);
 
-    // Load GA script with a delay to improve TBT & Page Load metrics
-    const loadGA = () => {
+  useEffect(() => {
+    if (!enabled || !gaId || !trackingGranted) return;
+
+    window.dataLayer = window.dataLayer || [];
+    if (!window.gtag) {
+      window.gtag = function () {
+        window.dataLayer.push(arguments);
+      };
+    }
+
+    const existingScript = document.querySelector(`script[src*="googletagmanager.com/gtag/js?id=${gaId}"]`);
+    if (!existingScript) {
       const script = document.createElement('script');
       script.async = true;
-      script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`;
+      script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(gaId)}`;
       document.head.appendChild(script);
-
-      // Initial config
       window.gtag('js', new Date());
-      window.gtag('config', GA_TRACKING_ID, {
-        page_path: location.pathname + location.search,
-      });
-    };
-
-    // Delay execution until main thread is idle or after 4s
-    if (window.requestIdleCallback) {
-      window.requestIdleCallback(loadGA, { timeout: 4000 });
-    } else {
-      setTimeout(loadGA, 4000);
     }
-  }, []); // Only run once on mount
 
-  // Track page views on route change
+    window.gtag('consent', 'update', { analytics_storage: 'granted' });
+    window.gtag('config', gaId, {
+      page_path: location.pathname + location.search,
+    });
+  }, [enabled, gaId, trackingGranted]);
+
   useEffect(() => {
-    if (!GA_TRACKING_ID || !window.gtag) return;
-
-    // Use explicit page_view event (recommended for SPAs)
+    if (!enabled || !gaId || !trackingGranted || !window.gtag) return;
     window.gtag('event', 'page_view', {
       page_title: document.title,
       page_location: window.location.origin + location.pathname + location.search,
       page_path: location.pathname + location.search,
     });
-  }, [location]);
+  }, [location, enabled, gaId, trackingGranted]);
 };
 
-// Event tracking function
 export const trackEvent = (action, category, label, value) => {
-  if (window.gtag) {
+  if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', action, {
       event_category: category,
       event_label: label,
-      value: value,
+      value,
     });
   }
 };

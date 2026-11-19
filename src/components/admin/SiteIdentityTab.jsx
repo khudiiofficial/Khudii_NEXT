@@ -6,7 +6,7 @@ import {
   HelpCircle, Sparkles, MessageCircle, Phone, Globe, Shield, Mic
 } from 'lucide-react';
 import ImageUploadWidget from './ImageUploadWidget';
-import { alertNotice } from '@/lib/dialogs';
+import { alertNotice, confirmDialog } from '@/lib/dialogs';
 
 export default function SiteIdentityTab({
   identityData,
@@ -88,7 +88,15 @@ export default function SiteIdentityTab({
     setIdentityData((prev) => ({ ...prev, tawkQuickPrompts: updatedList }));
   };
 
-  const handleDeletePrompt = (id) => {
+  const handleDeletePrompt = async (id) => {
+    const ok = await confirmDialog({
+      title: 'Delete quick prompt?',
+      text: 'This removes the selected Q&A prompt from Tawk.to settings.',
+      status: 'error',
+      confirmText: 'Delete',
+      cancelText: 'Cancel',
+    });
+    if (!ok) return;
     const currentList = Array.isArray(identityData.tawkQuickPrompts) ? identityData.tawkQuickPrompts : [];
     const updatedList = currentList.filter((p) => p.id !== id);
     setIdentityData((prev) => ({ ...prev, tawkQuickPrompts: updatedList }));
@@ -302,7 +310,59 @@ export default function SiteIdentityTab({
                 label="Site Favicon"
               />
             </div>
-            <span className="text-[11px] text-slate-500 font-bold mt-1">Recommended: .ico, .png, .svg</span>
+            <span className="text-[11px] text-slate-500 font-bold mt-1">Recommended: .ico, .png, .svg (wired into SSR metadata)</span>
+          </div>
+
+          {/* Admin Panel Branding (Oriscare Parity) */}
+          <div className="flex flex-col gap-3 pt-4 border-t border-slate-200/60">
+            <div>
+              <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#02236E] m-0">Admin Panel Branding</h4>
+              <p className="text-[11px] text-slate-500 mt-0.5 mb-0">
+                Customize the logo and width displayed in the Admin Dashboard sidebar.
+              </p>
+            </div>
+            <ImageUploadWidget
+              value={identityData.adminLogoUrl || ''}
+              onChange={(url) => setIdentityData((prev) => ({ ...prev, adminLogoUrl: url }))}
+              subfolder="branding"
+              label="Admin Sidebar Logo (Optional)"
+            />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Admin Logo Alt Text</label>
+                <input
+                  type="text"
+                  value={identityData.adminLogoAlt ?? 'Khudii Admin'}
+                  onChange={(e) => setIdentityData((prev) => ({ ...prev, adminLogoAlt: e.target.value }))}
+                  className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-xs font-semibold outline-none focus:border-[#02236E]"
+                  placeholder="Khudii Admin Portal"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">
+                  Admin Logo Width ({Number(identityData.adminLogoWidth || 44)}px)
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="range"
+                    min={40}
+                    max={180}
+                    step={4}
+                    value={Number(identityData.adminLogoWidth || 44)}
+                    onChange={(e) => setIdentityData((prev) => ({ ...prev, adminLogoWidth: Number(e.target.value) }))}
+                    className="flex-1 accent-[#02236E]"
+                  />
+                  <input
+                    type="number"
+                    min={40}
+                    max={180}
+                    value={Number(identityData.adminLogoWidth || 44)}
+                    onChange={(e) => setIdentityData((prev) => ({ ...prev, adminLogoWidth: Number(e.target.value) }))}
+                    className="w-16 p-1.5 rounded-lg border border-slate-300 bg-white text-xs font-mono text-center"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

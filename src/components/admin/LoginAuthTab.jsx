@@ -5,6 +5,7 @@ import {
   Image as ImageIcon, CheckCircle2, Lock, Eye, EyeOff
 } from 'lucide-react';
 import { confirmDialog, alertNotice } from '@/lib/dialogs';
+import ImageUploadWidget from './ImageUploadWidget';
 
 export default function LoginAuthTab({
   loginAuthData = {},
@@ -166,11 +167,20 @@ export default function LoginAuthTab({
       return;
     }
 
+    const ok = await confirmDialog({
+      title: 'Update Administrator Password?',
+      text: 'Your password will change immediately and other active sessions will be invalidated.',
+      status: 'warning',
+      confirmText: 'Update Password',
+      cancelText: 'Cancel',
+    });
+    if (!ok) return;
+
     setPwSaving(true);
     setPwMsg('');
     try {
-      const res = await fetch('/api-app/admin/change-password', {
-        method: 'POST',
+      const res = await fetch('/api-app/auth/change-password', {
+        method: 'PUT',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json', 'x-khudii-surface': 'admin' },
         body: JSON.stringify({ currentPassword, newPassword }),
@@ -243,15 +253,13 @@ export default function LoginAuthTab({
           {/* Left Column: Background Image */}
           <div className="flex flex-col gap-2">
             <label className="block text-xs font-bold text-slate-700">Login Page Background Image</label>
-            <div className="rounded-xl border-2 border-dashed border-slate-300 p-6 flex flex-col items-center justify-center gap-2 bg-slate-50 hover:bg-slate-100/70 transition-colors">
-              <ImageIcon className="w-8 h-8 text-slate-400" />
-              <div className="text-center">
-                <p className="text-xs font-bold text-slate-700 m-0">Click to choose from Media Library or Upload New</p>
-                <p className="text-[11px] text-slate-400 m-0 mt-0.5">
-                  Reuse existing assets across packages, pages &amp; blogs to save space
-                </p>
-              </div>
-            </div>
+            <ImageUploadWidget
+              label="Choose from Media Library or Upload Login Background"
+              value={loginAuthData.backgroundImage ?? ''}
+              onChange={(url) =>
+                setLoginAuthData((prev) => ({ ...prev, backgroundImage: url }))
+              }
+            />
 
             <div className="mt-1">
               <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
@@ -310,8 +318,8 @@ export default function LoginAuthTab({
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[
-              { id: 'public', label: 'Public Folder', desc: 'Hostinger public_html/images_KTC' },
-              { id: 'ftp', label: 'FTP Folder', desc: 'Existing FTP media directory' },
+              { id: 'public', label: 'Public Folder', desc: 'Local public/uploads directory' },
+              { id: 'ftp', label: 'FTP Folder', desc: 'Khudii FTP media directory (media.khudii.com)' },
             ].map(({ id, label, desc }) => {
               const isSelected = mediaStorageMode === id;
               return (

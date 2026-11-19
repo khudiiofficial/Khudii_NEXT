@@ -1,4 +1,11 @@
 'use client';
-import dynamic from 'next/dynamic';
-const Component = dynamic(() => import('@/legacy/admin/Pages/SEO/Seo'), { ssr: false });
-export default function Page() { return <Component />; }
+
+import DashboardSeoCenterSection from '@/components/admin/DashboardSeoCenterSection';
+
+export default function SeoPage() {
+  return (
+    <div className="space-y-6 pb-12">
+      <DashboardSeoCenterSection />
+    </div>
+  );
+}

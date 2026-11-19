@@ -83,3 +83,4 @@ env.local
 /migrations/*
 /scripts/
 /tests
+/audit_csvs

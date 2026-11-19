@@ -191,9 +191,9 @@ const myDivRef = useRef(null);
       <div className="grid gap-10 md:grid-cols-2 items-start">
         {/* Left: heading + description */}
         <div>
-          <h1 className="text-[#222222] text-3xl md:text-4xl font-extrabold text-black-800 mb-4">
+          <h2 className="text-[#222222] text-3xl md:text-4xl font-extrabold text-black-800 mb-4">
             We&rsquo;d Love to Hear From You
-          </h1>
+          </h2>
           <p className="text-[#222222] mb-6 max-w-xl">
             At <strong>Khudii</strong>, every connection matters. Whether you are a
             donor who wants to support, a volunteer looking to serve, or a welfare
@@ -214,7 +214,9 @@ const myDivRef = useRef(null);
               </div>
               <div>
                 <h3 className="font-semibold text-[#02236E]">Call Us</h3>
-                <a  target="_blank"
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-slate-700 font-medium block"
                   href={`tel:${tel}`}
                 >
@@ -235,7 +237,9 @@ const myDivRef = useRef(null);
               </div>
               <div>
                 <h3 className="font-semibold text-[#02236E]">Email Us</h3>
-                <a  target="_blank"
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="text-slate-700 font-medium block"
                   href={`mailto:${footerdata.email}`}
                 >

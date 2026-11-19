@@ -73,6 +73,8 @@ export default function PodcastCollection({
               {showButton !== false && Boolean(buttonText) && (
                 <a
                   href={buttonUrl || '/podcast'}
+                  target={buttonUrl && /^https?:\/\//i.test(buttonUrl) ? '_blank' : undefined}
+                  rel={buttonUrl && /^https?:\/\//i.test(buttonUrl) ? 'noopener noreferrer' : undefined}
                   className="inline-flex items-center font-medium group bg-[#02236E] px-4 py-2 rounded-xl text-white hover:bg-blue-900 transition-colors text-xs shrink-0 no-underline shadow-xs"
                   aria-label={buttonText}
                 >

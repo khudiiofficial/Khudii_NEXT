@@ -20,8 +20,8 @@ const APIPath = process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app';
 export const ADMIN_GROUPS = [
   { name: 'Dashboard', links: [['Overview', '', LayoutDashboard]] },
   { name: 'Content Management', links: [['Pages', 'pages', Layers], ['Organizations', 'OrganizationPage', Building2], ['Blogs', 'BlogPage', BookOpen], ['Success Stories', 'SuccessStories', HandHeart], ['Podcasts', 'Podcast', Video], ['Media Library', 'media', Image], ['FAQs', 'faqs', CircleHelp]] },
-  { name: 'Site Management', links: [['Form Enquiries', 'form-enquiries', Inbox], ['SEO Center', 'seo-center', BarChart3], ['Redirects & 404', 'redirects', ShieldCheck]] },
-  { name: 'Administration', links: [['Activity Logs', 'activity-logs', Activity], ['Backend Logs', 'backend-logs', ClipboardList], ['Settings', 'settings', Settings]] },
+  { name: 'Site Management', links: [['Form Enquiries', 'form-enquiries', Inbox], ['SEO Center', 'seo-center', BarChart3], ['SEO Intelligence', 'seo-intelligence', Globe], ['Redirects & 404', 'redirects', ShieldCheck]] },
+  { name: 'Administration', links: [['Users & Access', 'users-roles', Users], ['Activity Logs', 'activity-logs', Activity], ['Backend Logs', 'backend-logs', ClipboardList], ['Settings', 'settings', Settings]] },
 ];
 export const ADMIN_PAGES = ADMIN_GROUPS.flatMap((group) => group.links.map(([label, slug, Icon]) => ({
   label, slug, Icon, href: slug ? `${BASE}/${slug}` : BASE, group: group.name,
@@ -34,24 +34,39 @@ export default function Sidebar({ mobileOpen = false, onClose = () => { } }) {
   const [filter, setFilter] = useState('');
   const [closedGroups, setClosedGroups] = useState({});
   const [siteLogo, setSiteLogo] = useState('');
+  const [adminLogo, setAdminLogo] = useState('');
+  const [adminLogoAlt, setAdminLogoAlt] = useState('Khudii Admin');
+  const [adminLogoWidth, setAdminLogoWidth] = useState(44);
   const [siteName, setSiteName] = useState('KHUDII');
 
   useEffect(() => {
     try {
       const cachedLogo = localStorage.getItem('khudii_site_logo');
       if (cachedLogo) setSiteLogo(cachedLogo);
+      const cachedAdminLogo = localStorage.getItem('khudii_admin_logo');
+      if (cachedAdminLogo) setAdminLogo(cachedAdminLogo);
       const cachedName = localStorage.getItem('khudii_site_name');
       if (cachedName) setSiteName(cachedName);
     } catch { }
 
     const fetchBranding = () => {
       axios.get(`${APIPath}/cms/public-settings`).then((res) => {
-        const logo = res.data?.logo || res.data?.site_identity?.siteLogo;
-        const name = res.data?.site_name || res.data?.site_identity?.siteName;
+        const identity = res.data?.site_identity || {};
+        const logo = res.data?.logo || identity.siteLogo;
+        const aLogo = identity.adminLogoUrl || '';
+        const aAlt = identity.adminLogoAlt || identity.siteName || 'Khudii Admin';
+        const aWidth = Number(identity.adminLogoWidth || 0);
+        const name = res.data?.site_name || identity.siteName;
         if (logo) {
           setSiteLogo(logo);
           try { localStorage.setItem('khudii_site_logo', logo); } catch { }
         }
+        if (aLogo) {
+          setAdminLogo(aLogo);
+          try { localStorage.setItem('khudii_admin_logo', aLogo); } catch { }
+        }
+        if (aAlt) setAdminLogoAlt(aAlt);
+        if (aWidth >= 40 && aWidth <= 220) setAdminLogoWidth(aWidth);
         if (name) {
           setSiteName(name);
           try { localStorage.setItem('khudii_site_name', name); } catch { }
@@ -67,6 +82,12 @@ export default function Sidebar({ mobileOpen = false, onClose = () => { } }) {
           setSiteLogo(e.detail.logo);
           try { localStorage.setItem('khudii_site_logo', e.detail.logo); } catch { }
         }
+        if (e.detail.adminLogoUrl !== undefined) {
+          setAdminLogo(e.detail.adminLogoUrl || '');
+          try { localStorage.setItem('khudii_admin_logo', e.detail.adminLogoUrl || ''); } catch { }
+        }
+        if (e.detail.adminLogoAlt) setAdminLogoAlt(e.detail.adminLogoAlt);
+        if (e.detail.adminLogoWidth) setAdminLogoWidth(Number(e.detail.adminLogoWidth));
         if (e.detail.siteName) {
           setSiteName(e.detail.siteName);
           try { localStorage.setItem('khudii_site_name', e.detail.siteName); } catch { }
@@ -80,10 +101,21 @@ export default function Sidebar({ mobileOpen = false, onClose = () => { } }) {
     return () => window.removeEventListener('khudii:branding-updated', handleBrandingUpdate);
   }, []);
 
+  const userRole = String(user?.role || 'super_admin').toLowerCase();
+  const isFullAdmin = ['super_admin', 'admin', 'administrator'].includes(userRole);
+
   const groups = useMemo(() => ADMIN_GROUPS.map((group) => ({
     ...group,
-    pages: ADMIN_PAGES.filter((p) => p.group === group.name && p.label.toLowerCase().includes(filter.toLowerCase().trim())),
-  })).filter((g) => g.pages.length), [filter]);
+    pages: ADMIN_PAGES.filter((p) => {
+      if (p.group !== group.name) return false;
+      if (!isFullAdmin) {
+        if (userRole === 'seo_manager' && ['users-roles', 'activity-logs', 'backend-logs', 'settings'].includes(p.slug)) return false;
+        if (userRole === 'enquiry_manager' && ['users-roles', 'activity-logs', 'backend-logs', 'settings', 'seo-center', 'seo-intelligence', 'redirects'].includes(p.slug)) return false;
+        if (userRole === 'restricted' && p.slug !== 'pages') return false;
+      }
+      return p.label.toLowerCase().includes(filter.toLowerCase().trim());
+    }),
+  })).filter((g) => g.pages.length), [filter, isFullAdmin, userRole]);
 
   async function logout() {
     const confirmed = await confirmDialog({
@@ -111,26 +143,18 @@ export default function Sidebar({ mobileOpen = false, onClose = () => { } }) {
       <div
         className="kh-side-brand flex h-[76px] shrink-0 items-center gap-3 px-5 border-b border-white/10"
       >
-        <Link
-          href={BASE}
-          onClick={onClose}
-          title={`${siteName} Dashboard`}
-          className="kh-brand-mark grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-white text-xl font-bold text-[#02236E] shadow-md transition-transform hover:scale-105 overflow-hidden"
-        >
-          {siteLogo ? (
+        <Link href={BASE} className="flex items-center gap-2.5 overflow-hidden">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 p-1">
             <img
-              src={siteLogo}
-              alt="Site Logo"
+              src={adminLogo || siteLogo || '/Khudii.webp'}
+              alt={adminLogoAlt || 'Site Logo'}
               className="h-full w-full object-contain p-1 rounded-2xl"
             />
-          ) : (
-            (siteName?.[0] || 'K').toUpperCase()
-          )}
+          </div>
+          <span className="truncate text-base font-extrabold tracking-wide text-white">
+            {siteName || 'KHUDII'}
+          </span>
         </Link>
-        <div className="min-w-0 flex-1">
-          <div className="truncate text-base font-extrabold tracking-[.08em]">{siteName}</div>
-          <div className="text-[9px] uppercase tracking-[.15em] text-slate-400">Admin portal</div>
-        </div>
         <button
           type="button"
           className="cursor-pointer ml-auto rounded-lg p-2 text-[#02236E] hover:bg-blue/20 lg:hidden"

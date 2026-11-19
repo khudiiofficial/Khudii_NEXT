@@ -14,16 +14,18 @@ import LoginAuthTab from '@/components/admin/LoginAuthTab';
 import SiteIdentityTab from '@/components/admin/SiteIdentityTab';
 import ShareToolsTab from '@/components/admin/ShareToolsTab';
 import AiChatSettingsTab from '@/components/admin/AiChatSettingsTab';
+import MaintenanceControl from '@/components/admin/MaintenanceControl';
+import EmailLogsView from '@/components/admin/EmailLogsView';
 import ImageUploadWidget from '@/components/admin/ImageUploadWidget';
 import {
-  Settings, Globe, Mail, Shield, User, Palette, Search, Eye, EyeOff, Database,
-  ChevronRight, Check, AlertCircle, RefreshCw, Save, Loader2, Sparkles,
+  Settings, Globe, Mail, Shield, ShieldAlert, User, Palette, Search, Eye, EyeOff, Database,
+  ChevronRight, Check, AlertCircle, RefreshCw, Save, Loader2, Sparkles, Send,
 } from 'lucide-react';
 
 /* ─────────────────────────────────────────────
    SETTINGS PAGE — Khudii Admin Panel
-   Tabs & sub-tabs matching king-travel-can-nxt
-   CRUD: Owner profile, SMTP, SEO, appearance
+   Full Oriscare-NXT parity (excluding Forms tab)
+   CRUD: Owner profile, SMTP, SEO, appearance, maintenance
  ───────────────────────────────────────────── */
 
 // ──── Tab definitions ────────────────────────
@@ -31,6 +33,7 @@ const TABS = [
   { id: 'site', label: 'Header & Footer', icon: Palette },
   { id: 'seo', label: 'SEO Intelligence', icon: Search },
   { id: 'identity', label: 'Site Identity', icon: Globe },
+  { id: 'maintenance', label: 'Maintenance', icon: ShieldAlert },
   { id: 'share', label: 'Share Tools', icon: ChevronRight },
   { id: 'ai-chat', label: 'Ask Khudii (AI)', icon: Sparkles },
   { id: 'users', label: 'Users', icon: User },
@@ -41,7 +44,7 @@ const TABS = [
   { id: 'email', label: 'Email / SMTP', icon: Mail },
   { id: 'db', label: 'DB', icon: Database },
 ];
-const OLD_TABS = { general: 'identity', appearance: 'site', 'header-footer': 'site', account: 'users', security: 'auth', header: 'site', footer: 'site' };
+const OLD_TABS = { general: 'identity', appearance: 'site', 'header-footer': 'site', account: 'users', security: 'auth', header: 'site', footer: 'site', branding: 'identity', favicon: 'identity', 'seo-intelligence': 'seo', seo_intelligence: 'seo' };
 
 // ──── Shared UI primitives ────────────────────
 function Field({ label, id, required, children, hint }) {
@@ -129,7 +132,8 @@ function getSub(fallback) {
   if (typeof window === 'undefined') return fallback;
   return new URLSearchParams(window.location.search).get('sub') || fallback;
 }
-const confirmAction = (title, text = '') => confirmDialog({ title, text, status: 'warning' });
+const confirmAction = (title, text = '', status = 'success', confirmText) =>
+  confirmDialog({ title, text, status, ...(confirmText ? { confirmText } : {}) });
 const settingsNotice = (title, icon = 'success', text = '') =>
   alertNotice({
     title,
@@ -236,7 +240,34 @@ function GeneralTab({ profile, setProfile }) {
 function EmailTab({ smtp, setSmtp }) {
   const [sub, setSub] = useState(() => getSub('smtp'));
   const [showPass, setShowPass] = useState(false);
+  const [testTo, setTestTo] = useState('');
+  const [testingEmail, setTestingEmail] = useState(false);
   const upd = (key) => (e) => setSmtp((s) => ({ ...s, [key]: e.target.value }));
+
+  const handleSendTestEmail = async () => {
+    const to = testTo.trim();
+    if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+      settingsNotice('Invalid Email', 'warning', 'Enter a valid recipient email address to send a test message.');
+      return;
+    }
+    setTestingEmail(true);
+    try {
+      const r = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app'}/admin/smtp/test`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', 'x-khudii-surface': 'admin' },
+        body: JSON.stringify({ to }),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok || !j.success) throw new Error(j.message || 'Test email failed');
+      settingsNotice('Test Email Sent', 'success', j.message || `Delivered test email to ${to}.`);
+    } catch (err) {
+      settingsNotice('SMTP Test Failed', 'error', err.message);
+    } finally {
+      setTestingEmail(false);
+    }
+  };
+
   return (
     <>
       <SubTabs
@@ -244,6 +275,7 @@ function EmailTab({ smtp, setSmtp }) {
           { id: 'smtp', label: 'SMTP Server' },
           { id: 'notifications', label: 'Notification Settings' },
           { id: 'templates', label: 'Email Templates' },
+          { id: 'logs', label: 'Delivery Logs' },
         ]}
         active={sub} onChange={setSub}
       />
@@ -261,10 +293,10 @@ function EmailTab({ smtp, setSmtp }) {
           <Field label="SMTP Username" id="smtp-user" required>
             <Input id="smtp-user" value={smtp.smtp_username || ''} onChange={upd('smtp_username')} />
           </Field>
-          <Field label="SMTP Password" id="smtp-pass" required>
+          <Field label="SMTP Password" id="smtp-pass" hint="Saved password is hidden for security — leave blank to keep existing password.">
             <div className="relative">
-              <Input id="smtp-pass" type={showPass ? 'text' : 'password'} value={smtp.smtp_password || ''} onChange={upd('smtp_password')} />
-              <button type="button" onClick={() => setShowPass((v) => !v)} className="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600">
+              <Input id="smtp-pass" type={showPass ? 'text' : 'password'} value={smtp.smtp_password || ''} onChange={upd('smtp_password')} placeholder="•••••••• (leave blank to keep current)" />
+              <button type="button" onClick={() => setShowPass((v) => !v)} className="absolute inset-y-0 right-3 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer">
                 {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             </div>
@@ -279,6 +311,28 @@ function EmailTab({ smtp, setSmtp }) {
               onChange={(e) => setSmtp((s) => ({ ...s, smtp_enabled: e.target.checked }))}
               label="SMTP mail sending enabled"
             />
+          </div>
+          <div className="sm:col-span-2 mt-2 rounded-2xl border border-blue-100 bg-blue-50/50 p-4">
+            <p className="text-xs font-extrabold uppercase tracking-wider text-[#02236E]">Send Diagnostic Test Email</p>
+            <p className="mt-0.5 text-xs text-slate-500">Save any SMTP changes first, then send a test email to verify delivery.</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <input
+                type="email"
+                value={testTo}
+                onChange={(e) => setTestTo(e.target.value)}
+                placeholder="recipient@example.com"
+                className="min-w-[220px] flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm text-slate-800 outline-none focus:border-[#02236E]"
+              />
+              <button
+                type="button"
+                disabled={testingEmail}
+                onClick={handleSendTestEmail}
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#02236E] px-4 py-2 text-xs font-bold text-white hover:bg-[#001850] disabled:opacity-50 cursor-pointer"
+              >
+                {testingEmail ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+                {testingEmail ? 'Sending...' : 'Send Test Email'}
+              </button>
+            </div>
           </div>
         </Section>
       )}
@@ -306,6 +360,7 @@ function EmailTab({ smtp, setSmtp }) {
           {['contact', 'inquiry', 'donation', 'volunteer', 'org', 'blog', 'job', 'story'].map(key => <div key={key} className="rounded-xl border border-slate-200 bg-white p-4 space-y-3"><h3 className="font-bold capitalize">{key} notification</h3><Field id={`template-${key}-subject`} label="Subject template"><Input id={`template-${key}-subject`} value={smtp.templates?.[key]?.subject || ''} onChange={e => setSmtp(s => ({ ...s, templates: { ...s.templates, [key]: { ...s.templates?.[key], subject: e.target.value } } }))} /></Field><Field id={`template-${key}-body`} label="Additional email message"><Textarea id={`template-${key}-body`} rows={3} value={smtp.templates?.[key]?.body || ''} onChange={e => setSmtp(s => ({ ...s, templates: { ...s.templates, [key]: { ...s.templates?.[key], body: e.target.value } } }))} /></Field></div>)}
         </div>
       )}
+      {sub === 'logs' && <EmailLogsView />}
     </>
   );
 }
@@ -665,7 +720,7 @@ function PopupTab({ popup, setPopup, onSave, saving }) {
   );
 }
 
-function CssTab({ css, setCss, onSave, saving }) {
+function CssTab({ css, setCss, onSave, saving, dirty }) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
@@ -674,13 +729,13 @@ function CssTab({ css, setCss, onSave, saving }) {
             <span>🎨</span> Global CSS Overrides
           </h2>
           <p className="text-xs text-slate-500 m-0 mt-0.5">
-            Write custom CSS to override styles across the frontend. External imports and expressions are blocked for security.
+            Served via SSR <a href="/api/global-css" target="_blank" rel="noopener noreferrer" className="font-semibold text-[#02236E] underline">/api/global-css</a> for zero flicker. External imports and expressions are blocked for security.
           </p>
         </div>
         <button
           type="button"
           onClick={onSave}
-          disabled={saving}
+          disabled={saving || !dirty}
           className="bg-[#02236E] text-white px-6 py-2.5 rounded-full text-xs font-extrabold hover:bg-[#02236E]/90 transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50 self-start sm:self-auto"
         >
           <Save className="w-3.5 h-3.5" />
@@ -704,9 +759,9 @@ function CssTab({ css, setCss, onSave, saving }) {
 // ──── Main Settings Page ─────────────────────
 function SettingsPageInner() {
   const params = useSearchParams();
-  const incomingTab = OLD_TABS[params.get('tab')] || params.get('tab') || 'header';
+  const incomingTab = OLD_TABS[params.get('tab')] || params.get('tab') || 'site';
   const incomingSub = params.get('sub') || '';
-  const [tab, setTab] = useState(() => typeof window === 'undefined' ? 'header' : OLD_TABS[new URLSearchParams(window.location.search).get('tab')] || new URLSearchParams(window.location.search).get('tab') || 'header');
+  const [tab, setTab] = useState(() => typeof window === 'undefined' ? 'site' : OLD_TABS[new URLSearchParams(window.location.search).get('tab')] || new URLSearchParams(window.location.search).get('tab') || 'site');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -839,6 +894,9 @@ function SettingsPageInner() {
           tagline: json.site_identity.tagline || json.profile?.tagline || '',
           siteLogo: json.site_identity.siteLogo || json.site_identity.logo || json.appearance?.logo_url || '',
           siteFavicon: json.site_identity.siteFavicon || json.site_identity.favicon || json.appearance?.favicon_url || '',
+          adminLogoUrl: json.site_identity.adminLogoUrl || '',
+          adminLogoAlt: json.site_identity.adminLogoAlt || 'Khudii Admin',
+          adminLogoWidth: Number(json.site_identity.adminLogoWidth || 44),
           whatsappHeaderLabel: json.site_identity.whatsappHeaderLabel || '',
           whatsappHeaderText: json.site_identity.whatsappHeaderText || '',
           whatsappHeaderUrl: json.site_identity.whatsappHeaderUrl || '',
@@ -886,7 +944,7 @@ function SettingsPageInner() {
   useEffect(() => { const guard = e => { if (dirty || siteDirty) { e.preventDefault(); settingsNotice('Unsaved changes', 'error', 'Save or reload before changing settings sections.'); } }; window.addEventListener('khudii:settings-change', guard); return () => window.removeEventListener('khudii:settings-change', guard); }, [dirty, siteDirty]);
 
   const save = async () => {
-    if (!await confirmAction('Save settings?', 'Apply your changes to the Khudii configuration?')) return;
+    if (!await confirmAction('Save settings?', 'Apply your changes to the Khudii configuration?', 'success', 'Save Changes')) return;
     setSaving(true); setSaved(false); setSaveError('');
     try {
       const payloadAppearance = {
@@ -945,6 +1003,9 @@ function SettingsPageInner() {
             logo: payloadSiteIdentity.siteLogo,
             favicon: payloadSiteIdentity.siteFavicon,
             siteName: payloadSiteIdentity.siteName,
+            adminLogoUrl: payloadSiteIdentity.adminLogoUrl || '',
+            adminLogoAlt: payloadSiteIdentity.adminLogoAlt || 'Khudii Admin',
+            adminLogoWidth: Number(payloadSiteIdentity.adminLogoWidth || 44),
           }
         }));
       }
@@ -954,7 +1015,7 @@ function SettingsPageInner() {
 
   useEffect(() => {
     const handler = e => {
-      if (['site', 'header', 'footer'].includes(tab)) return;
+      if (['users', 'site', 'header', 'footer'].includes(tab)) return;
       e.preventDefault();
       if (dirty && !saving) save();
     };
@@ -996,7 +1057,7 @@ function SettingsPageInner() {
             <p className="mt-1 text-sm text-slate-500">Manage all Khudii platform configuration in one place.</p>
           </div>
         </div>
-        <ReloadButton onClick={async () => { if (dirty && !await confirmAction('Discard unsaved changes?')) return; load(); }} size="sm">
+        <ReloadButton onClick={async () => { if (dirty && !await confirmAction('Discard unsaved changes?', 'Unsaved changes on this tab will be lost.', 'warning', 'Discard')) return; load(); }} size="sm">
           Reload
         </ReloadButton>
       </div>
@@ -1043,6 +1104,7 @@ function SettingsPageInner() {
             dirty={dirty}
           />
         )}
+        {tab === 'maintenance' && <MaintenanceControl />}
         {tab === 'share' && (
           <ShareToolsTab
             shareData={shareData}
@@ -1063,13 +1125,21 @@ function SettingsPageInner() {
         )}
         {tab === 'email' && <EmailTab key={`${tab}:${incomingSub}`} smtp={smtp} setSmtp={setSmtp} />}
         {(tab === 'header' || tab === 'footer' || tab === 'site') && (
-          <SettingsSiteChrome key={`${tab}:${incomingSub}`} mode={tab === 'site' ? incomingSub : tab} onDirty={setSiteDirty} />
+          <SettingsSiteChrome
+            key={`${tab}:${incomingSub}`}
+            mode={tab === 'site' ? incomingSub : tab}
+            onDirty={setSiteDirty}
+            profile={profile}
+            setProfile={setProfile}
+            onSaveProfile={save}
+            savingProfile={saving}
+          />
         )}
         {tab === 'seo' && <KhudiiSeoIndexingSettings seo={seo} setSeo={setSeo} onSave={save} saving={saving} dirty={dirty} />}
         {tab === 'users' && <UserManagementTab />}
         {tab === 'auth' && <LoginAuthTab loginAuthData={loginAuth} setLoginAuthData={setLoginAuth} onSave={save} saving={saving} dirty={dirty} />}
         {tab === 'popup' && <PopupTab popup={popup} setPopup={setPopup} onSave={save} saving={saving} />}
-        {tab === 'css' && <CssTab css={css} setCss={setCss} onSave={save} saving={saving} />}
+        {tab === 'css' && <CssTab css={css} setCss={setCss} onSave={save} saving={saving} dirty={dirty} />}
         {tab === 'forms' && <KhudiiFormsManagement forms={forms} setForms={setForms} onSave={save} saving={saving} dirty={dirty} />}
         {tab === 'db' && <KhudiiDatabaseSettings />}
       </div>

@@ -1,15 +1,247 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
+import Link from 'next/link';
 import {
-  MessageCircle,
   X,
   RotateCcw,
   Send,
-  Sparkles
+  MessageCircleMore,
+  Sparkles,
+  ExternalLink,
+  ArrowUpRight,
 } from 'lucide-react';
 
 const API = process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app';
+
+function renderInlineMarkdown(text, onNavigate) {
+  if (!text) return null;
+  const tokenRegex = /(\*\*[^*]+\*\*|\[[^\]]+\]\((?:\/[^)\s]*|https?:\/\/[^)\s]+)\)|`[^`]+`)/g;
+  const parts = String(text).split(tokenRegex);
+
+  return parts.map((part, i) => {
+    if (!part) return null;
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return (
+        <strong key={i} className="font-bold text-slate-900">
+          {renderInlineMarkdown(part.slice(2, -2), onNavigate)}
+        </strong>
+      );
+    }
+    if (part.startsWith('`') && part.endsWith('`')) {
+      return (
+        <code key={i} className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-[11px] font-bold text-[#02236E]">
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (linkMatch) {
+      const label = linkMatch[1];
+      const href = linkMatch[2];
+      const isExternal = /^https?:\/\//i.test(href);
+      if (isExternal) {
+        return (
+          <a
+            key={i}
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-0.5 font-bold text-[#02236E] underline decoration-[#02236E]/40 underline-offset-2 hover:text-[#ed0026]"
+          >
+            {label}
+            <ExternalLink size={10} />
+          </a>
+        );
+      }
+      return (
+        <Link
+          key={i}
+          href={href}
+          onClick={onNavigate}
+          className="font-bold text-[#02236E] underline decoration-[#02236E]/40 underline-offset-2 hover:text-[#ed0026]"
+        >
+          {label}
+        </Link>
+      );
+    }
+    return <React.Fragment key={i}>{part}</React.Fragment>;
+  });
+}
+
+function ChatMessageBubble({ message, onNavigate, onChipClick }) {
+  const { text, sender, cards = [], suggestedChips = [] } = message;
+  const isUser = sender === 'user';
+
+  if (isUser) {
+    return (
+      <div className="max-w-[85%] rounded-2xl rounded-tr-xs px-3.5 py-2.5 text-xs sm:text-[13px] leading-relaxed shadow-xs bg-[#02236e] text-white font-medium">
+        {text}
+      </div>
+    );
+  }
+
+  const lines = String(text || '')
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  return (
+    <div className="max-w-[92%] space-y-2">
+      <div className="rounded-2xl rounded-tl-xs px-3.5 py-2.5 text-xs sm:text-[13px] leading-relaxed shadow-xs bg-white text-slate-800 border border-slate-200/90 space-y-1.5">
+        {lines.map((line, idx) => {
+          if (/^[•\-\*]\s*/.test(line)) {
+            const itemText = line.replace(/^[•\-\*]\s*/, '');
+            return (
+              <div key={idx} className="flex items-start gap-2 pl-1 my-0.5">
+                <span className="text-[#ed0026] font-bold text-xs shrink-0 select-none mt-0.5">•</span>
+                <span className="flex-1 text-slate-700">{renderInlineMarkdown(itemText, onNavigate)}</span>
+              </div>
+            );
+          }
+          return (
+            <p key={idx} className="m-0 leading-relaxed text-slate-700">
+              {renderInlineMarkdown(line, onNavigate)}
+            </p>
+          );
+        })}
+      </div>
+
+      {/* Rich Visual Cards (Pages, Organizations, Blogs, Podcasts, Stories with Images & URLs) */}
+      {Array.isArray(cards) && cards.length > 0 && (
+        <div className="space-y-1.5">
+          {cards.slice(0, 4).map((card, idx) => {
+            const isExternal = /^https?:\/\//i.test(card.url || '');
+            const inner = (
+              <div className="group flex items-center gap-2.5 rounded-xl border border-slate-200 bg-white p-2 shadow-2xs transition hover:border-[#02236E]/40 hover:bg-blue-50/40">
+                {card.image ? (
+                  <img
+                    src={card.image}
+                    alt={card.title}
+                    className="h-12 w-12 shrink-0 rounded-lg border border-slate-100 bg-slate-50 object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : null}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    {card.badge && (
+                      <span className="rounded bg-[#02236E]/10 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[#02236E]">
+                        {card.badge}
+                      </span>
+                    )}
+                    {card.subtitle && (
+                      <span className="truncate text-[10px] font-semibold text-slate-400">
+                        {card.subtitle}
+                      </span>
+                    )}
+                  </div>
+                  <p className="m-0 mt-0.5 truncate text-xs font-bold text-slate-900 group-hover:text-[#02236E]">
+                    {card.title}
+                  </p>
+                  {card.description && (
+                    <p className="m-0 line-clamp-1 text-[10px] text-slate-500">{card.description}</p>
+                  )}
+                </div>
+                <ArrowUpRight size={14} className="shrink-0 text-slate-400 group-hover:text-[#02236E]" />
+              </div>
+            );
+
+            if (!card.url) return <div key={idx}>{inner}</div>;
+            return isExternal ? (
+              <a key={idx} href={card.url} target="_blank" rel="noopener noreferrer" className="block no-underline">
+                {inner}
+              </a>
+            ) : (
+              <Link key={idx} href={card.url} onClick={onNavigate} className="block no-underline">
+                {inner}
+              </Link>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Contextual Follow-up Chips */}
+      {Array.isArray(suggestedChips) && suggestedChips.length > 0 && (
+        <div className="flex flex-wrap gap-1 pt-0.5">
+          {suggestedChips.slice(0, 4).map((chip, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => onChipClick(chip)}
+              className="rounded-full border border-[#02236E]/20 bg-blue-50/60 px-2.5 py-1 text-[10px] font-bold text-[#02236E] transition hover:bg-[#02236E] hover:text-white cursor-pointer"
+            >
+              {chip}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const CATEGORIES = [
+  'All',
+  'Organizations',
+  'Donate & Bank',
+  'Blogs & Stories',
+  'Podcasts & Videos',
+  'About & Team',
+  'Get Involved',
+  'Support & FAQs',
+];
+
+const CATEGORY_QUESTIONS = {
+  All: [
+    'What is Khudii?',
+    'Explore Verified Organizations',
+    'How can I donate & bank details?',
+    'Latest Khudii Podcasts',
+    'Read latest Khudii Blogs',
+    'How to volunteer?',
+    'All Khudii Pages',
+  ],
+  Organizations: [
+    'Which verified organizations are listed on Khudii?',
+    'What welfare sectors and categories do you cover?',
+    'How can I register my NGO on Khudii?',
+    'Are organizations verified and certified?',
+  ],
+  'Donate & Bank': [
+    'How can I donate and what are the official bank details?',
+    'Does Khudii charge commission on donations?',
+    'Can I give Zakat and Sadqah directly to NGOs?',
+  ],
+  'Blogs & Stories': [
+    'What are the latest blogs and articles on Khudii?',
+    'Where can I read real Khudii success stories?',
+    'How can I contribute my own story?',
+  ],
+  'Podcasts & Videos': [
+    'What episodes are on the Khudii Podcast?',
+    'Where can I watch Khudii videos and documentaries?',
+    'How can I suggest a podcast guest?',
+  ],
+  'About & Team': [
+    'Who is the CEO and team behind Khudii?',
+    'What is Khudii vision and mission?',
+    'What are Golden People and Tribute?',
+    'What do testimonials say about Khudii?',
+  ],
+  'Get Involved': [
+    'How can I volunteer with Khudii?',
+    'Are there job or career opportunities at Khudii?',
+    'How can I register my organization?',
+    'Latest community news & events',
+  ],
+  'Support & FAQs': [
+    'How can I contact Khudii support & social media?',
+    'View Khudii official certifications',
+    'Frequently Asked Questions',
+    'Show me all Khudii pages',
+  ],
+};
 
 export default function AskKhudiiChat() {
   const [isOpen, setIsOpen] = useState(false);
@@ -17,12 +249,14 @@ export default function AskKhudiiChat() {
     enabled: true,
     title: 'Ask Khudii',
     subtitle: '24/7 Support',
-    headerTitle: 'AI Assistant',
-    headerSubtitle: 'Type a message below',
-    inputPlaceholder: 'How can I help you today?',
-    welcomeMessage: 'Hello! Welcome to Khudii. How can I help you today?',
-    fallbackMessage: "I'm sorry, I don't have enough information on that topic yet. Please contact our support team at info@khudii.com or explore our verified welfare organizations.",
-    quickChips: ['What is Khudii?', 'How can I donate?', 'How to volunteer?', 'Verified NGOs', 'Contact Support'],
+    headerTitle: 'Ask Khudii (AI)',
+    headerSubtitle: 'Explore NGOs, Blogs, Podcasts, Donate & More',
+    inputPlaceholder: 'Ask about NGOs, bank details, blogs, podcasts, jobs...',
+    welcomeMessage:
+      'Assalam-o-Alaikum! Welcome to **Khudii**. Ask me anything about verified NGOs, official donation bank details, blogs, podcasts, videos, success stories, volunteering, jobs, or contact information!',
+    fallbackMessage:
+      "I couldn't find an exact match for that yet. Reach us via [Contact Us](/contact) or email info@khudii.com.",
+    quickChips: [],
     quickPrompts: [],
   });
 
@@ -33,50 +267,11 @@ export default function AskKhudiiChat() {
   const [activeCategory, setActiveCategory] = useState('All');
   const messagesEndRef = useRef(null);
 
-  const categories = ['All', 'Organizations', 'Blogs', 'Podcasts', 'FAQs', 'Donations'];
+  const displayedQueries =
+    activeCategory === 'All' && Array.isArray(config.quickChips) && config.quickChips.length > 0
+      ? [...new Set([...config.quickChips, ...CATEGORY_QUESTIONS.All])].slice(0, 10)
+      : CATEGORY_QUESTIONS[activeCategory] || CATEGORY_QUESTIONS.All;
 
-  const categoryQuestions = {
-    All: [
-      'What is Khudii?',
-      'Which organizations are listed?',
-      'How to register an NGO?',
-      'Khudii Podcast series',
-      'Topics in Khudii Blogs',
-      'Does Khudii charge commission?',
-      'How do I volunteer?'
-    ],
-    Organizations: [
-      'Which organizations are listed on Khudii?',
-      'How can an NGO register on Khudii?',
-      'How are organizations verified?',
-      'Can I search organizations by city or cause?'
-    ],
-    Blogs: [
-      'What topics do Khudii Blogs cover?',
-      'How can I publish or submit a blog?',
-      'What are the latest articles on Khudii?'
-    ],
-    Podcasts: [
-      'What is the Khudii Podcast series?',
-      'Where can I watch or listen to the Podcast?',
-      'Can I be a guest on the Khudii Podcast?'
-    ],
-    FAQs: [
-      'Does Khudii charge commission on donations?',
-      'How do I donate directly to welfare causes?',
-      'How do I become a volunteer?',
-      'How can I contact Khudii support?'
-    ],
-    Donations: [
-      'How do I donate directly to welfare causes?',
-      'Does Khudii charge commission on donations?',
-      'Are donations tax deductible?'
-    ]
-  };
-
-  const displayedQueries = categoryQuestions[activeCategory] || categoryQuestions.All;
-
-  // Load public AI Chat settings
   useEffect(() => {
     let isMounted = true;
     fetch(`${API}/cms/public-ai-chat`, { cache: 'no-store' })
@@ -94,7 +289,6 @@ export default function AskKhudiiChat() {
     };
   }, []);
 
-  // Auto-scroll to bottom of chat
   useEffect(() => {
     if (isOpen) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -113,6 +307,8 @@ export default function AskKhudiiChat() {
           id: 'welcome',
           sender: 'bot',
           text: config.welcomeMessage,
+          cards: [],
+          suggestedChips: displayedQueries.slice(0, 4),
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         },
       ]);
@@ -128,20 +324,15 @@ export default function AskKhudiiChat() {
               id: `welcome_${Date.now()}`,
               sender: 'bot',
               text: config.welcomeMessage,
+              cards: [],
+              suggestedChips: displayedQueries.slice(0, 4),
               time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             },
           ]
-        : []
+        : [],
     );
     setInput('');
     setHasStarted(false);
-  };
-
-  const handleEndChat = () => {
-    setMessages([]);
-    setInput('');
-    setHasStarted(false);
-    setIsOpen(false);
   };
 
   const handleSendMessage = async (textToSend) => {
@@ -155,17 +346,17 @@ export default function AskKhudiiChat() {
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
+    const history = messages.slice(-6).map((m) => ({ sender: m.sender, text: m.text }));
     setMessages((prev) => [...prev, userMsg]);
     setInput('');
     setLoading(true);
     setHasStarted(true);
 
     try {
-      // 1. Try server-side query endpoint
       const res = await fetch(`${API}/cms/ai-chat/query`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text }),
+        body: JSON.stringify({ message: text, history }),
       });
 
       if (res.ok) {
@@ -177,6 +368,8 @@ export default function AskKhudiiChat() {
               id: `bot_${Date.now()}`,
               sender: 'bot',
               text: data.answer,
+              cards: Array.isArray(data.cards) ? data.cards : [],
+              suggestedChips: Array.isArray(data.suggestedChips) ? data.suggestedChips : [],
               time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             },
           ]);
@@ -184,13 +377,13 @@ export default function AskKhudiiChat() {
           return;
         }
       }
-    } catch {}
+    } catch {
+      // fall through to offline prompt matcher
+    }
 
-    // 2. Client-side Prompt Rule Matcher Fallback (Offline / Zero-latency)
     setTimeout(() => {
       const lower = text.toLowerCase();
       const tokens = lower.replace(/[^a-z0-9\s]/gi, ' ').split(/\s+/).filter((t) => t.length > 2);
-
       let matched = null;
       let highestScore = 0;
 
@@ -198,14 +391,12 @@ export default function AskKhudiiChat() {
         let score = 0;
         const pq = (p.question || '').toLowerCase();
         const pkw = (p.keywords || '').toLowerCase();
-
         if (lower === pq || lower.includes(pq) || pq.includes(lower)) score += 100;
         const kws = pkw.split(/[,;\s]+/).map((k) => k.trim()).filter(Boolean);
         for (const t of tokens) {
           if (kws.includes(t)) score += 25;
           if (pq.includes(t)) score += 15;
         }
-
         if (score > highestScore) {
           highestScore = score;
           matched = p;
@@ -216,7 +407,7 @@ export default function AskKhudiiChat() {
         matched && highestScore >= 20
           ? matched.answer
           : config.fallbackMessage ||
-            "I'm sorry, I don't have enough details on that topic yet. Please contact our support team at info@khudii.com or explore our verified welfare organizations.";
+            'Please contact our support team at info@khudii.com or visit [Contact Us](/contact).';
 
       setMessages((prev) => [
         ...prev,
@@ -224,34 +415,24 @@ export default function AskKhudiiChat() {
           id: `bot_${Date.now()}`,
           sender: 'bot',
           text: answer,
+          cards: matched?.url ? [{ title: matched.question, url: matched.url, image: matched.image || '/Khudii.webp', badge: matched.category || 'Khudii' }] : [],
           time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         },
       ]);
       setLoading(false);
-    }, 450);
+    }, 350);
   };
 
   return (
     <>
-      {/* Floating Pill Launcher Button (User Image 2: Cyan #00a2d3 with sun-like radial dashes icon) */}
       {!isOpen && (
         <button
           type="button"
           onClick={handleOpenChat}
-          className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-[#00a2d3] text-white shadow-xl hover:bg-[#0092bf] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-none"
+          className="fixed bottom-6 right-6 z-50 inline-flex items-center gap-2.5 px-4 py-2.5 rounded-2xl bg-[#02236E] text-white shadow-xl hover:bg-[#ed0026] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer border-none"
           aria-label="Open Ask Khudii Chat"
         >
-          {/* Radial circular dashed spinner icon */}
-          <svg
-            className="w-5 h-5 text-white shrink-0 animate-spin-slow"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          >
-            <circle cx="12" cy="12" r="8" strokeDasharray="3 3" />
-          </svg>
+          <MessageCircleMore className="w-5 h-5 text-white shrink-0" />
           <div className="text-left leading-tight">
             <div className="text-xs font-bold text-white tracking-wide">
               {config.title || 'Ask Khudii'}
@@ -263,126 +444,80 @@ export default function AskKhudiiChat() {
         </button>
       )}
 
-      {/* Chat Window Dialog (User Image 1) */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-[350px] sm:w-[380px] h-[520px] max-h-[85vh] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200">
+        <div
+          role="dialog"
+          aria-label="Ask Khudii AI Assistant"
+          className="fixed bottom-6 right-6 z-50 w-[360px] sm:w-[410px] h-[560px] max-h-[85vh] bg-white rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden animate-in fade-in slide-in-from-bottom-5 duration-200"
+        >
           {/* Header */}
-          <div className="px-4 py-3 border-b border-slate-100 bg-white flex items-center justify-between shrink-0">
+          <div className="px-4 py-3 border-b border-slate-100 bg-gradient-to-r from-[#02236E] to-[#0b3a9c] text-white flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2.5">
-              {/* Radial spinner icon */}
-              <svg
-                className="w-5 h-5 text-[#02236E]"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-              >
-                <circle cx="12" cy="12" r="8" strokeDasharray="3 3" />
-              </svg>
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-white/15">
+                <Sparkles className="w-4 h-4 text-white" />
+              </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900 m-0 leading-tight">
-                  {config.headerTitle || 'AI Assistant'}
+                <h3 className="text-sm font-bold text-white m-0 leading-tight">
+                  {config.headerTitle || 'Ask Khudii (AI)'}
                 </h3>
-                <p className="text-[11px] text-slate-400 m-0">
-                  {config.headerSubtitle || 'Type a message below'}
+                <p className="text-[11px] text-blue-100 m-0">
+                  {config.headerSubtitle || 'Live Khudii Knowledge Assistant'}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleEndChat}
-                className="text-xs font-bold text-red-500 hover:text-red-700 transition"
-              >
-                End Chat
-              </button>
+            <div className="flex items-center gap-1.5">
               <button
                 type="button"
                 onClick={handleResetChat}
-                className="p-1 text-slate-400 hover:text-slate-700 rounded-full transition"
+                className="cursor-pointer p-1.5 text-blue-100 hover:text-white hover:bg-white/15 rounded-full transition"
                 title="Restart chat"
+                aria-label="Restart chat"
               >
                 <RotateCcw size={14} />
               </button>
               <button
                 type="button"
                 onClick={() => setIsOpen(false)}
-                className="p-1 text-slate-400 hover:text-slate-700 rounded-full transition"
-                title="Close window"
+                className="cursor-pointer p-1.5 text-white bg-[#ed0026] hover:bg-red-700 rounded-full transition"
+                title="Close chat"
+                aria-label="Close chat"
               >
-                <X size={16} />
+                <X size={15} />
               </button>
             </div>
           </div>
 
           {/* Body */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-white">
-            {messages.length === 0 ? (
-              <div className="h-full flex flex-col justify-between p-2">
-                <div className="flex flex-col items-center justify-center text-center my-auto space-y-2">
-                  <div className="w-12 h-12 rounded-full bg-sky-50 flex items-center justify-center text-[#00a2d3]">
-                    <Sparkles size={24} />
-                  </div>
-                  <h4 className="text-sm font-extrabold text-slate-800 m-0">Ask Khudii Anything</h4>
-                  <p className="text-xs text-slate-500 max-w-[260px]">
-                    Tap a suggested query tab below or type your question about NGOs, blogs, podcasts, or donations.
-                  </p>
-                </div>
-
-                <div className="space-y-2 pt-2">
-                  <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                    Suggested Queries ({activeCategory})
-                  </div>
-                  <div className="flex flex-col gap-1.5 max-h-[160px] overflow-y-auto pr-1">
-                    {displayedQueries.map((q, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => handleSendMessage(q)}
-                        className="text-left px-3 py-2 rounded-xl bg-slate-50 hover:bg-sky-50 hover:border-sky-300 border border-slate-200/80 text-xs font-semibold text-slate-700 hover:text-sky-900 transition-colors shadow-2xs cursor-pointer"
-                      >
-                        • {q}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+          <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50/70">
+            {messages.map((m) => (
+              <div
+                key={m.id}
+                className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                <ChatMessageBubble
+                  message={m}
+                  onNavigate={() => setIsOpen(false)}
+                  onChipClick={(chip) => handleSendMessage(chip)}
+                />
               </div>
-            ) : (
-              messages.map((m) => (
-                <div
-                  key={m.id}
-                  className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs leading-relaxed shadow-xs ${
-                      m.sender === 'user'
-                        ? 'bg-[#00a2d3] text-white rounded-tr-xs font-medium'
-                        : 'bg-slate-50 text-slate-800 border border-slate-200/80 rounded-tl-xs whitespace-pre-wrap font-normal'
-                    }`}
-                  >
-                    {m.text}
-                  </div>
-                </div>
-              ))
-            )}
+            ))}
 
             {loading && (
               <div className="flex justify-start">
-                <div className="bg-slate-50 border border-slate-200 rounded-2xl rounded-tl-xs px-3.5 py-2.5 shadow-xs flex items-center gap-1.5 text-xs text-slate-400">
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:0.2s]" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-slate-400 animate-bounce [animation-delay:0.4s]" />
+                <div className="bg-white border border-slate-200 rounded-2xl rounded-tl-xs px-3.5 py-2.5 shadow-xs flex items-center gap-1.5 text-xs text-slate-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#02236E] animate-bounce" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#02236E] animate-bounce [animation-delay:0.2s]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#02236E] animate-bounce [animation-delay:0.4s]" />
                 </div>
               </div>
             )}
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Suggested Query Category Tabs Bar */}
-          <div className="px-3 pt-2 pb-1 bg-slate-50 border-t border-slate-200/80 flex items-center gap-1 overflow-x-auto no-scrollbar shrink-0">
-            {categories.map((cat) => (
+          {/* Category Tabs */}
+          <div className="px-3 py-2 bg-white border-t border-slate-200/80 flex items-center gap-1 overflow-x-auto no-scrollbar shrink-0">
+            {CATEGORIES.map((cat) => (
               <button
                 key={cat}
                 type="button"
@@ -390,7 +525,7 @@ export default function AskKhudiiChat() {
                 className={`shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer ${
                   activeCategory === cat
                     ? 'bg-[#02236E] text-white shadow-xs'
-                    : 'bg-white text-slate-600 hover:text-slate-900 border border-slate-200/70 hover:bg-slate-100'
+                    : 'bg-slate-50 text-slate-600 hover:text-slate-900 border border-slate-200/70 hover:bg-slate-100'
                 }`}
               >
                 {cat}
@@ -398,21 +533,21 @@ export default function AskKhudiiChat() {
             ))}
           </div>
 
-          {/* Quick Suggested Query Chips for Active Category */}
-          <div className="px-3 py-1.5 bg-slate-50 border-b border-slate-100 flex gap-1.5 overflow-x-auto no-scrollbar shrink-0">
+          {/* Suggested Query Chips */}
+          <div className="px-3 py-2 bg-slate-50 border-t border-slate-100 flex gap-1.5 overflow-x-auto no-scrollbar shrink-0">
             {displayedQueries.map((queryText, idx) => (
               <button
                 key={idx}
                 type="button"
                 onClick={() => handleSendMessage(queryText)}
-                className="shrink-0 px-2.5 py-1 rounded-full bg-white text-sky-800 hover:bg-sky-50 text-[10px] font-bold border border-sky-200 shadow-2xs transition cursor-pointer"
+                className="shrink-0 px-2.5 py-1 rounded-full bg-white text-[#02236e] hover:bg-[#02236E] hover:text-white text-[10px] font-bold border border-[#02236e]/20 shadow-2xs transition cursor-pointer"
               >
                 {queryText}
               </button>
             ))}
           </div>
 
-          {/* Footer Input */}
+          {/* Input Bar */}
           <div className="p-3 bg-white border-t border-slate-100 flex items-center gap-2 shrink-0">
             <input
               type="text"
@@ -424,14 +559,15 @@ export default function AskKhudiiChat() {
                   handleSendMessage();
                 }
               }}
-              placeholder={config.inputPlaceholder || 'How can I help you today?'}
-              className="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#00a2d3]"
+              placeholder={config.inputPlaceholder || 'Ask anything about Khudii...'}
+              className="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-[#02236e]"
             />
             <button
               type="button"
               onClick={() => handleSendMessage()}
               disabled={!input.trim() || loading}
-              className="w-9 h-9 rounded-xl bg-[#00a2d3] text-white flex items-center justify-center hover:bg-[#0092bf] transition disabled:opacity-40 shadow-sm shrink-0"
+              aria-label="Send message"
+              className="cursor-pointer w-9 h-9 rounded-xl bg-[#02236e] text-white flex items-center justify-center hover:bg-[#ed0026] disabled:opacity-50 transition shadow-sm shrink-0"
             >
               <Send size={15} />
             </button>

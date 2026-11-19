@@ -93,7 +93,7 @@ return ()=>clearInterval(fun)
   return (
     <div className={`${styles.topbar} ${styles.color}`}>
       <p className={styles.contact}>
-        <a href={`tel:${tel}`} target="_blank"><i className="text-[#e7001e]  fa-solid fa-phone-volume"></i> &nbsp;{data.phone_number} </a>
+        <a href={`tel:${tel}`} target="_blank" rel="noopener noreferrer" aria-label={`Call Khudii at ${data.phone_number}`}><i className="text-[#e7001e]  fa-solid fa-phone-volume"></i> &nbsp;{data.phone_number} </a>
       </p>
 
       {/* <p className={styles.mid}>
@@ -121,11 +121,11 @@ key={idx}
  
 }
       <p className={styles.buttonWrapper}>
-        <Link to="/contribute-your-story/">
+        <Link to="/contribute-your-story">
           <button className={styles.last}>Contribute Your Story</button>
         </Link>
         {isMobile && (
-          <Link to="/donate-now/">
+          <Link to="/donate-now">
             <button className={styles.last}>Donate Now</button>
           </Link>
         )}

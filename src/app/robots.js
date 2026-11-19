@@ -1,5 +1,5 @@
 import {getPublicSeoDefaults} from '@/server/public-seo-defaults';
-export const dynamic='force-dynamic';
+export const revalidate = 86400; // 24-hour auto-refresh cycle
 export default async function robots(){
   const seo=await getPublicSeoDefaults();
   const site=(seo.canonical_domain||process.env.NEXT_PUBLIC_SITE_URL||'https://www.khudii.com').replace(/\/+$/,'');
