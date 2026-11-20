@@ -11,7 +11,7 @@ export default function KhudiiSectionFields({value,sectionType,onChange}) {
   const updateItem=(index,key,next)=>{const items=[...(Array.isArray(data.items)?data.items:[])];items[index]={...items[index],[key]:next};update('items',items)};
   const renderField=(label,name,rows)=><label className="space-y-1.5"><span className="text-xs font-semibold text-slate-700">{label}</span>{rows?<textarea value={data[name]||''} rows={rows} onChange={e=>update(name,e.target.value)} className={field}/>:<input value={data[name]||''} onChange={e=>update(name,e.target.value)} className={field}/>}</label>;
   return <div className="space-y-4 md:col-span-2 rounded-2xl border border-blue-100 bg-blue-50/30 p-4">
-    <div><h3 className="flex items-center gap-2 text-sm font-extrabold text-[#02236E]"><Layers size={17} className="text-[#02236E]"/>Visual section content editor</h3><p className="mt-1 text-xs text-slate-500">These fields update the content displayed by this section. Use Advanced JSON only for fields the visual editor does not cover.</p></div>
+    <div><h3 className="flex items-center gap-2 text-sm font-bold text-[#02236E]"><Layers size={17} className="text-[#02236E]"/>Visual section content editor</h3><p className="mt-1 text-xs text-slate-500">These fields update the content displayed by this section. Use Advanced JSON only for fields the visual editor does not cover.</p></div>
     {!source?<div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">The current section contains invalid JSON. Repair it under Advanced JSON before editing fields.</div>:
     <div className="grid gap-4 sm:grid-cols-2">
       {renderField('Heading','heading')}{renderField('Eyebrow / subtitle','subheading')}

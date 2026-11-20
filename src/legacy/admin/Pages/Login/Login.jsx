@@ -61,6 +61,9 @@ export default function AdminLogin() {
         withCredentials: true, headers: { 'x-khudii-surface': 'admin' },
       });
       if (!response?.data?.user) throw new Error('No user information returned.');
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('admin_login_time', String(Date.now()));
+      }
       setUser(response.data.user);
       await showSuccess('Signed in successfully', 'Redirecting to your dashboard...', { timer: 1000, showConfirmButton: false });
       router.replace('/admin-app/dashboard');
@@ -89,11 +92,11 @@ export default function AdminLogin() {
           </div>
           <div className="pointer-events-none absolute -right-24 top-28 h-72 w-72 rounded-full border-[50px] border-blue-400/10" />
           <div className="pointer-events-none absolute -bottom-32 -left-12 h-80 w-80 rounded-full border-[50px] border-white/5" />
-          <div className="relative z-10"><div className="mb-6 grid h-14 w-14 place-items-center rounded-2xl border border-white/20 bg-white/10"><ShieldCheck size={29} /></div><h1 className="max-w-[330px] text-[33px] font-extrabold leading-tight tracking-tight">Your workspace for doing more good.</h1><p className="mt-5 max-w-[310px] text-sm leading-7 text-blue-100/80">Secure access to Khudii's organizations, content, enquiries and operations.</p></div>
+          <div className="relative z-10"><div className="mb-6 grid h-14 w-14 place-items-center rounded-2xl border border-white/20 bg-white/10"><ShieldCheck size={29} /></div><h1 className="max-w-[330px] text-[33px] font-bold leading-tight tracking-tight">Your workspace for doing more good.</h1><p className="mt-5 max-w-[310px] text-sm leading-7 text-blue-100/80">Secure access to Khudii's organizations, content, enquiries and operations.</p></div>
           <p className="relative z-10 text-xs text-blue-100/70">Khudii Welfare Organization</p>
         </div>
         <div className="flex min-h-0 items-center p-6 sm:min-h-[520px] sm:p-8"><div className="w-full">
-          <div className="mb-6 sm:mb-10"><span className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#eef3ff] px-3 py-1.5 text-xs font-bold text-[#02236E]"><LockKeyhole size={13} /> Authorized access</span><h2 className="mt-3 text-2xl font-extrabold tracking-tight text-[#0a1f4b] sm:mt-4 sm:text-[32px]">Welcome back</h2><p className="mt-1.5 text-sm text-slate-500 sm:mt-2">Sign in to manage your Khudii workspace.</p></div>
+          <div className="mb-6 sm:mb-10"><span className="mb-3 inline-flex items-center gap-2 rounded-full bg-[#eef3ff] px-3 py-1.5 text-xs font-bold text-[#02236E]"><LockKeyhole size={13} /> Authorized access</span><h2 className="mt-3 text-2xl font-bold tracking-tight text-[#0a1f4b] sm:mt-4 sm:text-[32px]">Welcome back</h2><p className="mt-1.5 text-sm text-slate-500 sm:mt-2">Sign in to manage your Khudii workspace.</p></div>
           <form onSubmit={login} className="space-y-5">
             <div><label htmlFor="admin-email" className="mb-2 block text-xs font-bold uppercase tracking-wide text-slate-600">Email address</label><div className="relative"><Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="admin-email" type="email" autoComplete="username" value={email ?? ''} onChange={(e) => setEmail(e.target.value)} required disabled={loading} placeholder="name@khudii.com" className="w-full rounded-xl border border-slate-200 bg-[#f9fbff] py-3.5 pl-12 pr-4 text-sm outline-none transition focus:border-[#3561bf] focus:ring-4 focus:ring-blue-100" /></div></div>
             <div><div className="mb-2 flex items-center justify-between"><label htmlFor="admin-password" className="block text-xs font-bold uppercase tracking-wide text-slate-600">Password</label><Link href="/letskhudii/forgot-password" className="text-xs font-bold text-[#02236E] hover:underline">Forgot password?</Link></div><div className="relative"><LockKeyhole className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} /><input id="admin-password" type={visible ? 'text' : 'password'} autoComplete="current-password" value={password ?? ''} onChange={(e) => setPassword(e.target.value)} required disabled={loading} placeholder="Enter your password" className="w-full rounded-xl border border-slate-200 bg-[#f9fbff] py-3.5 pl-12 pr-12 text-sm outline-none transition focus:border-[#3561bf] focus:ring-4 focus:ring-blue-100" /><button type="button" onClick={() => setVisible(v => !v)} title={visible ? 'Hide password' : 'Show password'} aria-label={visible ? 'Hide password' : 'Show password'} className="absolute cursor-pointer right-3 top-1/2 -translate-y-1/2 rounded-lg p-2 text-slate-500 hover:bg-blue-50">{visible ? <EyeOff size={18} /> : <Eye size={18} />}</button></div></div>

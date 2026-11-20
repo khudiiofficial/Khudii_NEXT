@@ -143,17 +143,11 @@ export default function Sidebar({ mobileOpen = false, onClose = () => { } }) {
       <div
         className="kh-side-brand flex h-[76px] shrink-0 items-center gap-3 px-5 border-b border-white/10"
       >
-        <Link href={BASE} className="flex items-center gap-2.5 overflow-hidden">
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white/10 p-1">
+        <Link href={BASE} className="flex p-4 w-full gap-2.5 overflow-hidden">
             <img
               src={adminLogo || siteLogo || '/Khudii.webp'}
               alt={adminLogoAlt || 'Site Logo'}
-              className="h-full w-full object-contain p-1 rounded-2xl"
             />
-          </div>
-          <span className="truncate text-base font-extrabold tracking-wide text-white">
-            {siteName || 'KHUDII'}
-          </span>
         </Link>
         <button
           type="button"
@@ -188,7 +182,7 @@ export default function Sidebar({ mobileOpen = false, onClose = () => { } }) {
             <button
               type="button"
               onClick={() => setClosedGroups((s) => ({ ...s, [group.name]: !s[group.name] }))}
-              className="mb-2 flex w-full items-center justify-between px-3 text-left text-[10px] font-extrabold uppercase tracking-[.16em] text-blue-200/65"
+              className="mb-2 flex w-full items-center justify-between px-3 text-left text-[10px] font-bold uppercase tracking-[.16em] text-blue-200/65"
             >
               {group.name}
               <ChevronDown
@@ -212,7 +206,7 @@ export default function Sidebar({ mobileOpen = false, onClose = () => { } }) {
                       onClick={onClose}
                       key={href}
                       aria-current={active ? 'page' : undefined}
-                      className={`kh-side-link group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-semibold transition-all ${
+                      className={`kh-side-link group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-bold transition-all ${
                         active
                           ? 'kh-side-active'
                           : 'text-blue-100/85 hover:bg-white/10 hover:text-white'

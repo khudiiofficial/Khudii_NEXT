@@ -127,7 +127,7 @@ function ChatMessageBubble({ message, onNavigate, onChipClick }) {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5">
                     {card.badge && (
-                      <span className="rounded bg-[#02236E]/10 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wider text-[#02236E]">
+                      <span className="rounded bg-[#02236E]/10 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-[#02236E]">
                         {card.badge}
                       </span>
                     )}

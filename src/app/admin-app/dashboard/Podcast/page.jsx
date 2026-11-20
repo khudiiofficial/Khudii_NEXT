@@ -104,7 +104,7 @@ export default function PodcastAdminPage() {
     catch (e) { setEpisodes(prev => prev.map(item => item.id === episode.id ? episode : item)); setError(e.response?.data?.message || e.message || 'Status update failed'); }
   }
   return <div className="mx-auto max-w-7xl space-y-7 py-5"><AdminSeoShortcut type="podcasts" id={editing || undefined} />
-    <header><h1 className="text-3xl font-extrabold text-[#02236E]">Podcast management</h1><p className="mt-2 text-sm text-slate-600">Paste a YouTube link to load video metadata, edit episode SEO, drag to reorder and toggle publishing. Saved changes appear on /podcast.</p><a className="mt-2 inline-block text-sm font-semibold text-[#02236E] underline" href="/podcast" target="_blank" rel="noopener noreferrer">View public Podcast page</a></header>
+    <header><h1 className="text-3xl font-bold text-[#02236E]">Podcast management</h1><p className="mt-2 text-sm text-slate-600">Paste a YouTube link to load video metadata, edit episode SEO, drag to reorder and toggle publishing. Saved changes appear on /podcast.</p><a className="mt-2 inline-block text-sm font-semibold text-[#02236E] underline" href="/podcast" target="_blank" rel="noopener noreferrer">View public Podcast page</a></header>
     {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</p>}
     {message && <p role="status" className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">{message}</p>}
     <form onSubmit={save} className="space-y-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7"><h2 className="text-xl font-bold">{editing ? 'Edit episode' : 'New episode'}</h2>

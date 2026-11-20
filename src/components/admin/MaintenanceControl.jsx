@@ -115,7 +115,7 @@ export default function MaintenanceControl() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4">
         <div>
-          <h2 className="flex items-center gap-2 text-xl font-extrabold text-[#02236E]">
+          <h2 className="flex items-center gap-2 text-xl font-bold text-[#02236E]">
             <ShieldAlert size={22} className={enabled ? 'text-[#ed0026]' : 'text-emerald-600'} />
             Website Maintenance Mode
           </h2>
@@ -126,7 +126,7 @@ export default function MaintenanceControl() {
 
         <div className="flex items-center gap-2">
           <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-extrabold ${
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
               enabled ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'
             }`}
           >
@@ -146,7 +146,7 @@ export default function MaintenanceControl() {
       <div className="flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50/80 p-4 text-xs text-amber-900">
         <AlertTriangle size={18} className="mt-0.5 shrink-0 text-amber-600" />
         <div>
-          <p className="font-extrabold">Search Engine &amp; Visitor Advisory</p>
+          <p className="font-bold">Search Engine &amp; Visitor Advisory</p>
           <p className="mt-0.5 leading-relaxed">
             Keep maintenance windows brief so search crawlers do not de-index public pages. Administrators signed into <code>/admin-app</code> and <code>/letskhudii</code> are never blocked.
           </p>
@@ -157,7 +157,7 @@ export default function MaintenanceControl() {
       <div className="space-y-5 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs">
         <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-slate-100 bg-slate-50 p-4">
           <div>
-            <p className="text-sm font-extrabold text-slate-900">Maintenance Status</p>
+            <p className="text-sm font-bold text-slate-900">Maintenance Status</p>
             <p className="mt-0.5 text-xs text-slate-500">
               {enabled
                 ? scope === 'all'
@@ -179,7 +179,7 @@ export default function MaintenanceControl() {
                 enabled ? 'translate-x-5' : ''
               }`}
             />
-            <span className="text-xs font-extrabold uppercase tracking-wider text-slate-700">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
               {enabled ? 'ON' : 'OFF'}
             </span>
           </label>
@@ -188,7 +188,7 @@ export default function MaintenanceControl() {
         {/* Coverage Selector */}
         <div className="space-y-2.5">
           <div className="flex items-center justify-between">
-            <label className="text-xs font-extrabold uppercase tracking-wider text-slate-600">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-600">
               Maintenance Coverage
             </label>
             <button
@@ -210,7 +210,7 @@ export default function MaintenanceControl() {
                   : 'border-slate-200 bg-white hover:bg-slate-50'
               }`}
             >
-              <div className="flex items-center gap-2 text-sm font-extrabold text-[#02236E]">
+              <div className="flex items-center gap-2 text-sm font-bold text-[#02236E]">
                 <Globe size={16} /> Entire Website
               </div>
               <p className="mt-1 text-xs text-slate-500">Show maintenance view across all public routes.</p>
@@ -227,7 +227,7 @@ export default function MaintenanceControl() {
                   : 'border-slate-200 bg-white hover:bg-slate-50'
               }`}
             >
-              <div className="flex items-center gap-2 text-sm font-extrabold text-[#02236E]">
+              <div className="flex items-center gap-2 text-sm font-bold text-[#02236E]">
                 <CheckCircle2 size={16} /> Selected Pages Only ({selectedPaths.length})
               </div>
               <p className="mt-1 text-xs text-slate-500">Restrict maintenance notice to chosen pages only.</p>
@@ -237,7 +237,7 @@ export default function MaintenanceControl() {
 
         {/* Custom Maintenance Message */}
         <div>
-          <label htmlFor="maintenance-msg" className="mb-1.5 block text-xs font-extrabold uppercase tracking-wider text-slate-600">
+          <label htmlFor="maintenance-msg" className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-slate-600">
             Visitor Maintenance Message
           </label>
           <textarea
@@ -283,7 +283,7 @@ export default function MaintenanceControl() {
           >
             <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
               <div>
-                <h3 className="text-base font-extrabold text-[#02236E]">Select Pages for Maintenance</h3>
+                <h3 className="text-base font-bold text-[#02236E]">Select Pages for Maintenance</h3>
                 <p className="text-xs text-slate-500">Choose which public pages should show the maintenance screen.</p>
               </div>
               <button

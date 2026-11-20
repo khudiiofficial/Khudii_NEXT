@@ -118,7 +118,7 @@ export default function SeoPageMatrixPanel() {
       ) : (
         <div className="overflow-x-auto max-h-[420px] overflow-y-auto rounded-xl border border-slate-200">
           <table className="w-full min-w-[740px] text-left text-xs">
-            <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold uppercase text-slate-500">
+            <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase text-slate-500">
               <tr>
                 <th className="p-3">Page</th>
                 <th className="p-3">Canonical URL Override</th>

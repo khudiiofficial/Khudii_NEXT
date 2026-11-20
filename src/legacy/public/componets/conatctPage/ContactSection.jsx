@@ -191,7 +191,7 @@ const myDivRef = useRef(null);
       <div className="grid gap-10 md:grid-cols-2 items-start">
         {/* Left: heading + description */}
         <div>
-          <h2 className="text-[#222222] text-3xl md:text-4xl font-extrabold text-black-800 mb-4">
+          <h2 className="text-[#222222] text-3xl md:text-4xl font-bold text-black-800 mb-4">
             We&rsquo;d Love to Hear From You
           </h2>
           <p className="text-[#222222] mb-6 max-w-xl">

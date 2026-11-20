@@ -50,14 +50,14 @@ export default function KhudiiDatabaseSettings() {
   };
   return <section className="space-y-5">
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <div><h2 className="flex items-center gap-2 text-xl font-extrabold text-[#02236E]"><Database className="text-[#02236E]" size={22} />Database Management</h2><p className="mt-1 text-sm text-slate-500">Read-only live database backup. Database synchronization controls have been removed.</p></div>
+      <div><h2 className="flex items-center gap-2 text-xl font-bold text-[#02236E]"><Database className="text-[#02236E]" size={22} />Database Management</h2><p className="mt-1 text-sm text-slate-500">Read-only live database backup. Database synchronization controls have been removed.</p></div>
       <ReloadButton onClick={refresh} loading={loading} disabled={busy}>Refresh status</ReloadButton>
     </div>
     {error && <p role="alert" className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"><AlertCircle size={17} />{error}</p>}
     <div className="grid gap-5 lg:grid-cols-[minmax(0,420px)_1fr]">
       <div className="flex flex-col rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
         <div className="mb-4 grid h-12 w-12 place-items-center rounded-xl bg-blue-50 text-[#02236E]"><Download size={24} /></div>
-        <h3 className="text-lg font-extrabold text-[#02236E]">Export Live Database</h3>
+        <h3 className="text-lg font-bold text-[#02236E]">Export Live Database</h3>
         <p className="mt-2 text-sm leading-6 text-slate-600">Download a SQL backup containing live tables and records. The export never changes database content.</p>
         <p className="my-5 text-sm text-slate-500">{status?.available ? `${status.tables} database tables detected` : status?.error || 'Checking live database availability...'}</p>
         <button type="button" disabled={loading || busy || !status?.available} onClick={exportDatabase} className="mt-auto inline-flex items-center justify-center gap-2 rounded-xl bg-[#02236E] px-5 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-50">{busy ? <Loader2 size={17} className="animate-spin" /> : <Download size={17} />} {busy ? 'Preparing backup...' : 'Export live database'}</button>

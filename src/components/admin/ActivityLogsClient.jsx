@@ -254,7 +254,7 @@ export default function ActivityLogsClient() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
               <Activity className="h-6 w-6 text-[#02236E]" />
               Activity Logs
             </h1>
@@ -530,7 +530,7 @@ export default function ActivityLogsClient() {
       <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[960px] text-left text-sm">
-            <thead className="bg-slate-50/75 border-b border-slate-200 text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+            <thead className="bg-slate-50/75 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
               <tr>
                 <th className="p-4">Timestamp</th>
                 <th className="p-4">Operator</th>
@@ -708,7 +708,7 @@ export default function ActivityLogsClient() {
                   <Activity size={16} />
                 </div>
                 <div>
-                  <h3 className="font-extrabold text-sm text-slate-900">Activity Log Details</h3>
+                  <h3 className="font-bold text-sm text-slate-900">Activity Log Details</h3>
                   <p className="text-[11px] text-slate-500">Record ID: #{activeModalItem.id}</p>
                 </div>
               </div>
@@ -811,7 +811,7 @@ export default function ActivityLogsClient() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+              <h3 className="font-bold text-sm text-slate-900 flex items-center gap-2">
                 <Download size={16} className="text-[#02236E]" />
                 Export Activity Logs to CSV
               </h3>
@@ -910,7 +910,7 @@ export default function ActivityLogsClient() {
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="font-extrabold text-sm text-rose-700 flex items-center gap-2">
+              <h3 className="font-bold text-sm text-rose-700 flex items-center gap-2">
                 <AlertTriangle size={16} />
                 Clear Activity Logs
               </h3>

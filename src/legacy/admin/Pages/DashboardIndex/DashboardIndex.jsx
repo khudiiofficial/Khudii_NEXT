@@ -19,10 +19,12 @@ import {
   SearchCheck,
   Settings,
   ShieldAlert,
+  Sparkles,
 } from 'lucide-react';
 import KhudiiMultiAreaChart from '@/components/KhudiiMultiAreaChart';
 import ReportingRangeSelect from '@/components/ReportingRangeSelect';
 import CacheDisplay from '@/components/admin/CacheDisplay';
+import { useAdminAuth } from '@/lib/admin-auth';
 
 const API = `${process.env.NEXT_PUBLIC_BACKEND_PATH || '/api-app'}/admin/reports/overview`;
 const SUBMISSIONS = [
@@ -41,6 +43,9 @@ const SURFACES = [
 ];
 
 export default function DashboardIndex() {
+  const { user } = useAdminAuth();
+  const rawName = user?.name && user.name !== 'null' ? String(user.name).trim() : '';
+  const displayName = rawName || (user?.email?.toLowerCase().includes('dks') ? 'DKS' : (user?.email?.toLowerCase().includes('khudii') ? 'Khudii Admin' : (user?.email ? user.email.split('@')[0] : 'DKS')));
   const [days, setDays] = useState(30);
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
@@ -154,20 +159,19 @@ export default function DashboardIndex() {
 
   return (
     <div className="space-y-7">
-      {/* Control Room Hero Banner (Oriscare Parity) */}
-      <section className="rounded-3xl bg-gradient-to-r from-[#02236E] via-[#0b338c] to-[#1a49ad] p-6 text-white shadow-lg md:p-7">
-        <div className="flex flex-wrap items-center justify-between gap-4">
+      {/* Control Room Hero Banner (KingTravel Parity) */}
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-[#02236E] via-[#0b338c] to-[#1a49ad] p-6 text-white shadow-xl md:p-7 border border-blue-400/20">
+        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:20px_20px] pointer-events-none" />
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
           <div>
-            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-blue-200">
-              Khudii Control Room
-            </p>
-            <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
-              Workspace Overview
-            </h1>
+            <div className="inline-flex items-center gap-2 bg-amber-400/15 border border-amber-300/30 px-3 py-1 rounded-full text-[10px] font-bold text-amber-300 uppercase tracking-widest mb-2 backdrop-blur-xs">
+              <Sparkles className="w-3 h-3 text-amber-300" /> Executive Operations Suite
+            </div>
+            <h2 className="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              Welcome Back, {displayName}
+            </h2>
             <p className="mt-1.5 text-xs text-blue-100/90 sm:text-sm">
-              {data?.generatedAt
-                ? `Updated ${new Date(data.generatedAt).toLocaleTimeString()} · Auto-refresh every 30 seconds`
-                : 'Loading live telemetry from Khudii database...'}
+              Khudii Real-Time Operations CRM &amp; Dynamic Content Engine
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
@@ -178,7 +182,7 @@ export default function DashboardIndex() {
               type="button"
               onClick={load}
               disabled={loading}
-              className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-extrabold text-[#02236E] shadow-sm transition hover:bg-blue-50 disabled:opacity-60 cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-xs font-bold text-[#02236E] shadow-sm transition hover:bg-blue-50 disabled:opacity-60 cursor-pointer"
             >
               <RefreshCw size={15} className={loading ? 'animate-spin' : ''} />
               Refresh live data
@@ -216,7 +220,7 @@ export default function DashboardIndex() {
               </div>
               <div className="mt-3">
                 <p className="text-xs font-bold text-slate-500">{kpi.label}</p>
-                <p className="mt-1 text-2xl font-extrabold tabular-nums text-[#0b1936]">
+                <p className="mt-1 text-2xl font-bold tabular-nums text-[#0b1936]">
                   {typeof kpi.value === 'number' ? kpi.value.toLocaleString() : kpi.value}
                 </p>
                 <p className="mt-1 text-[11px] font-medium text-slate-500">{kpi.sub}</p>
@@ -234,7 +238,7 @@ export default function DashboardIndex() {
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
           <div className="mb-4 flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-base font-extrabold text-[#02236E]">Quick Page Access</h2>
+              <h2 className="text-base font-bold text-[#02236E]">Quick Page Access</h2>
               <p className="text-xs text-slate-500">Jump directly into Khudii CMS page editors</p>
             </div>
             <Link
@@ -298,11 +302,11 @@ export default function DashboardIndex() {
           <div>
             <div className="mb-4 flex items-center justify-between gap-2">
               <div>
-                <h2 className="text-base font-extrabold text-[#02236E]">Integrations &amp; Health</h2>
+                <h2 className="text-base font-bold text-[#02236E]">Integrations &amp; Health</h2>
                 <p className="text-xs text-slate-500">Live CMS configuration status</p>
               </div>
               <Link
-                href="/admin-app/dashboard/settings"
+                href="/admin-app/dashboard/settings?tab=seo"
                 className="inline-flex items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-[#02236E] hover:bg-blue-50"
               >
                 <Settings size={13} /> Settings
@@ -380,7 +384,7 @@ export default function DashboardIndex() {
 
       {/* Existing Khudii Content & Submission Totals */}
       <section aria-label="Content and submissions totals">
-        <h2 className="mb-3 text-sm font-extrabold uppercase tracking-wider text-slate-500">
+        <h2 className="mb-3 text-sm font-bold uppercase tracking-wider text-slate-500">
           Khudii Content &amp; Submissions Directory
         </h2>
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
@@ -395,7 +399,7 @@ export default function DashboardIndex() {
                 <span className="text-sm font-semibold text-slate-600">{label}</span>
                 <ArrowUpRight size={17} className="text-[#02236E]" />
               </div>
-              <p className="mt-3 text-2xl font-extrabold tabular-nums">
+              <p className="mt-3 text-2xl font-bold tabular-nums">
                 {counts[key] == null ? 'Not available' : counts[key].toLocaleString()}
               </p>
             </button>

@@ -117,7 +117,7 @@ export default function SiteIdentityTab({
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
         <div>
-          <h2 className="text-xl font-extrabold text-slate-900 m-0">Site Identity</h2>
+          <h2 className="text-xl font-bold text-slate-900 m-0">Site Identity</h2>
           <p className="text-xs text-slate-500 m-0 mt-0.5">
             Manage your website&apos;s core branding, WhatsApp, and Tawk.to Live Chat.
           </p>
@@ -134,7 +134,7 @@ export default function SiteIdentityTab({
             type="button"
             onClick={onSave}
             disabled={saving}
-            className="bg-[#02236E] text-white px-5 py-2.5 rounded-xl text-xs font-extrabold hover:bg-[#02236E]/90 transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+            className="bg-[#02236E] text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-[#02236E]/90 transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50"
           >
             <Save className="w-3.5 h-3.5" />
             <span>{saving ? 'Saving...' : 'Save Changes'}</span>
@@ -179,7 +179,7 @@ export default function SiteIdentityTab({
                   <path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.126 1.526 5.865L0 24l6.335-1.499A11.926 11.926 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.653-.49-5.187-1.348l-.372-.22-3.762.89.944-3.658-.242-.386A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
                 </svg>
               </div>
-              <span className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">
+              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                 Header WhatsApp Button
               </span>
             </div>
@@ -242,7 +242,7 @@ export default function SiteIdentityTab({
                   <path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.555 4.126 1.526 5.865L0 24l6.335-1.499A11.926 11.926 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.653-.49-5.187-1.348l-.372-.22-3.762.89.944-3.658-.242-.386A9.96 9.96 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
                 </svg>
               </div>
-              <span className="text-xs font-extrabold text-slate-800 uppercase tracking-wider">
+              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
                 Floating Bottom-Right WhatsApp Button
               </span>
             </div>
@@ -316,7 +316,7 @@ export default function SiteIdentityTab({
           {/* Admin Panel Branding (Oriscare Parity) */}
           <div className="flex flex-col gap-3 pt-4 border-t border-slate-200/60">
             <div>
-              <h4 className="text-xs font-extrabold uppercase tracking-wider text-[#02236E] m-0">Admin Panel Branding</h4>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#02236E] m-0">Admin Panel Branding</h4>
               <p className="text-[11px] text-slate-500 mt-0.5 mb-0">
                 Customize the logo and width displayed in the Admin Dashboard sidebar.
               </p>
@@ -378,7 +378,7 @@ export default function SiteIdentityTab({
               <MessageCircle className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-base font-extrabold text-slate-900 m-0 flex items-center gap-2">
+              <h3 className="text-base font-bold text-slate-900 m-0 flex items-center gap-2">
                 Tawk.to Live Chat Configuration
                 <span className="text-[11px] font-bold px-2 py-0.5 rounded-md bg-emerald-100 text-[#00A859]">
                   New Feature
@@ -395,7 +395,7 @@ export default function SiteIdentityTab({
             <label className="flex items-center gap-2.5 cursor-pointer select-none bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
               <span className="text-xs font-bold text-slate-700">Feature Status:</span>
               <span
-                className={`text-xs font-extrabold ${
+                className={`text-xs font-bold ${
                   identityData.tawkEnabled !== false ? 'text-[#00A859]' : 'text-slate-400'
                 }`}
               >
@@ -418,7 +418,7 @@ export default function SiteIdentityTab({
               type="button"
               onClick={onSave}
               disabled={saving}
-              className="bg-[#00A859] hover:bg-[#008f4c] text-white px-4 py-2 rounded-xl text-xs font-extrabold transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+              className="bg-[#00A859] hover:bg-[#008f4c] text-white px-4 py-2 rounded-xl text-xs font-bold transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50"
             >
               <Save className="w-3.5 h-3.5" />
               <span>{saving ? 'Saving...' : 'Save Tawk Settings'}</span>
@@ -568,7 +568,7 @@ export default function SiteIdentityTab({
               className="mt-0.5 rounded text-[#00A859] focus:ring-[#00A859] w-4 h-4 cursor-pointer"
             />
             <div>
-              <span className="block text-xs font-extrabold text-slate-900">
+              <span className="block text-xs font-bold text-slate-900">
                 Show / Hide Floating Button on Frontend
               </span>
               <span className="block text-[11px] text-slate-500 mt-0.5">
@@ -587,7 +587,7 @@ export default function SiteIdentityTab({
               className="mt-0.5 rounded text-[#00A859] focus:ring-[#00A859] w-4 h-4 cursor-pointer"
             />
             <div>
-              <span className="block text-xs font-extrabold text-slate-900">
+              <span className="block text-xs font-bold text-slate-900">
                 Hide Default Tawk Launcher (Recommended)
               </span>
               <span className="block text-[11px] text-slate-500 mt-0.5">
@@ -648,7 +648,7 @@ export default function SiteIdentityTab({
                 <Mic className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-extrabold text-slate-900 uppercase tracking-wider block">
+                <span className="text-xs font-bold text-slate-900 uppercase tracking-wider block">
                   Voice &amp; Speak Assistant Feature
                 </span>
                 <span className="text-[11px] text-slate-500">
@@ -724,7 +724,7 @@ export default function SiteIdentityTab({
                 <HelpCircle className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-extrabold text-slate-900 uppercase tracking-wider block">
+                <span className="text-xs font-bold text-slate-900 uppercase tracking-wider block">
                   Automated Q&amp;A Prompts &amp; Response Answers
                 </span>
                 <span className="text-[11px] text-slate-500">
@@ -746,7 +746,7 @@ export default function SiteIdentityTab({
           {isAddingPrompt && (
             <div className="p-4 rounded-xl bg-emerald-50/80 border-2 border-emerald-300 flex flex-col gap-3.5 animate-fadeIn">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold text-emerald-900 uppercase">
+                <span className="text-xs font-bold text-emerald-900 uppercase">
                   Create New Prompt / Automated Response
                 </span>
                 <button
@@ -866,10 +866,10 @@ export default function SiteIdentityTab({
                 >
                   <div className="flex items-center justify-between gap-2 border-b border-slate-200/70 pb-2">
                     <div className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-800 text-[10px] font-extrabold flex items-center justify-center">
+                      <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-800 text-[10px] font-bold flex items-center justify-center">
                         #{idx + 1}
                       </span>
-                      <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-extrabold uppercase">
+                      <span className="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase">
                         {prompt.category || 'General'}
                       </span>
                       {prompt.showChip && (

@@ -313,7 +313,7 @@ function EmailTab({ smtp, setSmtp }) {
             />
           </div>
           <div className="sm:col-span-2 mt-2 rounded-2xl border border-blue-100 bg-blue-50/50 p-4">
-            <p className="text-xs font-extrabold uppercase tracking-wider text-[#02236E]">Send Diagnostic Test Email</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-[#02236E]">Send Diagnostic Test Email</p>
             <p className="mt-0.5 text-xs text-slate-500">Save any SMTP changes first, then send a test email to verify delivery.</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <input
@@ -637,7 +637,7 @@ function PopupTab({ popup, setPopup, onSave, saving }) {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
         <div>
-          <h2 className="text-xl font-extrabold text-slate-900 m-0 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-slate-900 m-0 flex items-center gap-2">
             <span>🚩</span> Disclaimer Popup Settings
           </h2>
           <p className="text-xs text-slate-500 m-0 mt-0.5">
@@ -648,7 +648,7 @@ function PopupTab({ popup, setPopup, onSave, saving }) {
           type="button"
           onClick={onSave}
           disabled={saving}
-          className="bg-[#02236E] text-white px-6 py-2.5 rounded-full text-xs font-extrabold hover:bg-[#02236E]/90 transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50 self-start sm:self-auto"
+          className="bg-[#02236E] text-white px-6 py-2.5 rounded-full text-xs font-bold hover:bg-[#02236E]/90 transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50 self-start sm:self-auto"
         >
           <Save className="w-3.5 h-3.5" />
           <span>{saving ? 'Saving...' : 'Save Disclaimer Settings'}</span>
@@ -672,7 +672,7 @@ function PopupTab({ popup, setPopup, onSave, saving }) {
         <div className="flex flex-col gap-4 p-5 rounded-2xl bg-white border border-slate-200 shadow-xs">
           <div className="flex justify-between items-center p-3.5 rounded-xl bg-slate-50 border border-slate-100">
             <div>
-              <div className="text-sm font-extrabold text-slate-900 mb-0.5">Enable Disclaimer Popup</div>
+              <div className="text-sm font-bold text-slate-900 mb-0.5">Enable Disclaimer Popup</div>
               <div className="text-xs text-slate-500">Toggle whether the disclaimer popup is active on the site.</div>
             </div>
             <Toggle
@@ -725,7 +725,7 @@ function CssTab({ css, setCss, onSave, saving, dirty }) {
     <div className="flex flex-col gap-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
         <div>
-          <h2 className="text-xl font-extrabold text-slate-900 m-0 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-slate-900 m-0 flex items-center gap-2">
             <span>🎨</span> Global CSS Overrides
           </h2>
           <p className="text-xs text-slate-500 m-0 mt-0.5">
@@ -736,7 +736,7 @@ function CssTab({ css, setCss, onSave, saving, dirty }) {
           type="button"
           onClick={onSave}
           disabled={saving || !dirty}
-          className="bg-[#02236E] text-white px-6 py-2.5 rounded-full text-xs font-extrabold hover:bg-[#02236E]/90 transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50 self-start sm:self-auto"
+          className="bg-[#02236E] text-white px-6 py-2.5 rounded-full text-xs font-bold hover:bg-[#02236E]/90 transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50 self-start sm:self-auto"
         >
           <Save className="w-3.5 h-3.5" />
           <span>{saving ? 'Saving...' : 'Save CSS Overrides'}</span>
@@ -1053,7 +1053,7 @@ function SettingsPageInner() {
         <div className="flex items-center gap-4">
           <span className="rounded-2xl bg-[#02236E]/8 p-3 text-[#02236E]"><Settings size={26} /></span>
           <div>
-            <h1 className="text-3xl font-extrabold text-[#02236E]">Settings</h1>
+            <h1 className="text-3xl font-bold text-[#02236E]">Settings</h1>
             <p className="mt-1 text-sm text-slate-500">Manage all Khudii platform configuration in one place.</p>
           </div>
         </div>

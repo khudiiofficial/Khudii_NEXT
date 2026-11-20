@@ -256,7 +256,7 @@ export default function HomeSlidersManagement() {
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
         <div>
-          <h2 className="text-xl font-extrabold text-[#02236E] flex items-center gap-2 m-0">
+          <h2 className="text-xl font-bold text-[#02236E] flex items-center gap-2 m-0">
             <SlidersHorizontal size={20} className="text-[#02236E]" />
             Homepage Banners &amp; Sliders
           </h2>
@@ -288,7 +288,7 @@ export default function HomeSlidersManagement() {
       {/* Banner Style Switcher Card */}
       <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h3 className="text-sm font-extrabold text-[#02236E] m-0">Hero Banner Presentation Mode</h3>
+          <h3 className="text-sm font-bold text-[#02236E] m-0">Hero Banner Presentation Mode</h3>
           <p className="text-xs text-slate-500 mt-0.5 mb-0">
             Choose whether to show an interactive rotating carousel or a single fixed high-impact banner.
           </p>
@@ -323,7 +323,7 @@ export default function HomeSlidersManagement() {
       {/* Fixed Banner Settings (Shown if Fixed mode selected) */}
       {bannerStyle === 'fixed' && (
         <div className="rounded-2xl border border-blue-200 bg-blue-50/50 p-6 shadow-xs space-y-4">
-          <h3 className="text-sm font-extrabold text-[#02236E] m-0">Single Fixed Banner Configuration</h3>
+          <h3 className="text-sm font-bold text-[#02236E] m-0">Single Fixed Banner Configuration</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <ImageUploadWidget
@@ -529,7 +529,7 @@ export default function HomeSlidersManagement() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-xs">
           <div className="w-full max-w-lg rounded-3xl bg-white border border-slate-200 p-6 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-base font-extrabold text-[#02236E] m-0">
+              <h3 className="text-base font-bold text-[#02236E] m-0">
                 {editingSlider ? 'Edit Homepage Slider' : 'Add New Homepage Slider'}
               </h3>
               <button

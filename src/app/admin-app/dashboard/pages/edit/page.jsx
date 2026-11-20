@@ -365,7 +365,7 @@ function ConnectedModuleEditor({ section, connectedData, updateSectionData }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Display Count / Limit */}
         <div className="space-y-1.5">
-          <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
             DISPLAY COUNT (HOW MANY TO DISPLAY)
           </label>
           <div className="flex flex-wrap items-center gap-1.5">
@@ -400,7 +400,7 @@ function ConnectedModuleEditor({ section, connectedData, updateSectionData }) {
 
         {/* Source Mode: All vs Selected */}
         <div className="space-y-1.5">
-          <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
             ITEM SELECTION MODE
           </label>
           <div className="flex items-center gap-2">
@@ -436,7 +436,7 @@ function ConnectedModuleEditor({ section, connectedData, updateSectionData }) {
           {/* Section Title / Heading */}
           <div className="bg-slate-50/80 rounded-xl p-3 border border-slate-200/80 space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">
+              <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
                 SECTION TITLE / HEADING
               </label>
               <label className="flex items-center gap-1.5 cursor-pointer text-[11px] font-bold text-slate-700">
@@ -465,7 +465,7 @@ function ConnectedModuleEditor({ section, connectedData, updateSectionData }) {
           {/* Optional Action Button */}
           <div className="bg-slate-50/80 rounded-xl p-3 border border-slate-200/80 space-y-2">
             <div className="flex items-center justify-between">
-              <label className="text-[10px] font-extrabold text-slate-600 uppercase tracking-wider">
+              <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">
                 OPTIONAL ACTION BUTTON
               </label>
               <label className="flex items-center gap-1.5 cursor-pointer text-[11px] font-bold text-slate-700">
@@ -1395,7 +1395,7 @@ function PageEditorContent() {
         <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs flex flex-col gap-6">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
-              <h3 className="text-xs font-extrabold text-[#02236E] tracking-wider uppercase m-0 flex items-center gap-1.5">
+              <h3 className="text-xs font-bold text-[#02236E] tracking-wider uppercase m-0 flex items-center gap-1.5">
                 👑 HOMEPAGE HERO BANNER BACKGROUND IMAGE & CONTENT (1920PX X 640PX)
               </h3>
               <span className="text-[11px] text-slate-400 font-medium">Recommended 1920px x 640px (min-height: 640px)</span>
@@ -1433,7 +1433,7 @@ function PageEditorContent() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                     POSITION
                   </label>
                   <select
@@ -1453,7 +1453,7 @@ function PageEditorContent() {
                 </div>
 
                 <div>
-                  <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                     SIZE
                   </label>
                   <select
@@ -1508,11 +1508,11 @@ function PageEditorContent() {
 
               {/* Main Content Area */}
               <div className="relative z-10 max-w-md space-y-3 my-auto">
-                <div className="text-[11px] font-extrabold uppercase tracking-widest text-amber-300">
+                <div className="text-[11px] font-bold uppercase tracking-widest text-amber-300">
                   {heroData.eyebrow}
                 </div>
                 <h2
-                  className="text-2xl md:text-3xl font-extrabold text-white m-0 tracking-tight leading-tight [&>span]:text-amber-300"
+                  className="text-2xl md:text-3xl font-bold text-white m-0 tracking-tight leading-tight [&>span]:text-amber-300"
                   dangerouslySetInnerHTML={{ __html: heroData.title || 'Pakistan\'s Premier Digital <span>Welfare Network</span>' }}
                 />
                 <p className="text-xs text-white/90 leading-relaxed font-light">
@@ -1535,7 +1535,7 @@ function PageEditorContent() {
           {/* Form Fields Grid for Banner Content Editing */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-100">
             <div>
-              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 EYEBROW TAGLINE
               </label>
               <input
@@ -1552,7 +1552,7 @@ function PageEditorContent() {
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                   TITLE (H1)
                 </label>
                 <button
@@ -1585,7 +1585,7 @@ function PageEditorContent() {
             </div>
 
             <div className="lg:col-span-2">
-              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 SUBTEXT / DESCRIPTION
               </label>
               <input
@@ -1601,7 +1601,7 @@ function PageEditorContent() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 PRIMARY CTA BUTTON LABEL
               </label>
               <input
@@ -1617,7 +1617,7 @@ function PageEditorContent() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 PRIMARY CTA LINK
               </label>
               <input
@@ -1633,7 +1633,7 @@ function PageEditorContent() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 SECONDARY CTA BUTTON LABEL
               </label>
               <input
@@ -1649,7 +1649,7 @@ function PageEditorContent() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 SECONDARY CTA LINK
               </label>
               <input
@@ -1665,7 +1665,7 @@ function PageEditorContent() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 BADGE 1 TOP TEXT
               </label>
               <input
@@ -1681,7 +1681,7 @@ function PageEditorContent() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 BADGE 1 SUBTEXT
               </label>
               <input
@@ -1697,7 +1697,7 @@ function PageEditorContent() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 BADGE 2 TOP TEXT
               </label>
               <input
@@ -1713,7 +1713,7 @@ function PageEditorContent() {
             </div>
 
             <div>
-              <label className="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                 BADGE 2 SUBTEXT
               </label>
               <input
@@ -1737,7 +1737,7 @@ function PageEditorContent() {
         <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="space-y-4">
             <div>
-              <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
                 TITLE *
               </label>
               <input
@@ -1750,7 +1750,7 @@ function PageEditorContent() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
                 SLUG *
               </label>
               <input
@@ -1771,7 +1771,7 @@ function PageEditorContent() {
         <div className="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-xs flex flex-col justify-between">
           <div className="space-y-4">
             <div>
-              <label className="block text-[11px] font-extrabold text-slate-500 uppercase tracking-wider mb-1.5">
+              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">
                 PAGE STATUS
               </label>
               <select
@@ -1845,7 +1845,7 @@ function PageEditorContent() {
             <div className="space-y-5">
               <div className="flex items-center justify-between relative z-30">
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-900 m-0">Page Sections</h3>
+                  <h3 className="text-base font-bold text-slate-900 m-0">Page Sections</h3>
                   <p className="text-xs text-slate-400 mt-0.5 m-0">Build page layout with reorderable sections</p>
                 </div>
 
@@ -1857,7 +1857,7 @@ function PageEditorContent() {
                       setCatalogOpen(!catalogOpen);
                       setCatalogSearch('');
                     }}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#02236E] hover:bg-blue-900 text-white text-xs font-extrabold transition-all cursor-pointer shadow-sm border-none"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#02236E] hover:bg-blue-900 text-white text-xs font-bold transition-all cursor-pointer shadow-sm border-none"
                   >
                     <span>+ Add Section</span>
                     <span className="text-[10px]">{catalogOpen ? '▲' : '▼'}</span>
@@ -1989,7 +1989,7 @@ function PageEditorContent() {
                             {/* Section Title & Description */}
                             <div className="min-w-0">
                               <div className="flex items-center gap-2">
-                                <h4 className="text-xs font-extrabold text-slate-900 m-0 truncate">
+                                <h4 className="text-xs font-bold text-slate-900 m-0 truncate">
                                   {sec.title}
                                 </h4>
                                 <span className="text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 px-2 py-0.5 rounded-md shrink-0">
@@ -2048,7 +2048,7 @@ function PageEditorContent() {
                             )}
 
                             <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-2xs space-y-4">
-                              <span className="text-[11px] font-extrabold text-[#02236E] uppercase tracking-wider flex items-center gap-1.5">
+                              <span className="text-[11px] font-bold text-[#02236E] uppercase tracking-wider flex items-center gap-1.5">
                                 ✏️ SECTION HEADING & CONTENT
                               </span>
 
@@ -2154,7 +2154,7 @@ function PageEditorContent() {
                             {['cards', 'gallery', 'logos', 'people', 'stats', 'steps', 'timeline', 'downloads'].includes(sec.kind) || (sec.kind === 'faq' && sec.data?.source === 'manual') ? (
                               <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-2xs space-y-3">
                                 <div className="flex items-center justify-between">
-                                  <span className="text-[11px] font-extrabold text-[#02236E] uppercase tracking-wider">
+                                  <span className="text-[11px] font-bold text-[#02236E] uppercase tracking-wider">
                                     REPEATABLE ITEMS ({Array.isArray(sec.data?.items) ? sec.data.items.length : 0})
                                   </span>
                                   <button

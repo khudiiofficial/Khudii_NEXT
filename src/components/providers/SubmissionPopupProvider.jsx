@@ -86,7 +86,7 @@ export function SubmissionPopupProvider({ children }) {
             <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full border-2 ${style.ring}`}>
               <Icon size={32} />
             </div>
-            <h3 className={`text-lg font-extrabold ${style.title}`}>{popup.message}</h3>
+            <h3 className={`text-lg font-bold ${style.title}`}>{popup.message}</h3>
             {popup.detail && <p className="mt-2 text-sm text-slate-600">{popup.detail}</p>}
             <button
               type="button"

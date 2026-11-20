@@ -1406,6 +1406,14 @@ export const login = (req, res) => {
     });
 
     delete user.password;
+    if (!user.name || user.name === 'null' || !String(user.name).trim()) {
+      if (user.email?.toLowerCase().includes('khudii')) user.name = 'Khudii Admin';
+      else if (user.email?.toLowerCase().includes('dks')) user.name = 'DKS';
+      else user.name = user.email ? user.email.split('@')[0] : 'Admin User';
+    }
+    user.badge_bg = user.badge_bg || '#02236E';
+    user.badge_text_color = user.badge_text_color || '#ffffff';
+    user.role = user.role || 'super_admin';
     const auth = { auth: true };
     return res.status(200).json({ message: "Login successful", user: { ...user, ...auth } });
   });
@@ -4044,14 +4052,36 @@ export const authlogin = async (req, res) => {
 
   // Fetch fresh user data from DB to ensure up-to-date profile info
   try {
-    const [rows] = await db1.promise().query(
-      'SELECT id, email, password, status, deleted_at FROM users WHERE id = ? LIMIT 1',
-      [decoded.id],
-    );
+    let rows;
+    try {
+      [rows] = await db1.promise().query(
+        'SELECT id, name, email, role, badge_bg, badge_text_color, password, status, deleted_at FROM users WHERE id = ? LIMIT 1',
+        [decoded.id],
+      );
+    } catch {
+      [rows] = await db1.promise().query(
+        'SELECT id, email, password, status, deleted_at FROM users WHERE id = ? LIMIT 1',
+        [decoded.id],
+      );
+    }
     if (rows.length === 0 || !rows[0].status || rows[0].deleted_at || !validSessionVersion(decoded.sessionVersion, rows[0].password) || decoded.email !== rows[0].email) {
       return res.status(401).json({ message: 'Session expired. Please log in again.' });
     }
-    const user = { id: rows[0].id, email: rows[0].email, auth: true };
+    let displayName = rows[0].name;
+    if (!displayName || displayName === 'null' || !String(displayName).trim()) {
+      if (rows[0].email?.toLowerCase().includes('khudii')) displayName = 'Khudii Admin';
+      else if (rows[0].email?.toLowerCase().includes('dks')) displayName = 'DKS';
+      else displayName = rows[0].email ? rows[0].email.split('@')[0] : 'Admin User';
+    }
+    const user = {
+      id: rows[0].id,
+      name: displayName,
+      email: rows[0].email,
+      role: rows[0].role || 'super_admin',
+      badge_bg: rows[0].badge_bg || '#02236E',
+      badge_text_color: rows[0].badge_text_color || '#ffffff',
+      auth: true,
+    };
     return res.status(200).json({ message: 'success', user });
   } catch (err) {
     console.error('authlogin DB error:', err.message);

@@ -13,7 +13,7 @@ function SplineTooltip({ active, payload, valueLabel }) {
   if (!item) return null;
   return (
     <div className="rounded-xl border border-slate-700 bg-[#02236E] px-3 py-2.5 text-xs text-white shadow-xl min-w-[130px]">
-      <div className="mb-1 font-extrabold text-white">{item.name}</div>
+      <div className="mb-1 font-bold text-white">{item.name}</div>
       <div>{valueLabel}: <strong>{Number(item.value || 0).toLocaleString()}</strong></div>
       {item.pct !== undefined && <div>Share: <strong>{item.pct}%</strong></div>}
       {item.subtext && <div className="mt-1 max-w-[200px] text-[10px] text-slate-300">{item.subtext}</div>}

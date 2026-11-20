@@ -90,7 +90,7 @@ function CustomModuleTooltip({ active, payload, label, selectedModule }) {
     <div className="relative pointer-events-none z-50">
       <div className="bg-[#0f172a] text-white px-3.5 py-2.5 rounded-xl shadow-2xl border border-slate-700/80 text-xs min-w-[170px] animate-in fade-in-0 zoom-in-95">
         <div className="flex items-center justify-between gap-3 pb-1.5 mb-1.5 border-b border-slate-700/60">
-          <span className="font-extrabold text-white text-[11px] tracking-wide uppercase">
+          <span className="font-bold text-white text-[11px] tracking-wide uppercase">
             {point.label || label}
           </span>
           <span className="px-1.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-bold">
@@ -183,7 +183,7 @@ export default function ActivitySplineAreaChart({
             <div className="w-8 h-8 rounded-xl bg-blue-50 text-[#02236E] flex items-center justify-center border border-blue-100 shadow-xs">
               <TrendingUp size={16} />
             </div>
-            <h2 className="text-base font-extrabold text-slate-900 tracking-tight">
+            <h2 className="text-base font-bold text-slate-900 tracking-tight">
               Real-Time Activity Trends by Module
             </h2>
           </div>

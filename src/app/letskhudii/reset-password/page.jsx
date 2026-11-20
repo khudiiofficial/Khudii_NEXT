@@ -53,7 +53,7 @@ function ResetPasswordInner() {
             <ShieldCheck size={22} />
           </div>
           <div>
-            <h1 className="text-xl font-extrabold text-[#02236E]">Reset Password</h1>
+            <h1 className="text-xl font-bold text-[#02236E]">Reset Password</h1>
             <p className="text-xs text-slate-500">Choose a new administrator password</p>
           </div>
         </div>

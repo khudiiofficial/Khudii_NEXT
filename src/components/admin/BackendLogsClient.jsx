@@ -197,7 +197,7 @@ export default function BackendLogsClient() {
         <div>
           <div className="flex items-center gap-2">
             <Terminal className="h-6 w-6 text-[#02236E]" />
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">&gt;_ Backend Logs</h1>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">&gt;_ Backend Logs</h1>
           </div>
           <p className="mt-1 text-sm text-slate-500">
             Live database-backed server diagnostics, HTTP 404/5xx tracking, and API fault logs.

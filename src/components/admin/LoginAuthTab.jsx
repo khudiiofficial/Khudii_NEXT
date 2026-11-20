@@ -217,7 +217,7 @@ export default function LoginAuthTab({
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-slate-100 pb-3">
         <div>
-          <h2 className="text-xl font-extrabold text-slate-900 m-0">Login Authentication UI Settings</h2>
+          <h2 className="text-xl font-bold text-slate-900 m-0">Login Authentication UI Settings</h2>
           <p className="text-xs text-slate-500 m-0 mt-0.5">
             Configure the cinematic 3D login screen&apos;s background, logo, and footer text.
           </p>
@@ -232,7 +232,7 @@ export default function LoginAuthTab({
             type="button"
             disabled={saving}
             onClick={handleSaveLoginSettings}
-            className="bg-[#02236E] text-white px-6 py-2.5 rounded-full text-xs font-extrabold hover:bg-[#001850] transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50"
+            className="bg-[#02236E] text-white px-6 py-2.5 rounded-full text-xs font-bold hover:bg-[#001850] transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50"
           >
             {saving ? (
               <>
@@ -312,7 +312,7 @@ export default function LoginAuthTab({
 
         {/* Media Storage Location - Default selected: FTP */}
         <div className="rounded-2xl border border-emerald-200 bg-emerald-50/40 p-5 space-y-3">
-          <h3 className="text-sm font-extrabold text-[#02236E]">Media Storage Location</h3>
+          <h3 className="text-sm font-bold text-[#02236E]">Media Storage Location</h3>
           <p className="text-xs text-slate-600">
             Choose where new uploads are saved on Hostinger. Existing media URLs remain unchanged; files stored in the other location can still be viewed. Switching does not move or erase files.
           </p>
@@ -380,7 +380,7 @@ export default function LoginAuthTab({
 
         {/* System Maintenance Section */}
         <div className="pt-4 border-t border-slate-200">
-          <h3 className="text-xs font-extrabold text-amber-800 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+          <h3 className="text-xs font-bold text-amber-800 uppercase tracking-wider mb-3 flex items-center gap-1.5">
             <span>⚠️</span> System Maintenance
           </h3>
           <div className="flex justify-between items-center p-4 rounded-2xl bg-amber-500/10 border border-amber-200">
@@ -525,7 +525,7 @@ export default function LoginAuthTab({
           aria-label="Choose maintenance pages"
         >
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] overflow-y-auto p-6 space-y-4">
-            <h3 className="text-lg font-extrabold text-slate-900">Select Pages for Maintenance Mode</h3>
+            <h3 className="text-lg font-bold text-slate-900">Select Pages for Maintenance Mode</h3>
             <p className="text-xs text-slate-600">
               Only the selected frontend routes will display the maintenance page. Admin and login remain accessible. Changes apply when you click Save Login Settings.
             </p>

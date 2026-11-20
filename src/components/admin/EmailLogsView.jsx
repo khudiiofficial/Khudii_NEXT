@@ -60,7 +60,7 @@ export default function EmailLogsView() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="flex items-center gap-2 text-base font-extrabold text-[#02236E]">
+          <h3 className="flex items-center gap-2 text-base font-bold text-[#02236E]">
             <Mail size={18} /> Email Delivery Logs
           </h3>
           <p className="text-xs text-slate-500">Recent SMTP outgoing notifications, form alerts, and diagnostic test emails.</p>
@@ -84,7 +84,7 @@ export default function EmailLogsView() {
       <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[680px] text-left text-xs">
-            <thead className="border-b border-slate-200 bg-slate-50 text-[11px] font-extrabold uppercase tracking-wider text-slate-500">
+            <thead className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500">
               <tr>
                 <th className="p-3.5">Date &amp; Time</th>
                 <th className="p-3.5">Form / Trigger</th>

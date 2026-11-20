@@ -13,7 +13,7 @@ function MultiTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null;
   return (
     <div className="rounded-xl border border-slate-700 bg-[#02236E] px-3 py-2.5 text-xs text-white shadow-xl min-w-[140px]">
-      <div className="mb-2 font-extrabold text-slate-300">{label}</div>
+      <div className="mb-2 font-bold text-slate-300">{label}</div>
       {payload.map((p) => (
         <div key={p.name} className="flex items-center gap-2 mb-0.5">
           <span className="inline-block w-2 h-2 rounded-full" style={{ background: p.color }} />

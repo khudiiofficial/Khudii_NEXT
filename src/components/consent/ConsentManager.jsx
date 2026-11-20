@@ -108,7 +108,7 @@ export default function ConsentManager() {
           <div className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-2">
               <ShieldCheck size={18} className="text-[#02236E]" />
-              <h3 className="text-sm font-extrabold text-[#02236E]">Privacy &amp; Cookie Preferences</h3>
+              <h3 className="text-sm font-bold text-[#02236E]">Privacy &amp; Cookie Preferences</h3>
             </div>
             <button
               type="button"

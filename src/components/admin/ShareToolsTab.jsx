@@ -40,7 +40,7 @@ export default function ShareToolsTab({
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
         <div>
-          <h2 className="text-xl font-extrabold text-slate-900 m-0">Share Tools</h2>
+          <h2 className="text-xl font-bold text-slate-900 m-0">Share Tools</h2>
           <p className="text-xs text-slate-500 m-0 mt-0.5">
             Configure the global floating share sidebar for your website.
           </p>
@@ -49,7 +49,7 @@ export default function ShareToolsTab({
           type="button"
           onClick={onSave}
           disabled={saving}
-          className="bg-[#02236E] text-white px-6 py-2.5 rounded-full text-xs font-extrabold hover:bg-[#02236E]/90 transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50 self-start sm:self-auto"
+          className="bg-[#02236E] text-white px-6 py-2.5 rounded-full text-xs font-bold hover:bg-[#02236E]/90 transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm disabled:opacity-50 self-start sm:self-auto"
         >
           <Save className="w-3.5 h-3.5" />
           <span>{saving ? 'Saving...' : 'Save Configuration'}</span>
@@ -61,7 +61,7 @@ export default function ShareToolsTab({
         <div className="lg:col-span-2 flex flex-col gap-5">
           {/* 1. Display Settings */}
           <div className="p-5 rounded-2xl bg-white border border-slate-200 flex flex-col gap-4 shadow-xs">
-            <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider m-0">
+            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider m-0">
               Display Settings
             </h3>
             <div className="flex justify-between items-center p-3.5 rounded-xl bg-slate-50 border border-slate-100">
@@ -83,7 +83,7 @@ export default function ShareToolsTab({
 
           {/* 2. Appearance & Style */}
           <div className="p-5 rounded-2xl bg-white border border-slate-200 flex flex-col gap-4 shadow-xs">
-            <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider m-0">
+            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider m-0">
               Appearance &amp; Style
             </h3>
 
@@ -230,7 +230,7 @@ export default function ShareToolsTab({
 
           {/* 3. Active Share Networks */}
           <div className="p-5 rounded-2xl bg-white border border-slate-200 flex flex-col gap-4 shadow-xs">
-            <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider m-0">
+            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider m-0">
               Active Share Networks
             </h3>
             <p className="text-xs text-slate-500 m-0">
@@ -266,7 +266,7 @@ export default function ShareToolsTab({
         {/* Right Column: Live Preview Mockup */}
         <div className="p-5 rounded-2xl bg-slate-900 text-white border border-slate-800 flex flex-col gap-4 shadow-md sticky top-6">
           <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-            <span className="text-xs font-extrabold uppercase tracking-wider text-slate-300">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-300">
               Live Desktop Mockup
             </span>
             <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded">

@@ -139,7 +139,7 @@ import {
 import { auth } from './admin-backend/middleware/auth.js';
 import {cmsGetPage,cmsSavePage,cmsGetSettings,cmsSaveSettings,cmsGetHeaderSettings,cmsSaveHeaderSettings,cmsGetMedia,cmsUpdateMedia,cmsUploadMedia,cmsGetPublicSettings,cmsGetPublicAiChat,cmsQueryAiChat,cmsAnalyzeAiChat} from './cms-controller.js';
 import { listAdminSliders, createSlider, updateSlider, deleteSlider, reorderSliders } from './sliders-controller.js';
-import { updateUserPresenceHandler, recordAdminClickAuditHandler, getCacheSizeHandler, flushAllCacheHandler } from './admin-presence-cache.js';
+import { updateUserPresenceHandler, getUsersPresenceHandler, recordAdminClickAuditHandler, getCacheSizeHandler, flushAllCacheHandler } from './admin-presence-cache.js';
 import { getMaintenanceHandler, saveMaintenanceHandler, getSeoMatrixHandler, saveSeoMatrixHandler, getSeoIntelligenceHandler, saveSeoIntelligenceHandler, sendTestEmailHandler, syncCmsMediaHandler, forgotPasswordHandler, resetPasswordHandler } from './oriscare-parity-handlers.js';
 
 const protectedRoute = (method, path, handler) => ({ method, path, handlers: [auth, requireLegacyRole, handler] });
@@ -153,6 +153,8 @@ export const routes = [
   openRoute('POST', '/auth/forgot-password', forgotPasswordHandler),
   openRoute('POST', '/auth/reset-password', resetPasswordHandler),
   protectedRoute('POST', '/admin/user-presence', updateUserPresenceHandler),
+  protectedRoute('GET', '/admin/user-presence', getUsersPresenceHandler),
+  protectedRoute('GET', '/admin/users/presence', getUsersPresenceHandler),
   protectedRoute('POST', '/admin/activity/click', recordAdminClickAuditHandler),
   protectedRoute('GET', '/admin/cache/size', getCacheSizeHandler),
   protectedRoute('POST', '/admin/cache/flush', flushAllCacheHandler),

@@ -109,7 +109,7 @@ export function ConfirmProvider({ children }) {
               <div className={`mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border ${tone.iconBg}`}>
                 <Icon size={26} />
               </div>
-              <h3 id="khudii-confirm-title" className="text-lg font-extrabold text-slate-900">
+              <h3 id="khudii-confirm-title" className="text-lg font-bold text-slate-900">
                 {state.title}
               </h3>
               {state.message && (

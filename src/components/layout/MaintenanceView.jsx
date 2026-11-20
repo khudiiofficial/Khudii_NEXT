@@ -14,11 +14,11 @@ export default function MaintenanceView({ message, logoUrl, siteName = 'Khudii' 
           )}
         </div>
 
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/40 bg-amber-400/20 px-3.5 py-1 text-xs font-extrabold uppercase tracking-widest text-amber-200">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-300/40 bg-amber-400/20 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-amber-200">
           Scheduled Maintenance
         </span>
 
-        <h1 className="mt-4 text-2xl font-extrabold tracking-tight text-white sm:text-4xl">
+        <h1 className="mt-4 text-2xl font-bold tracking-tight text-white sm:text-4xl">
           We&apos;ll Be Back Shortly
         </h1>
 

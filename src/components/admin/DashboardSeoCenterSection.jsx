@@ -386,7 +386,7 @@ export default function DashboardSeoCenterSection() {
               <h2 className="text-base sm:text-lg font-black text-slate-900 m-0">
                 SEO Center — Global Audit Dashboard
               </h2>
-              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-emerald-800 bg-emerald-50 border border-emerald-300 px-2.5 py-0.5 rounded-full shadow-2xs">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-300 px-2.5 py-0.5 rounded-full shadow-2xs">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                 Live Multi-Engine Sync
               </span>
@@ -423,7 +423,7 @@ export default function DashboardSeoCenterSection() {
             type="button"
             onClick={handleRunLiveAudit}
             disabled={isAuditing || isFixingAll}
-            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-emerald-300 bg-emerald-50/80 hover:bg-emerald-100 text-[#02236E] text-xs font-extrabold transition-all shadow-2xs disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-emerald-300 bg-emerald-50/80 hover:bg-emerald-100 text-[#02236E] text-xs font-bold transition-all shadow-2xs disabled:opacity-50 cursor-pointer"
             title="Scan pages, organizations, blogs and recalculate SEO scores in real time"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isAuditing ? 'animate-spin text-emerald-600' : ''}`} />
@@ -486,7 +486,7 @@ export default function DashboardSeoCenterSection() {
               Global SEO audit complete. All {totalEntitiesCount} items evaluated against Google &amp; AI indexing algorithms.
             </span>
           </div>
-          <span className="text-[10px] font-extrabold text-emerald-800 bg-white px-2.5 py-0.5 rounded-full border border-emerald-200 shadow-2xs">
+          <span className="text-[10px] font-bold text-emerald-800 bg-white px-2.5 py-0.5 rounded-full border border-emerald-200 shadow-2xs">
             Health: {healthRating}%
           </span>
         </div>
@@ -517,10 +517,10 @@ export default function DashboardSeoCenterSection() {
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <span className="text-xl font-black text-slate-900">{healthRating}%</span>
-              <span className="text-[8px] font-extrabold text-slate-500 uppercase tracking-wider">HEALTH RATING</span>
+              <span className="text-[8px] font-bold text-slate-500 uppercase tracking-wider">HEALTH RATING</span>
             </div>
           </div>
-          <div className="text-xs font-extrabold text-slate-800 flex items-center gap-1">
+          <div className="text-xs font-bold text-slate-800 flex items-center gap-1">
             {needingFixesCount > 0 ? (
               <span className="text-amber-700 flex items-center gap-1 font-semibold">
                 <AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> Action Required
@@ -538,7 +538,7 @@ export default function DashboardSeoCenterSection() {
 
         {/* Card 2: Core Category Breakdown */}
         <div className="bg-[#F8FAFC] rounded-2xl p-5 border border-slate-200 space-y-3 hover:border-slate-300 transition-colors">
-          <div className="text-xs font-extrabold text-slate-800 flex items-center justify-between">
+          <div className="text-xs font-bold text-slate-800 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <TrendingUp className="w-3.5 h-3.5 text-[#02236E]" /> CORE CATEGORIES
             </span>
@@ -588,11 +588,11 @@ export default function DashboardSeoCenterSection() {
 
         {/* Card 3: AI Engine Readiness */}
         <div className="bg-[#F8FAFC] rounded-2xl p-5 border border-slate-200 space-y-3 hover:border-amber-300 transition-colors">
-          <div className="text-xs font-extrabold text-slate-800 flex items-center justify-between">
+          <div className="text-xs font-bold text-slate-800 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" /> AI ENGINE READINESS
             </span>
-            <span className="text-[9px] font-extrabold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
+            <span className="text-[9px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">
               AEO READY
             </span>
           </div>
@@ -641,7 +641,7 @@ export default function DashboardSeoCenterSection() {
 
         {/* Card 4: Diagnostics Summary */}
         <div className="bg-[#F8FAFC] rounded-2xl p-5 border border-slate-200 space-y-3 flex flex-col justify-between hover:border-slate-300 transition-colors">
-          <div className="text-xs font-extrabold text-slate-800 flex items-center justify-between">
+          <div className="text-xs font-bold text-slate-800 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <AlertTriangle className="w-3.5 h-3.5 text-amber-500" /> DIAGNOSTICS SUMMARY
             </span>
@@ -657,7 +657,7 @@ export default function DashboardSeoCenterSection() {
               <div className="text-xl font-black text-red-600 group-hover:scale-105 transition-transform">
                 {needingFixesCount}
               </div>
-              <div className="text-[9px] font-extrabold text-red-700 uppercase tracking-tight">
+              <div className="text-[9px] font-bold text-red-700 uppercase tracking-tight">
                 Items Needing Fixes →
               </div>
             </button>
@@ -665,7 +665,7 @@ export default function DashboardSeoCenterSection() {
               <div className="text-xl font-black text-amber-700">
                 {needingFixesCount > 0 ? needingFixesCount * 2 : 0}
               </div>
-              <div className="text-[9px] font-extrabold text-amber-800 uppercase tracking-tight">
+              <div className="text-[9px] font-bold text-amber-800 uppercase tracking-tight">
                 Total Action Items
               </div>
             </div>
@@ -705,7 +705,7 @@ export default function DashboardSeoCenterSection() {
                 <Search className={`w-4 h-4 shrink-0 ${selectedSeoCategory === 'traditional' ? 'text-emerald-300' : 'text-slate-400'}`} />
                 <span className="text-xs font-black tracking-tight truncate">Traditional SEO</span>
               </div>
-              <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-full border ${
+              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${
                 selectedSeoCategory === 'traditional'
                   ? 'bg-emerald-900/60 text-emerald-100 border-emerald-700'
                   : 'bg-emerald-50 text-emerald-800 border-emerald-200'
@@ -728,7 +728,7 @@ export default function DashboardSeoCenterSection() {
                 <ImageIcon className={`w-4 h-4 shrink-0 ${selectedSeoCategory === 'alt' ? 'text-sky-300' : 'text-sky-600'}`} />
                 <span className="text-xs font-black tracking-tight truncate">Alt Texts</span>
               </div>
-              <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-full border ${
+              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${
                 selectedSeoCategory === 'alt'
                   ? 'bg-emerald-900/60 text-emerald-100 border-emerald-700'
                   : 'bg-emerald-50 text-emerald-800 border-emerald-200'
@@ -751,7 +751,7 @@ export default function DashboardSeoCenterSection() {
                 <Zap className={`w-4 h-4 shrink-0 ${selectedSeoCategory === 'geo' ? 'text-amber-300' : 'text-amber-500'}`} />
                 <span className="text-xs font-black tracking-tight truncate">GEO (Generative...)</span>
               </div>
-              <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-full border ${
+              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${
                 selectedSeoCategory === 'geo'
                   ? 'bg-emerald-900/60 text-emerald-100 border-emerald-700'
                   : 'bg-emerald-50 text-emerald-800 border-emerald-200'
@@ -774,7 +774,7 @@ export default function DashboardSeoCenterSection() {
                 <MessageSquare className={`w-4 h-4 shrink-0 ${selectedSeoCategory === 'aeo' ? 'text-purple-300' : 'text-purple-600'}`} />
                 <span className="text-xs font-black tracking-tight truncate">AEO (Voice &amp; A...)</span>
               </div>
-              <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-full border ${
+              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${
                 selectedSeoCategory === 'aeo'
                   ? 'bg-emerald-900/60 text-emerald-100 border-emerald-700'
                   : 'bg-emerald-50 text-emerald-800 border-emerald-200'
@@ -797,7 +797,7 @@ export default function DashboardSeoCenterSection() {
                 <FileCode className={`w-4 h-4 shrink-0 ${selectedSeoCategory === 'schema' ? 'text-teal-300' : 'text-teal-600'}`} />
                 <span className="text-xs font-black tracking-tight truncate">JSON-LD Schema</span>
               </div>
-              <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-full border ${
+              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${
                 selectedSeoCategory === 'schema'
                   ? 'bg-emerald-900/60 text-emerald-100 border-emerald-700'
                   : 'bg-emerald-50 text-emerald-800 border-emerald-200'
@@ -820,7 +820,7 @@ export default function DashboardSeoCenterSection() {
                 <Sliders className={`w-4 h-4 shrink-0 ${selectedSeoCategory === 'technical' ? 'text-indigo-300' : 'text-indigo-600'}`} />
                 <span className="text-xs font-black tracking-tight truncate">Technical SEO</span>
               </div>
-              <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-full border ${
+              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${
                 selectedSeoCategory === 'technical'
                   ? 'bg-emerald-900/60 text-emerald-100 border-emerald-700'
                   : 'bg-emerald-50 text-emerald-800 border-emerald-200'
@@ -843,7 +843,7 @@ export default function DashboardSeoCenterSection() {
                 <BarChart2 className={`w-4 h-4 shrink-0 ${selectedSeoCategory === 'score' ? 'text-red-300' : 'text-red-500'}`} />
                 <span className="text-xs font-black tracking-tight truncate">Validation &amp; Score</span>
               </div>
-              <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-full border ${
+              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full border ${
                 selectedSeoCategory === 'score'
                   ? 'bg-emerald-900/60 text-emerald-100 border-emerald-700'
                   : 'bg-emerald-50 text-emerald-800 border-emerald-200'
@@ -994,7 +994,7 @@ export default function DashboardSeoCenterSection() {
           <button
             type="button"
             onClick={() => setPageFilter('all')}
-            className={`px-3 py-1 rounded-full text-xs font-extrabold transition-all cursor-pointer ${
+            className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer ${
               pageFilter === 'all'
                 ? 'bg-slate-900 text-white shadow-2xs'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
@@ -1005,7 +1005,7 @@ export default function DashboardSeoCenterSection() {
           <button
             type="button"
             onClick={() => setPageFilter('needs_fix')}
-            className={`px-3 py-1 rounded-full text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
               pageFilter === 'needs_fix'
                 ? 'bg-red-600 text-white shadow-2xs'
                 : 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
@@ -1016,7 +1016,7 @@ export default function DashboardSeoCenterSection() {
           <button
             type="button"
             onClick={() => setPageFilter('optimized')}
-            className={`px-3 py-1 rounded-full text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
               pageFilter === 'optimized'
                 ? 'bg-emerald-700 text-white shadow-2xs'
                 : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
@@ -1061,7 +1061,7 @@ export default function DashboardSeoCenterSection() {
                   setEntityTypeFilter('all');
                   setPageSearch('');
                 }}
-                className="text-xs text-[#02236E] font-extrabold underline cursor-pointer mt-1"
+                className="text-xs text-[#02236E] font-bold underline cursor-pointer mt-1"
               >
                 Reset all filters
               </button>
@@ -1098,12 +1098,12 @@ export default function DashboardSeoCenterSection() {
                       <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md border ${typeBadgeClass}`}>
                         {item.badge}
                       </span>
-                      <span className="font-extrabold text-xs text-slate-900">{item.title}</span>
+                      <span className="font-bold text-xs text-slate-900">{item.title}</span>
                       <span className="font-sans text-[10px] text-[#02236E] bg-white px-2 py-0.5 rounded-full border border-blue-200 font-mono">
                         {item.path || item.slug}
                       </span>
                       <span
-                        className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                           item.score >= 90
                             ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
                             : 'bg-red-50 text-red-600 border-red-300'
@@ -1162,7 +1162,7 @@ export default function DashboardSeoCenterSection() {
                       });
                       setSeoModalOpen(true);
                     }}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-50 text-[#02236E] border border-emerald-300 text-xs font-extrabold hover:bg-[#02236E] hover:text-white transition-all cursor-pointer shadow-2xs shrink-0 self-start sm:self-center"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-emerald-50 text-[#02236E] border border-emerald-300 text-xs font-bold hover:bg-[#02236E] hover:text-white transition-all cursor-pointer shadow-2xs shrink-0 self-start sm:self-center"
                   >
                     <Sliders className="w-3.5 h-3.5" />
                     <span>Open SEO Center →</span>

@@ -350,7 +350,7 @@ export default function UserManagementTab() {
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-slate-100 pb-3">
         <div>
-          <h2 className="text-xl font-extrabold text-slate-900 m-0">User Management</h2>
+          <h2 className="text-xl font-bold text-slate-900 m-0">User Management</h2>
           <p className="text-xs text-slate-500 m-0 mt-0.5">Manage administrators and access roles</p>
         </div>
         <div className="flex items-center gap-3">
@@ -367,7 +367,7 @@ export default function UserManagementTab() {
           <button
             type="button"
             onClick={handleOpenAddUser}
-            className="bg-[#02236E] text-white px-5 py-2.5 rounded-xl text-xs font-extrabold hover:bg-[#001850] transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm"
+            className="bg-[#02236E] text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-[#001850] transition-colors border-none cursor-pointer flex items-center gap-1.5 shadow-sm"
           >
             <Plus className="w-4 h-4" /> Add User
           </button>
@@ -421,9 +421,9 @@ export default function UserManagementTab() {
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="font-extrabold text-slate-900">{u.name}</span>
+                            <span className="font-bold text-slate-900">{u.name}</span>
                             <span
-                              className="px-2 py-0.5 rounded-md text-[10px] font-extrabold inline-block"
+                              className="px-2 py-0.5 rounded-md text-[10px] font-bold inline-block"
                               style={{
                                 backgroundColor: u.badge_bg || '#0F766E',
                                 color: u.badge_text_color || '#FFFFFF',
@@ -496,7 +496,7 @@ export default function UserManagementTab() {
         <div className="fixed inset-0 z-[9999] bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md p-6 relative flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-slate-100 pb-3">
-              <h3 className="text-base font-extrabold text-slate-900 m-0">
+              <h3 className="text-base font-bold text-slate-900 m-0">
                 {userModalMode === 'create' ? 'Add New User' : 'Edit User'}
               </h3>
               <button
@@ -572,7 +572,7 @@ export default function UserManagementTab() {
                         style={{ width: `${passwordStrength.percent}%` }}
                       />
                     </div>
-                    <div className="flex justify-between items-center text-[10px] uppercase font-extrabold tracking-wider mt-1">
+                    <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-wider mt-1">
                       <span className={passwordStrength.textColor}>{passwordStrength.label}</span>
                       <span className="text-slate-400 font-semibold lowercase">{passwordStrength.percent}% secure</span>
                     </div>

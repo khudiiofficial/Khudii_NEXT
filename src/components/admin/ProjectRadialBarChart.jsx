@@ -60,7 +60,7 @@ export function ProjectHorizontalBarChart({
           <span className="w-6 h-6 rounded-lg bg-emerald-50 border border-emerald-200/80 flex items-center justify-center text-[#02236E] shrink-0">
             <TrendingUp className="w-3.5 h-3.5" />
           </span>
-          <h3 className="text-sm sm:text-base font-extrabold text-slate-900 m-0 tracking-tight leading-snug">
+          <h3 className="text-sm sm:text-base font-bold text-slate-900 m-0 tracking-tight leading-snug">
             {title}
           </h3>
         </div>

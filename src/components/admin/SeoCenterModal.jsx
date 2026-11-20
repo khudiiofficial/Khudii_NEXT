@@ -813,7 +813,7 @@ export default function SeoCenterModal({
               type="button"
               onClick={handleSaveSeo}
               disabled={isSaving || isGeneratingAll}
-              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#064E3B] hover:bg-[#043d2e] text-white text-xs font-extrabold transition-colors cursor-pointer shadow-xs border border-emerald-600/40 disabled:opacity-60"
+              className="flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#064E3B] hover:bg-[#043d2e] text-white text-xs font-bold transition-colors cursor-pointer shadow-xs border border-emerald-600/40 disabled:opacity-60"
             >
               {isSaving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
               <span>Save All SEO</span>
@@ -846,7 +846,7 @@ export default function SeoCenterModal({
         <div className="flex-1 flex overflow-hidden">
           {/* Left Navigation Sidebar */}
           <aside className="w-60 min-w-[240px] bg-white border-r border-slate-200 p-4 space-y-1.5 overflow-y-auto shrink-0">
-            <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 px-3 pb-2">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 pb-2">
               SEO Categories
             </div>
 
@@ -1027,7 +1027,7 @@ export default function SeoCenterModal({
             <section id="seo-sec-traditional" className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4 scroll-mt-6">
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
-                  <h3 className="text-sm font-extrabold text-[#02236E] m-0">Meta Data Management</h3>
+                  <h3 className="text-sm font-bold text-[#02236E] m-0">Meta Data Management</h3>
                   <p className="text-xs text-slate-500 m-0 mt-0.5">
                     Optimize title, description, and target keywords for standard search engines (strictly within 60 &amp; 160 characters).
                   </p>
@@ -1036,7 +1036,7 @@ export default function SeoCenterModal({
                   type="button"
                   onClick={() => handleGenerateSection('traditional')}
                   disabled={generatingSection === 'traditional'}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#064E3B] hover:bg-[#043d2e] text-white text-xs font-extrabold shadow-sm transition-all cursor-pointer disabled:opacity-75"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#064E3B] hover:bg-[#043d2e] text-white text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-75"
                 >
                   {generatingSection === 'traditional' ? (
                     <>
@@ -1057,7 +1057,7 @@ export default function SeoCenterModal({
                 <div>
                   <div className="flex justify-between items-center text-xs mb-1.5 flex-wrap gap-2">
                     <div className="flex items-center gap-2">
-                      <label className="font-extrabold text-[#02236E]">Meta Title</label>
+                      <label className="font-bold text-[#02236E]">Meta Title</label>
                       <span className="text-[10px] text-slate-400 font-normal">(Search Result Headline)</span>
                     </div>
                     <div className="flex items-center gap-2 font-mono text-[11px]">
@@ -1096,7 +1096,7 @@ export default function SeoCenterModal({
                 <div>
                   <div className="flex justify-between items-center text-xs mb-1.5 flex-wrap gap-2">
                     <div className="flex items-center gap-2">
-                      <label className="font-extrabold text-[#02236E]">Meta Description</label>
+                      <label className="font-bold text-[#02236E]">Meta Description</label>
                       <span className="text-[10px] text-slate-400 font-normal">(Search Snippet Summary)</span>
                     </div>
                     <div className="flex items-center gap-2 font-mono text-[11px]">
@@ -1132,7 +1132,7 @@ export default function SeoCenterModal({
                   <div className="flex justify-between items-center text-xs mb-1.5 flex-wrap gap-2">
                     <div className="flex items-center gap-2">
                       <Tag className="w-3.5 h-3.5 text-[#064E3B]" />
-                      <label className="font-extrabold text-[#02236E]">Meta Keywords</label>
+                      <label className="font-bold text-[#02236E]">Meta Keywords</label>
                       <span className="text-[10px] text-slate-400 font-normal">(Target Search Queries &amp; Indexation Tags)</span>
                     </div>
                     <div className="flex items-center gap-2">
@@ -1225,7 +1225,7 @@ export default function SeoCenterModal({
             <section id="seo-sec-alt" className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4 scroll-mt-6">
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
-                  <h3 className="text-sm font-extrabold text-[#02236E] m-0">Smart Accessibility Engine</h3>
+                  <h3 className="text-sm font-bold text-[#02236E] m-0">Smart Accessibility Engine</h3>
                   <p className="text-xs text-slate-500 m-0 mt-0.5">
                     Automatically analyze page images, OpenGraph social cards, and generate descriptive, SEO-friendly alt text.
                   </p>
@@ -1235,7 +1235,7 @@ export default function SeoCenterModal({
                     type="button"
                     onClick={() => handleGenerateSection('alt')}
                     disabled={generatingSection === 'alt'}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#064E3B] hover:bg-[#043d2e] text-white text-xs font-extrabold shadow-sm transition-all cursor-pointer disabled:opacity-75"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#064E3B] hover:bg-[#043d2e] text-white text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-75"
                   >
                     {generatingSection === 'alt' ? (
                       <>
@@ -1317,7 +1317,7 @@ export default function SeoCenterModal({
             <section id="seo-sec-geo" className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4 scroll-mt-6">
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
-                  <h3 className="text-sm font-extrabold text-[#02236E] m-0">GEO (Generative Engine Optimization)</h3>
+                  <h3 className="text-sm font-bold text-[#02236E] m-0">GEO (Generative Engine Optimization)</h3>
                   <p className="text-xs text-slate-500 m-0 mt-0.5">
                     Optimize content discoverability for LLMs (ChatGPT, Gemini, Claude, Perplexity).
                   </p>
@@ -1326,7 +1326,7 @@ export default function SeoCenterModal({
                   type="button"
                   onClick={() => handleGenerateSection('geo')}
                   disabled={generatingSection === 'geo'}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#064E3B] hover:bg-[#043d2e] text-white text-xs font-extrabold shadow-sm transition-all cursor-pointer disabled:opacity-75"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#064E3B] hover:bg-[#043d2e] text-white text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-75"
                 >
                   {generatingSection === 'geo' ? (
                     <>
@@ -1344,7 +1344,7 @@ export default function SeoCenterModal({
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-extrabold text-[#02236E] mb-1">AI Page Summary &amp; Facts</label>
+                  <label className="block text-xs font-bold text-[#02236E] mb-1">AI Page Summary &amp; Facts</label>
                   <textarea
                     rows={3}
                     value={geoSummary || ''}
@@ -1355,7 +1355,7 @@ export default function SeoCenterModal({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-extrabold text-[#02236E] mb-1">Entity &amp; Topic Clusters</label>
+                  <label className="block text-xs font-bold text-[#02236E] mb-1">Entity &amp; Topic Clusters</label>
                   <input
                     type="text"
                     value={geoClusters || ''}
@@ -1371,7 +1371,7 @@ export default function SeoCenterModal({
             <section id="seo-sec-aeo" className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4 scroll-mt-6">
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
-                  <h3 className="text-sm font-extrabold text-[#02236E] m-0">AEO (Answer Engine Optimization)</h3>
+                  <h3 className="text-sm font-bold text-[#02236E] m-0">AEO (Answer Engine Optimization)</h3>
                   <p className="text-xs text-slate-500 m-0 mt-0.5">
                     Optimize for Featured Snippets, Voice Search, and &quot;People Also Ask&quot; blocks.
                   </p>
@@ -1388,7 +1388,7 @@ export default function SeoCenterModal({
                     type="button"
                     onClick={() => handleGenerateSection('aeo')}
                     disabled={generatingSection === 'aeo'}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#064E3B] hover:bg-[#043d2e] text-white text-xs font-extrabold shadow-sm transition-all cursor-pointer disabled:opacity-75"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#064E3B] hover:bg-[#043d2e] text-white text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-75"
                   >
                     {generatingSection === 'aeo' ? (
                       <>
@@ -1465,7 +1465,7 @@ export default function SeoCenterModal({
             <section id="seo-sec-schema" className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4 scroll-mt-6">
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
-                  <h3 className="text-sm font-extrabold text-[#02236E] m-0">Dynamic JSON-LD Schema</h3>
+                  <h3 className="text-sm font-bold text-[#02236E] m-0">Dynamic JSON-LD Schema</h3>
                   <p className="text-xs text-slate-500 m-0 mt-0.5">
                     Manage structured data to help search engines understand page context.
                   </p>
@@ -1474,7 +1474,7 @@ export default function SeoCenterModal({
                   type="button"
                   onClick={() => handleGenerateSection('schema')}
                   disabled={generatingSection === 'schema'}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#064E3B] hover:bg-[#043d2e] text-white text-xs font-extrabold shadow-sm transition-all cursor-pointer disabled:opacity-75"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#064E3B] hover:bg-[#043d2e] text-white text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-75"
                 >
                   {generatingSection === 'schema' ? (
                     <>
@@ -1492,7 +1492,7 @@ export default function SeoCenterModal({
 
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-extrabold text-[#02236E] mb-1">Primary Schema Type</label>
+                  <label className="block text-xs font-bold text-[#02236E] mb-1">Primary Schema Type</label>
                   <select
                     value={schemaType || 'WebPage'}
                     onChange={(e) => setSchemaType(e.target.value)}
@@ -1509,7 +1509,7 @@ export default function SeoCenterModal({
 
                 <div>
                   <div className="flex justify-between items-center mb-1">
-                    <label className="text-xs font-extrabold text-[#02236E]">JSON-LD</label>
+                    <label className="text-xs font-bold text-[#02236E]">JSON-LD</label>
                     <span className={`text-[10px] font-bold ${isSchemaOk ? 'text-emerald-700' : 'text-red-600'}`}>
                       {isSchemaOk ? '✓ Valid JSON-LD' : '✕ Invalid JSON syntax'}
                     </span>
@@ -1529,7 +1529,7 @@ export default function SeoCenterModal({
             <section id="seo-sec-technical" className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-4 scroll-mt-6">
               <div className="flex items-center justify-between gap-4 flex-wrap">
                 <div>
-                  <h3 className="text-sm font-extrabold text-[#02236E] m-0">Technical SEO &amp; Social Cards</h3>
+                  <h3 className="text-sm font-bold text-[#02236E] m-0">Technical SEO &amp; Social Cards</h3>
                   <p className="text-xs text-slate-500 m-0 mt-0.5">
                     Canonical URLs, Indexing rules, and Open Graph attributes.
                   </p>
@@ -1538,7 +1538,7 @@ export default function SeoCenterModal({
                   type="button"
                   onClick={() => handleGenerateSection('technical')}
                   disabled={generatingSection === 'technical'}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#064E3B] hover:bg-[#043d2e] text-white text-xs font-extrabold shadow-sm transition-all cursor-pointer disabled:opacity-75"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#064E3B] hover:bg-[#043d2e] text-white text-xs font-bold shadow-sm transition-all cursor-pointer disabled:opacity-75"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-amber-300" />
                   <span>Generate Technical SEO</span>
@@ -1547,7 +1547,7 @@ export default function SeoCenterModal({
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-extrabold text-[#02236E] mb-1">Canonical URL</label>
+                  <label className="block text-xs font-bold text-[#02236E] mb-1">Canonical URL</label>
                   <input
                     type="text"
                     value={canonicalUrl || ''}
@@ -1558,7 +1558,7 @@ export default function SeoCenterModal({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-extrabold text-[#02236E] mb-1">Robots Meta</label>
+                  <label className="block text-xs font-bold text-[#02236E] mb-1">Robots Meta</label>
                   <label className="inline-flex items-center gap-2 text-xs font-semibold text-slate-700 cursor-pointer">
                     <input
                       type="checkbox"
@@ -1575,7 +1575,7 @@ export default function SeoCenterModal({
             {/* 7. AI Search Readiness Score & Issues Audit */}
             <section id="seo-sec-score" className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs space-y-6 scroll-mt-6">
               <div>
-                <h3 className="text-sm font-extrabold text-[#02236E] m-0">AI Search Readiness Score &amp; Issues Audit</h3>
+                <h3 className="text-sm font-bold text-[#02236E] m-0">AI Search Readiness Score &amp; Issues Audit</h3>
                 <p className="text-xs text-slate-500 m-0 mt-0.5">
                   Real-time automated diagnostic audit and issue checklist for this page.
                 </p>
@@ -1648,7 +1648,7 @@ export default function SeoCenterModal({
               {/* LIVE GOOGLE SEARCH RESULT SNIPPET PREVIEW */}
               <div className="space-y-3">
                 <div className="flex justify-between items-center flex-wrap gap-2">
-                  <div className="flex items-center gap-1.5 text-xs font-extrabold text-[#02236E]">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-[#02236E]">
                     <Search className="w-3.5 h-3.5 text-[#064E3B]" />
                     <span>LIVE GOOGLE SEARCH RESULT SNIPPET PREVIEW</span>
                   </div>

@@ -165,7 +165,7 @@ export default function MediaPickerModal({
               <ImageIcon className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-base font-extrabold text-[#02236E] m-0">{title}</h3>
+              <h3 className="text-base font-bold text-[#02236E] m-0">{title}</h3>
               <p className="text-[11px] text-slate-500 m-0">Select an existing asset, upload a new file, or enter an external URL.</p>
             </div>
           </div>
@@ -331,7 +331,7 @@ export default function MediaPickerModal({
                 <div className="w-14 h-14 rounded-2xl bg-[#02236E]/10 text-[#02236E] flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                   <UploadCloud className="w-7 h-7" />
                 </div>
-                <h4 className="text-sm font-extrabold text-[#02236E] m-0">Click to Browse or Drag Image Here</h4>
+                <h4 className="text-sm font-bold text-[#02236E] m-0">Click to Browse or Drag Image Here</h4>
                 <p className="text-xs text-slate-500 mt-1 max-w-sm">
                   Supported formats: PNG, JPG, WEBP, SVG, ICO. Fast chunked storage directly onto your Khudii server.
                 </p>

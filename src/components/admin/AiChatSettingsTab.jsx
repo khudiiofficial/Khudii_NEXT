@@ -570,7 +570,7 @@ export default function AiChatSettingsTab({
       {/* Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
         <div>
-          <h2 className="text-xl font-extrabold text-[#02236E] flex items-center gap-2 m-0">
+          <h2 className="text-xl font-bold text-[#02236E] flex items-center gap-2 m-0">
             <span className="p-2 rounded-xl bg-[#02236E]/10 text-[#02236E] flex items-center justify-center">
               <Sparkles size={18} />
             </span>
@@ -611,7 +611,7 @@ export default function AiChatSettingsTab({
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div>
-                <h3 className="text-sm font-extrabold text-[#02236E] m-0">General AI Chat Controls</h3>
+                <h3 className="text-sm font-bold text-[#02236E] m-0">General AI Chat Controls</h3>
                 <p className="text-xs text-slate-400 mt-0.5 mb-0">Enable widget on public pages and configure labels</p>
               </div>
 
@@ -738,7 +738,7 @@ export default function AiChatSettingsTab({
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-4">
             <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
               <Bot size={18} className="text-[#02236E]" />
-              <h3 className="text-sm font-extrabold text-[#02236E] m-0">
+              <h3 className="text-sm font-bold text-[#02236E] m-0">
                 System Prompt &amp; Brand Context
               </h3>
             </div>
@@ -759,7 +759,7 @@ export default function AiChatSettingsTab({
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <Tag size={16} className="text-[#02236E]" />
-                <h3 className="text-sm font-extrabold text-[#02236E] m-0">
+                <h3 className="text-sm font-bold text-[#02236E] m-0">
                   Quick Suggested Prompt Chips
                 </h3>
               </div>
@@ -819,7 +819,7 @@ export default function AiChatSettingsTab({
           <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs space-y-5">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
               <div>
-                <h3 className="text-sm font-extrabold text-[#02236E] m-0">
+                <h3 className="text-sm font-bold text-[#02236E] m-0">
                   Knowledge Base Q&amp;A Prompts (Rule Matcher)
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5 mb-0">
@@ -886,7 +886,7 @@ export default function AiChatSettingsTab({
             {isAddingPrompt && (
               <div className="rounded-xl border border-sky-200 bg-sky-50/60 p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-extrabold text-[#02236E] uppercase tracking-wider m-0">
+                  <h4 className="text-xs font-bold text-[#02236E] uppercase tracking-wider m-0">
                     {editingPromptId ? 'Edit Knowledge Prompt' : 'New Knowledge Prompt'}
                   </h4>
                   <button
@@ -1285,7 +1285,7 @@ export default function AiChatSettingsTab({
             <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl bg-[#02236E] text-white shadow-md">
               <MessageCircleMore className="w-5 h-5 text-white shrink-0 animate-spin-slow" />
               <div className="text-left leading-tight">
-                <div className="text-xs font-extrabold text-white">
+                <div className="text-xs font-bold text-white">
                   {aiChatData?.title || 'Ask Khudii'}
                 </div>
                 <div className="text-[10px] text-sky-100 font-medium">
@@ -1308,7 +1308,7 @@ export default function AiChatSettingsTab({
                   <Sparkles size={18} />
                 </span>
                 <div>
-                  <h3 className="text-base font-extrabold text-[#02236E] m-0 flex items-center gap-2">
+                  <h3 className="text-base font-bold text-[#02236E] m-0 flex items-center gap-2">
                     Knowledge Base Live Data Analyzer
                     <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
                       Live DB

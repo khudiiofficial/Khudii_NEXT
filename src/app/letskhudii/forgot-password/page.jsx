@@ -40,7 +40,7 @@ export default function ForgotPasswordPage() {
             <ShieldCheck size={22} />
           </div>
           <div>
-            <h1 className="text-xl font-extrabold text-[#02236E]">Forgot Password</h1>
+            <h1 className="text-xl font-bold text-[#02236E]">Forgot Password</h1>
             <p className="text-xs text-slate-500">Khudii Administrator Recovery</p>
           </div>
         </div>

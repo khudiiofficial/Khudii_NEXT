@@ -198,7 +198,7 @@ export default function SeoIntelligencePanel() {
       {/* Per-Page Matrix Search & Table */}
       <div className="space-y-3">
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-          <div className="text-xs font-extrabold uppercase tracking-wider text-slate-700">
+          <div className="text-xs font-bold uppercase tracking-wider text-slate-700">
             Per-Page Sitemap &amp; Canonical Rules ({filteredEntries.length} of {entries.length} pages)
           </div>
           <div className="relative max-w-xs w-full">
@@ -215,7 +215,7 @@ export default function SeoIntelligencePanel() {
 
         <div className="overflow-x-auto max-h-[460px] overflow-y-auto rounded-xl border border-slate-200">
           <table className="w-full min-w-[900px] text-xs text-left">
-            <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 text-[11px] font-extrabold uppercase text-slate-600">
+            <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase text-slate-600">
               <tr>
                 <th className="p-3">Page</th>
                 <th className="p-3">Canonical override</th>
@@ -345,7 +345,7 @@ export default function SeoIntelligencePanel() {
 
         <button
           type="button"
-          className="bg-[#02236E] hover:bg-[#001850] text-white rounded-xl px-6 py-2.5 text-xs font-extrabold transition-all shadow-sm flex items-center gap-2 disabled:opacity-50 cursor-pointer"
+          className="bg-[#02236E] hover:bg-[#001850] text-white rounded-xl px-6 py-2.5 text-xs font-bold transition-all shadow-sm flex items-center gap-2 disabled:opacity-50 cursor-pointer"
           onClick={save}
           disabled={busy}
         >

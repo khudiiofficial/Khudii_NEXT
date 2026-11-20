@@ -394,7 +394,7 @@ export function DynamicHeader() {
                             )}
                           </div>
                           <span
-                            className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider ${item.type === 'organizations'
+                            className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${item.type === 'organizations'
                               ? 'bg-blue-100 text-[#02236E]'
                               : item.type === 'blogs'
                                 ? 'bg-emerald-100 text-emerald-800'
