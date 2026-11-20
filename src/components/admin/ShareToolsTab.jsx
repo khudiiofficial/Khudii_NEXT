@@ -197,7 +197,7 @@ export default function ShareToolsTab({
                 <label className="block text-xs font-bold text-slate-800 mb-1">Gap from Edge (px)</label>
                 <input
                   type="number"
-                  value={shareData.gapFromEdge ?? 20}
+                  value={shareData.gapFromEdge ?? 0}
                   onChange={(e) => setShareData((prev) => ({ ...prev, gapFromEdge: Number(e.target.value) }))}
                   className="w-full p-2.5 rounded-xl border border-slate-300 bg-white text-xs font-semibold"
                 />
@@ -284,54 +284,67 @@ export default function ShareToolsTab({
             </div>
 
             {/* Floating Share Toolbar Mockup */}
-            {shareData.enabled !== false && (
-              <div
-                className={`absolute flex flex-col gap-1.5 shadow-2xl transition-all ${
-                  (shareData.sidebarEdge || 'right') === 'left' ? 'left-3' : 'right-3'
-                } ${
-                  (shareData.verticalPosition || 'center') === 'top'
-                    ? 'top-8'
-                    : (shareData.verticalPosition || 'center') === 'bottom'
-                    ? 'bottom-8'
-                    : 'top-1/2 -translate-y-1/2'
-                }`}
-              >
-                {currentNetworks.map((id) => {
-                  const net = networks.find((n) => n.id === id);
-                  if (!net) return null;
-                  const isCircle = shareData.iconStyle === 'circle';
-                  const isMinimal = shareData.iconStyle === 'minimal';
-                  const bg =
-                    shareData.colorScheme === 'custom'
-                      ? shareData.customBgColor || '#02236E'
-                      : shareData.colorScheme === 'monochrome'
-                      ? '#1e293b'
-                      : net.color;
-                  const color =
-                    shareData.colorScheme === 'custom'
-                      ? shareData.customTextColor || '#ffffff'
-                      : '#ffffff';
+            {shareData.enabled !== false && (() => {
+              const edge = shareData.sidebarEdge || 'right';
+              const gapVal = Number(shareData.gapFromEdge ?? 0);
+              const isAttached = gapVal === 0;
+              const isCircle = shareData.iconStyle === 'circle';
+              return (
+                <div
+                  className={`absolute flex flex-col shadow-2xl transition-all ${
+                    isAttached && !isCircle ? 'gap-0' : 'gap-1.5'
+                  } ${
+                    edge === 'left'
+                      ? isAttached
+                        ? 'left-0 rounded-r-xl overflow-hidden'
+                        : 'left-3'
+                      : isAttached
+                        ? 'right-0 rounded-l-xl overflow-hidden'
+                        : 'right-3'
+                  } ${
+                    (shareData.verticalPosition || 'center') === 'top'
+                      ? 'top-8'
+                      : (shareData.verticalPosition || 'center') === 'bottom'
+                      ? 'bottom-8'
+                      : 'top-1/2 -translate-y-1/2'
+                  }`}
+                >
+                  {currentNetworks.map((id) => {
+                    const net = networks.find((n) => n.id === id);
+                    if (!net) return null;
+                    const isMinimal = shareData.iconStyle === 'minimal';
+                    const bg =
+                      shareData.colorScheme === 'custom'
+                        ? shareData.customBgColor || '#02236E'
+                        : shareData.colorScheme === 'monochrome'
+                        ? '#1e293b'
+                        : net.color;
+                    const color =
+                      shareData.colorScheme === 'custom'
+                        ? shareData.customTextColor || '#ffffff'
+                        : '#ffffff';
 
-                  return (
-                    <div
-                      key={id}
-                      style={{
-                        backgroundColor: isMinimal ? 'transparent' : bg,
-                        color: isMinimal ? net.color : color,
-                        width: `${Math.min(Math.max(shareData.iconSize || 40, 28), 44)}px`,
-                        height: `${Math.min(Math.max(shareData.iconSize || 40, 28), 44)}px`,
-                      }}
-                      className={`flex items-center justify-center shadow-md transition-transform hover:scale-110 cursor-pointer ${
-                        isCircle ? 'rounded-full' : 'rounded-lg'
-                      } ${isMinimal ? 'border border-slate-700' : ''}`}
-                      title={net.name}
-                    >
-                      <Share2 className="w-4 h-4" />
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+                    return (
+                      <div
+                        key={id}
+                        style={{
+                          backgroundColor: isMinimal ? 'transparent' : bg,
+                          color: isMinimal ? net.color : color,
+                          width: `${Math.min(Math.max(shareData.iconSize || 40, 28), 44)}px`,
+                          height: `${Math.min(Math.max(shareData.iconSize || 40, 28), 44)}px`,
+                        }}
+                        className={`flex items-center justify-center transition-transform hover:scale-105 cursor-pointer ${
+                          isCircle ? 'rounded-full' : isAttached ? 'rounded-none' : 'rounded-lg'
+                        } ${isMinimal ? 'border border-slate-700' : ''}`}
+                        title={net.name}
+                      >
+                        <Share2 className="w-4 h-4" />
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
           </div>
 
           <p className="text-[11px] text-slate-400 m-0 text-center">

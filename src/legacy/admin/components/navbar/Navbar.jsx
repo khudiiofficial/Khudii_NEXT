@@ -21,7 +21,7 @@ export const ADMIN_GROUPS = [
   { name: 'Dashboard', links: [['Overview', '', LayoutDashboard]] },
   { name: 'Content Management', links: [['Pages', 'pages', Layers], ['Organizations', 'OrganizationPage', Building2], ['Blogs', 'BlogPage', BookOpen], ['Success Stories', 'SuccessStories', HandHeart], ['Podcasts', 'Podcast', Video], ['Media Library', 'media', Image], ['FAQs', 'faqs', CircleHelp]] },
   { name: 'Site Management', links: [['Form Enquiries', 'form-enquiries', Inbox], ['SEO Center', 'seo-center', BarChart3], ['SEO Intelligence', 'seo-intelligence', Globe], ['Redirects & 404', 'redirects', ShieldCheck]] },
-  { name: 'Administration', links: [['Users & Access', 'users-roles', Users], ['Activity Logs', 'activity-logs', Activity], ['Backend Logs', 'backend-logs', ClipboardList], ['Settings', 'settings', Settings]] },
+  { name: 'Administration', links: [['Activity Logs', 'activity-logs', Activity], ['Backend Logs', 'backend-logs', ClipboardList], ['Settings', 'settings', Settings]] },
 ];
 export const ADMIN_PAGES = ADMIN_GROUPS.flatMap((group) => group.links.map(([label, slug, Icon]) => ({
   label, slug, Icon, href: slug ? `${BASE}/${slug}` : BASE, group: group.name,
@@ -144,10 +144,10 @@ export default function Sidebar({ mobileOpen = false, onClose = () => { } }) {
         className="kh-side-brand flex h-[76px] shrink-0 items-center gap-3 px-5 border-b border-white/10"
       >
         <Link href={BASE} className="flex p-4 w-full gap-2.5 overflow-hidden">
-            <img
-              src={adminLogo || siteLogo || '/Khudii.webp'}
-              alt={adminLogoAlt || 'Site Logo'}
-            />
+          <img
+            src={adminLogo || siteLogo || '/Khudii.webp'}
+            alt={adminLogoAlt || 'Site Logo'}
+          />
         </Link>
         <button
           type="button"
@@ -206,11 +206,10 @@ export default function Sidebar({ mobileOpen = false, onClose = () => { } }) {
                       onClick={onClose}
                       key={href}
                       aria-current={active ? 'page' : undefined}
-                      className={`kh-side-link group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-bold transition-all ${
-                        active
+                      className={`kh-side-link group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13px] font-bold transition-all ${active
                           ? 'kh-side-active'
                           : 'text-blue-100/85 hover:bg-white/10 hover:text-white'
-                      }`}
+                        }`}
                     >
                       <Icon
                         size={17}

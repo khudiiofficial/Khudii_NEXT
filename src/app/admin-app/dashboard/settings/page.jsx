@@ -924,7 +924,7 @@ function SettingsPageInner() {
           colorScheme: json.share_tools.colorScheme || 'brand-colors',
           customBgColor: json.share_tools.customBgColor || '#02236E',
           customTextColor: json.share_tools.customTextColor || '#ffffff',
-          gapFromEdge: json.share_tools.gapFromEdge ?? 20,
+          gapFromEdge: json.share_tools.gapFromEdge ?? 0,
           verticalPosition: json.share_tools.verticalPosition || 'center',
           sidebarEdge: json.share_tools.sidebarEdge || 'right',
           activeNetworks: Array.isArray(json.share_tools.activeNetworks) ? json.share_tools.activeNetworks : ['whatsapp', 'facebook', 'twitter', 'linkedin', 'copy'],

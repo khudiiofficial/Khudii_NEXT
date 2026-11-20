@@ -358,7 +358,7 @@ export async function cmsSaveSettings(req,res){
         doc.colorScheme=['brand-colors','monochrome','custom'].includes(doc.colorScheme)?doc.colorScheme:'brand-colors';
         doc.customBgColor=cleanString(doc.customBgColor||'#02236E',20);
         doc.customTextColor=cleanString(doc.customTextColor||'#ffffff',20);
-        doc.gapFromEdge=Number(doc.gapFromEdge)>=0?Number(doc.gapFromEdge):20;
+        doc.gapFromEdge=Number(doc.gapFromEdge)>=0?Number(doc.gapFromEdge):0;
         doc.verticalPosition=['top','center','bottom'].includes(doc.verticalPosition)?doc.verticalPosition:'center';
         doc.sidebarEdge=['left','right'].includes(doc.sidebarEdge)?doc.sidebarEdge:'right';
         doc.activeNetworks=Array.isArray(doc.activeNetworks)?doc.activeNetworks.slice(0,10).map(s=>cleanString(s,30)):['whatsapp','facebook','twitter','linkedin','copy'];

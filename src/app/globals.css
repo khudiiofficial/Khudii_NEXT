@@ -15,7 +15,33 @@ html{scroll-behavior:smooth;scroll-padding-top:6.5rem}
 .kh-dynamic-header .kh-dynamic-children{display:none}
 .kh-dynamic-header .kh-dynamic-children.kh-dynamic-open{display:block}
 @media(min-width:1024px){.kh-dynamic-item[data-depth="0"]>.kh-dynamic-children{position:absolute;top:100%;left:0;z-index:70}.kh-dynamic-item[data-depth="0"]:hover>.kh-dynamic-children,.kh-dynamic-item[data-depth="0"]:focus-within>.kh-dynamic-children{display:block}.kh-dynamic-item[data-depth]:not([data-depth="0"])>.kh-dynamic-children{position:absolute;left:100%;top:0;z-index:80}.kh-dynamic-item[data-depth]:not([data-depth="0"]):hover>.kh-dynamic-children,.kh-dynamic-item[data-depth]:not([data-depth="0"]):focus-within>.kh-dynamic-children{display:block}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{scroll-animation-duration:0.01ms!important;animation-duration:0.01ms!important;transition-duration:0.01ms!important}}
+/* Accessible Reduced Motion:
+   Disables jarring viewport motion and decorative animations without causing
+   infinite loading spinners to strobe at 100,000 RPM or freeze. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Preserve calm, continuous spinning for status and loading spinners */
+  .animate-spin,
+  [class*="animate-spin"],
+  .spinner,
+  .loading-spinner,
+  .loader,
+  .swal2-loading,
+  [data-loading="true"] {
+    animation-duration: 1s !important;
+    animation-iteration-count: infinite !important;
+  }
+}
 
 /* Header Desktop / Mobile Viewport Action Enforcement */
 @media (min-width: 768px) {

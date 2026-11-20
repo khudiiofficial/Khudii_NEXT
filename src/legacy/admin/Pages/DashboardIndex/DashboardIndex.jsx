@@ -175,7 +175,7 @@ export default function DashboardIndex() {
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
-            <div className="rounded-xl bg-white/10 p-1 backdrop-blur-xs">
+            <div className="rounded-xl bg-white p-1 backdrop-blur-xs">
               <ReportingRangeSelect value={days} onChange={setDays} />
             </div>
             <button
